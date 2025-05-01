@@ -1,16 +1,38 @@
-# once_upon_a_line
+# 📖 onceuponaline
 
-A new Flutter project.
+**24시간 동안 오직 한 문장만 쓸 수 있는 릴레이 소설 앱**
 
-## Getting Started
+---
 
-This project is a starting point for a Flutter application.
+## ✨ 소개
 
-A few resources to get you started if this is your first Flutter project:
+- 매일 한 문장.  
+- 오직 마침표(`.`) 기준으로 한 문장만 입력 가능.  
+- 작성한 문장은 수정, 삭제, 순서 변경이 불가합니다.  
+- 혼자 또는 여러 명이 이어서 한 편의 이야기를 만들어 갑니다.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+---
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## 🎯 주요 기능
+
+- 하루에 한 문장 입력
+- 마침표(`.`) 기준 문장 구분
+- 작성 후 수정/삭제/변경 불가
+- 릴레이 방식으로 문장이 이어짐
+- 개인 또는 그룹 모드 지원 (추후)
+
+---
+
+## 🛠️ 개발 환경
+
+- **Flutter**
+- **Dart**
+
+---
+
+## 🚀 앞으로 추가하고 싶은 기능
+
+- 그룹 초대 및 공유
+- 알림 기능 (오늘 문장 쓰기 리마인드)
+- 히스토리 타임라인 뷰
+- 릴레이 소설 마무리 기능
