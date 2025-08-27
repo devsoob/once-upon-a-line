@@ -1,3 +1,1 @@
-export 'app/app.dart';
-export 'core/core.dart';
-export 'features/features.dart';
+// Intentionally left minimal for future package-style exports.
