@@ -1,6 +1,8 @@
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'features/write/data/local_line_repository.dart';
+import 'features/works/data/works_repository.dart';
+import 'features/sentences/data/sentences_repository.dart';
 
 final GetIt di = GetIt.instance;
 
@@ -10,6 +12,10 @@ class DiConfig {
     di.registerSingleton<SharedPreferences>(prefs);
     di.registerLazySingleton<LocalLineRepository>(
       () => LocalLineRepository(di<SharedPreferences>()),
+    );
+    di.registerLazySingleton<WorksRepository>(() => LocalWorksRepository(di<SharedPreferences>()));
+    di.registerLazySingleton<SentencesRepository>(
+      () => LocalSentencesRepository(di<SharedPreferences>()),
     );
   }
 }
