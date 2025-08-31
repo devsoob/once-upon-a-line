@@ -95,14 +95,16 @@ class _WorkDetailPageState extends State<WorkDetailPage> {
                     child:
                         _sentences.isEmpty
                             ? const Center(child: Text('첫 문장을 시작해 보세요.'))
-                            : ListView.separated(
+                            : SingleChildScrollView(
                               padding: const EdgeInsets.all(16),
-                              itemBuilder: (BuildContext context, int index) {
-                                final SentenceDto s = _sentences[index];
-                                return Text(s.content, style: const TextStyle(fontSize: 16));
-                              },
-                              separatorBuilder: (_, __) => const SizedBox(height: 12),
-                              itemCount: _sentences.length,
+                              child: Align(
+                                alignment: Alignment.topLeft,
+                                child: Text(
+                                  _sentences.map((s) => s.content).join(' '),
+                                  style: const TextStyle(fontSize: 16),
+                                  textAlign: TextAlign.left,
+                                ),
+                              ),
                             ),
                   ),
                   Padding(
