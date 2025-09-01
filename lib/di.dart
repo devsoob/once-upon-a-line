@@ -1,8 +1,8 @@
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'features/write/data/local_line_repository.dart';
-import 'features/works/data/works_repository.dart';
-import 'features/sentences/data/sentences_repository.dart';
+import 'features/work/data/local_line_repository.dart';
+import 'app/data/works_repository.dart';
+import 'app/data/sentences_repository.dart';
 
 final GetIt di = GetIt.instance;
 

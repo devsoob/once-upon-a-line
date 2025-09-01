@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/works/presentation/pages/works_home_page.dart';
-import '../../features/works/presentation/pages/work_detail_page.dart';
-import '../../features/works/data/works_repository.dart';
+import '../../features/work/presentation/pages/work_detail_page.dart';
+import '../../app/data/works_repository.dart';
 
 class AppRouter {
   AppRouter._();
