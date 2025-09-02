@@ -155,7 +155,7 @@ class _BookTile extends StatelessWidget {
                 child: Center(
                   child: Icon(
                     Icons.menu_book_rounded,
-                    color: theme.colorScheme.primary.withAlpha(6),
+                    color: theme.colorScheme.primary.withAlpha(100),
                     size: 40,
                   ),
                 ),
