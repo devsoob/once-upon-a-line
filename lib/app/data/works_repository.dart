@@ -26,6 +26,7 @@ abstract class WorksRepository {
   Future<List<WorkDto>> getWorks();
   Future<WorkDto> createWork({required String title});
   Future<void> deleteWork(String workId);
+  Future<void> renameWork({required String workId, required String newTitle});
 }
 
 class LocalWorksRepository implements WorksRepository {
@@ -72,6 +73,23 @@ class LocalWorksRepository implements WorksRepository {
   Future<void> deleteWork(String workId) async {
     final List<WorkDto> works = await getWorks();
     works.removeWhere((WorkDto w) => w.id == workId);
+    await _saveWorks(works);
+  }
+
+  @override
+  Future<void> renameWork({required String workId, required String newTitle}) async {
+    final List<WorkDto> works = await getWorks();
+    for (int i = 0; i < works.length; i++) {
+      if (works[i].id == workId) {
+        final WorkDto updated = WorkDto(
+          id: works[i].id,
+          title: newTitle,
+          createdAtEpochMs: works[i].createdAtEpochMs,
+        );
+        works[i] = updated;
+        break;
+      }
+    }
     await _saveWorks(works);
   }
 }

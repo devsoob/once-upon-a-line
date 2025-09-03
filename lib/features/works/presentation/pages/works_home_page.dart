@@ -63,6 +63,89 @@ class _WorksHomePageState extends State<WorksHomePage> {
     context.push('/work/${work.id}', extra: work);
   }
 
+  Future<void> _renameWork(WorkDto work) async {
+    final TextEditingController controller = TextEditingController(text: work.title);
+    final String? newTitle = await showDialog<String>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('작품 이름 수정'),
+          content: TextField(
+            controller: controller,
+            decoration: const InputDecoration(hintText: '새 작품 이름 입력'),
+          ),
+          actions: <Widget>[
+            TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('취소')),
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(controller.text.trim()),
+              child: const Text('확인'),
+            ),
+          ],
+        );
+      },
+    );
+    if (newTitle == null || newTitle.isEmpty || newTitle == work.title) return;
+    await _repo.renameWork(workId: work.id, newTitle: newTitle);
+    await _load();
+  }
+
+  Future<void> _deleteWork(WorkDto work) async {
+    final bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('작품 삭제'),
+          content: Text('정말 "${work.title}" 을(를) 삭제할까요? 되돌릴 수 없습니다.'),
+          actions: <Widget>[
+            TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('취소')),
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              style: FilledButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.error),
+              child: const Text('삭제'),
+            ),
+          ],
+        );
+      },
+    );
+    if (confirm != true) return;
+    await _repo.deleteWork(work.id);
+    await _load();
+  }
+
+  void _showWorkActions(WorkDto work) {
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              ListTile(
+                leading: const Icon(Icons.edit),
+                title: const Text('이름 수정'),
+                onTap: () async {
+                  Navigator.of(context).pop();
+                  await _renameWork(work);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.delete_outline),
+                title: const Text('삭제'),
+                textColor: Theme.of(context).colorScheme.error,
+                iconColor: Theme.of(context).colorScheme.error,
+                onTap: () async {
+                  Navigator.of(context).pop();
+                  await _deleteWork(work);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -92,7 +175,17 @@ class _WorksHomePageState extends State<WorksHomePage> {
                   itemCount: _works.length,
                   itemBuilder: (BuildContext context, int index) {
                     final WorkDto work = _works[index];
-                    return _BookTile(title: work.title, onTap: () => _openWork(work));
+                    return _BookTile(
+                      title: work.title,
+                      onTap: () => _openWork(work),
+                      onLongPress: () => _showWorkActions(work),
+                      actionsBuilder:
+                          (BuildContext context) => IconButton(
+                            icon: const Icon(Icons.more_vert),
+                            onPressed: () => _showWorkActions(work),
+                            tooltip: '메뉴',
+                          ),
+                    );
                   },
                 ),
               ),
@@ -116,16 +209,24 @@ class _WorksHomePageState extends State<WorksHomePage> {
 }
 
 class _BookTile extends StatelessWidget {
-  const _BookTile({required this.title, required this.onTap});
+  const _BookTile({
+    required this.title,
+    required this.onTap,
+    this.onLongPress,
+    this.actionsBuilder,
+  });
 
   final String title;
   final VoidCallback onTap;
+  final VoidCallback? onLongPress;
+  final WidgetBuilder? actionsBuilder;
 
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     return GestureDetector(
       onTap: onTap,
+      onLongPress: onLongPress,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
@@ -152,12 +253,18 @@ class _BookTile extends StatelessWidget {
                     ),
                   ],
                 ),
-                child: Center(
-                  child: Icon(
-                    Icons.menu_book_rounded,
-                    color: theme.colorScheme.primary.withAlpha(100),
-                    size: 40,
-                  ),
+                child: Stack(
+                  children: <Widget>[
+                    Center(
+                      child: Icon(
+                        Icons.menu_book_rounded,
+                        color: theme.colorScheme.primary.withAlpha(100),
+                        size: 40,
+                      ),
+                    ),
+                    if (actionsBuilder != null)
+                      Positioned(top: 4, right: 4, child: actionsBuilder!(context)),
+                  ],
                 ),
               ),
             ),
