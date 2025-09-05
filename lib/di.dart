@@ -1,21 +1,62 @@
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'features/work/data/local_line_repository.dart';
-import 'app/data/works_repository.dart';
-import 'app/data/sentences_repository.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'app/data/repositories/story_room_repository.dart';
+import 'app/data/repositories/local_story_room_repository.dart';
+import 'app/data/repositories/story_sentence_repository.dart';
+import 'app/data/repositories/local_story_sentence_repository.dart';
+import 'app/data/services/user_session_service.dart';
 
 final GetIt di = GetIt.instance;
+bool _isFirebaseInitialized = false;
 
 class DiConfig {
   static Future<void> init() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final FirebaseFirestore firestore = FirebaseFirestore.instance;
+
     di.registerSingleton<SharedPreferences>(prefs);
-    di.registerLazySingleton<LocalLineRepository>(
-      () => LocalLineRepository(di<SharedPreferences>()),
+    di.registerSingleton<FirebaseFirestore>(firestore);
+    _isFirebaseInitialized = true;
+
+    // No legacy local repositories required in Firebase mode
+
+    // New Firebase repositories
+    di.registerLazySingleton<StorySentenceRepository>(
+      () => FirebaseStorySentenceRepository(di<FirebaseFirestore>()),
     );
-    di.registerLazySingleton<WorksRepository>(() => LocalWorksRepository(di<SharedPreferences>()));
-    di.registerLazySingleton<SentencesRepository>(
-      () => LocalSentencesRepository(di<SharedPreferences>()),
+    di.registerLazySingleton<StoryRoomRepository>(
+      () => FirebaseStoryRoomRepository(di<FirebaseFirestore>()),
+    );
+
+    // Services
+    di.registerLazySingleton<UserSessionService>(
+      () => LocalUserSessionService(di<SharedPreferences>()),
     );
   }
+
+  static Future<void> initWithoutFirebase() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    di.registerSingleton<SharedPreferences>(prefs);
+
+    // No legacy local repositories required in local-only mode beyond story fallbacks
+
+    // Local story room repository (Firebase fallback)
+    di.registerLazySingleton<LocalStoryRoomRepository>(
+      () => LocalStoryRoomRepository(di<SharedPreferences>()),
+    );
+
+    // Local story sentence repository (Firebase fallback)
+    di.registerLazySingleton<LocalStorySentenceRepository>(
+      () => LocalStorySentenceRepository(di<SharedPreferences>()),
+    );
+
+    // Services
+    di.registerLazySingleton<UserSessionService>(
+      () => LocalUserSessionService(di<SharedPreferences>()),
+    );
+  }
+
+  static bool get isFirebaseInitialized => _isFirebaseInitialized;
 }
