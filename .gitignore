@@ -45,3 +45,21 @@ app.*.map.json
 /android/app/release
 
 .env.*
+
+# Firebase & platform configs
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
+
+# Secrets and keys
+.env
+.env.local
+.env.development
+.env.production
+**/secrets.*
+**/*keystore*
+**/*.keystore
+**/*.jks
+**/*.p12
+**/*.pem
+**/*.key
+**/*.crt
