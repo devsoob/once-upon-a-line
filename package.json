@@ -1,0 +1,19 @@
+{
+  "name": "once-upon-a-line",
+  "version": "1.0.0",
+  "description": "Flutter Firebase 프로젝트",
+  "scripts": {
+    "dev": "./scripts/dev.sh",
+    "deploy": "./scripts/deploy.sh",
+    "emulators": "firebase emulators:start",
+    "emulators:ui": "firebase emulators:start --only ui",
+    "firestore:rules": "firebase deploy --only firestore:rules",
+    "firestore:indexes": "firebase deploy --only firestore:indexes",
+    "hosting": "firebase deploy --only hosting",
+    "build": "flutter build web --release",
+    "clean": "flutter clean && flutter pub get"
+  },
+  "devDependencies": {
+    "firebase-tools": "^14.15.2"
+  }
+}
