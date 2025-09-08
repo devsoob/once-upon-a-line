@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:once_upon_a_line/core/design_system/colors.dart';
 import 'package:get_it/get_it.dart';
 import 'package:once_upon_a_line/app/data/repositories/story_room_repository.dart';
 import 'package:once_upon_a_line/app/data/repositories/local_story_room_repository.dart';
@@ -110,7 +111,7 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
                   children: [
                     CircleAvatar(
                       radius: 20,
-                      backgroundColor: const Color(0xFF3498DB),
+                      backgroundColor: AppColors.primary,
                       child: Text(
                         _nickname.isNotEmpty ? _nickname[0].toUpperCase() : '?',
                         style: const TextStyle(
@@ -130,7 +131,7 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
-                              color: Color(0xFF2C3E50),
+                              color: AppColors.textPrimary,
                             ),
                           ),
                           const Text(
@@ -178,11 +179,11 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
         elevation: 0,
         title: const Text(
           'Once Upon A Line',
-          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 24, color: Color(0xFF2C3E50)),
+          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 24, color: AppColors.textPrimary),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.person_outline, color: Color(0xFF2C3E50)),
+            icon: Icon(Icons.person_outline, color: AppColors.textPrimary),
             onPressed: _showProfileDialog,
           ),
         ],
@@ -197,7 +198,7 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
               child: ElevatedButton(
                 onPressed: _createRoom,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF3498DB),
+                  backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
@@ -223,7 +224,7 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFF2C3E50),
+                      color: AppColors.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -316,7 +317,7 @@ class _StoryRoomCard extends StatelessWidget {
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
-                        color: Color(0xFF2C3E50),
+                        color: AppColors.textPrimary,
                       ),
                     ),
                   ),
@@ -341,7 +342,7 @@ class _StoryRoomCard extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   room.description,
-                  style: const TextStyle(fontSize: 14, color: Color(0xFF7F8C8D), height: 1.4),
+                  style: const TextStyle(fontSize: 14, color: AppColors.textSecondary, height: 1.4),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -351,7 +352,7 @@ class _StoryRoomCard extends StatelessWidget {
                 children: [
                   CircleAvatar(
                     radius: 12,
-                    backgroundColor: const Color(0xFF3498DB),
+                    backgroundColor: AppColors.primary,
                     child: Text(
                       room.creatorNickname.isNotEmpty ? room.creatorNickname[0].toUpperCase() : '?',
                       style: const TextStyle(
@@ -367,7 +368,7 @@ class _StoryRoomCard extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
-                      color: Color(0xFF2C3E50),
+                      color: AppColors.textPrimary,
                     ),
                   ),
                   const Spacer(),

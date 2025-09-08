@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:once_upon_a_line/core/design_system/colors.dart';
 import 'package:get_it/get_it.dart';
 import 'package:once_upon_a_line/app/data/repositories/story_sentence_repository.dart';
 import 'package:once_upon_a_line/app/data/repositories/local_story_sentence_repository.dart';
@@ -110,7 +111,7 @@ class _StoryRoomDetailPageState extends State<StoryRoomDetailPage> {
           style: const TextStyle(
             fontWeight: FontWeight.w700,
             fontSize: 20,
-            color: Color(0xFF2C3E50),
+            color: AppColors.textPrimary,
           ),
         ),
       ),
@@ -162,7 +163,7 @@ class _StoryRoomDetailPageState extends State<StoryRoomDetailPage> {
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
-                                color: Color(0xFF2C3E50),
+                                color: AppColors.textPrimary,
                               ),
                             ),
                             Text(
@@ -238,7 +239,7 @@ class _StoryRoomDetailPageState extends State<StoryRoomDetailPage> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFF3498DB), width: 2),
+                border: Border.all(color: AppColors.primary, width: 2),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withAlpha(13),
@@ -257,10 +258,10 @@ class _StoryRoomDetailPageState extends State<StoryRoomDetailPage> {
                     child: TextField(
                       controller: _sentenceController,
                       maxLines: 3,
-                      style: const TextStyle(fontSize: 16, color: Color(0xFF2C3E50)),
+                      style: const TextStyle(fontSize: 16, color: AppColors.textPrimary),
                       decoration: const InputDecoration(
                         hintText: '마침표(.)로 끝나는 한 문장을 작성해주세요...',
-                        hintStyle: TextStyle(color: Color(0xFFBDC3C7)),
+                        hintStyle: TextStyle(color: AppColors.hint),
                         border: InputBorder.none,
                         enabledBorder: InputBorder.none,
                         focusedBorder: InputBorder.none,
@@ -275,13 +276,13 @@ class _StoryRoomDetailPageState extends State<StoryRoomDetailPage> {
                     children: [
                       Text(
                         '닉네임: $_nickname',
-                        style: const TextStyle(fontSize: 14, color: Color(0xFF7F8C8D)),
+                        style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
                       ),
                       const Spacer(),
                       ElevatedButton(
                         onPressed: _isLoading ? null : _addSentence,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF3498DB),
+                          backgroundColor: AppColors.primary,
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -372,7 +373,7 @@ class _SentenceWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: isMySentence ? const Color(0xFFE3F2FD) : const Color(0xFFF5F5F5),
         borderRadius: BorderRadius.circular(12),
-        border: isMySentence ? Border.all(color: const Color(0xFF3498DB), width: 1) : null,
+        border: isMySentence ? Border.all(color: AppColors.primary, width: 1) : null,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -381,7 +382,7 @@ class _SentenceWidget extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 12,
-                backgroundColor: isMySentence ? const Color(0xFF3498DB) : const Color(0xFF95A5A6),
+                backgroundColor: isMySentence ? AppColors.primary : const Color(0xFF95A5A6),
                 child: Text(
                   sentence.authorNickname.isNotEmpty
                       ? sentence.authorNickname[0].toUpperCase()
@@ -399,7 +400,7 @@ class _SentenceWidget extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
-                  color: isMySentence ? const Color(0xFF3498DB) : const Color(0xFF7F8C8D),
+                  color: isMySentence ? AppColors.primary : const Color(0xFF7F8C8D),
                 ),
               ),
               const Spacer(),
@@ -412,7 +413,7 @@ class _SentenceWidget extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             sentence.content,
-            style: const TextStyle(fontSize: 16, color: Color(0xFF2C3E50), height: 1.5),
+            style: const TextStyle(fontSize: 16, color: AppColors.textPrimary, height: 1.5),
           ),
         ],
       ),

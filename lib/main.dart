@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'di.dart';
 import 'core/routers/app_router.dart';
+import 'core/design_system/colors.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,9 +29,9 @@ class OnceUponALineApp extends StatelessWidget {
     // 시스템 UI 스타일 지정
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
-        statusBarColor: Colors.white,
-        statusBarIconBrightness: Brightness.dark,
-        statusBarBrightness: Brightness.light,
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
         systemNavigationBarColor: Colors.white,
         systemNavigationBarDividerColor: Colors.white,
         systemNavigationBarIconBrightness: Brightness.dark,
@@ -41,16 +42,16 @@ class OnceUponALineApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Once Upon A Line',
       theme: ThemeData(
-        scaffoldBackgroundColor: Colors.white,
+        scaffoldBackgroundColor: AppColors.background,
         fontFamily: 'Pretendard',
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF3498DB),
-          primary: const Color(0xFF3498DB),
-          secondary: const Color(0xFF2C3E50),
-          surface: Colors.white,
+          seedColor: AppColors.primary,
+          primary: AppColors.primary,
+          secondary: AppColors.logoEnd,
+          surface: AppColors.surface,
           onPrimary: Colors.white,
           onSecondary: Colors.white,
-          onSurface: const Color(0xFF2C3E50),
+          onSurface: AppColors.textPrimary,
         ),
         appBarTheme: const AppBarTheme(
           backgroundColor: Colors.white,
@@ -92,7 +93,7 @@ class OnceUponALineApp extends StatelessWidget {
             fontFamily: 'Pretendard',
             fontWeight: FontWeight.w600,
             fontSize: 16,
-            color: Color(0xFF3498DB),
+            color: AppColors.primary,
           ),
         ),
         inputDecorationTheme: InputDecorationTheme(
@@ -109,13 +110,13 @@ class OnceUponALineApp extends StatelessWidget {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
-            borderSide: const BorderSide(color: Color(0xFF3498DB), width: 2),
+            borderSide: const BorderSide(color: AppColors.primary, width: 2),
           ),
           hintStyle: const TextStyle(color: Color(0xFFB0B8C1)),
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF3498DB),
+            backgroundColor: AppColors.primary,
             foregroundColor: Colors.white,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             textStyle: const TextStyle(
@@ -127,12 +128,12 @@ class OnceUponALineApp extends StatelessWidget {
           ),
         ),
         floatingActionButtonTheme: const FloatingActionButtonThemeData(
-          backgroundColor: Color(0xFF3498DB),
+          backgroundColor: AppColors.primary,
           foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(16))),
         ),
         cardTheme: CardTheme(
-          color: Colors.white,
+          color: AppColors.surface,
           elevation: 2,
           margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 0),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),

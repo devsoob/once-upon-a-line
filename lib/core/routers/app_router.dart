@@ -3,12 +3,21 @@ import 'package:go_router/go_router.dart';
 import 'package:once_upon_a_line/features/story_rooms/presentation/pages/story_rooms_home_page.dart';
 import 'package:once_upon_a_line/features/story_rooms/presentation/pages/story_room_detail_page.dart';
 import 'package:once_upon_a_line/app/data/models/story_room.dart';
+import 'package:once_upon_a_line/features/splash/presentation/pages/splash_page.dart';
 
 class AppRouter {
   AppRouter._();
 
   static final GoRouter router = GoRouter(
+    initialLocation: '/splash',
     routes: <RouteBase>[
+      GoRoute(
+        path: '/splash',
+        name: 'splash',
+        pageBuilder: (BuildContext context, GoRouterState state) {
+          return const MaterialPage<void>(child: SplashPage());
+        },
+      ),
       GoRoute(
         path: '/',
         name: 'home',

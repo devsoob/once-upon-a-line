@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:once_upon_a_line/core/design_system/colors.dart';
 import 'package:get_it/get_it.dart';
 import '../../../../app/data/repositories/story_room_repository.dart';
 import '../../../../app/data/repositories/local_story_room_repository.dart';
@@ -83,7 +84,11 @@ class _CreateRoomDialogState extends State<CreateRoomDialog> {
           children: [
             const Text(
               '새 이야기 만들기',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: Color(0xFF2C3E50)),
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                color: AppColors.textPrimary,
+              ),
             ),
             const SizedBox(height: 20),
             TextField(
@@ -94,7 +99,7 @@ class _CreateRoomDialogState extends State<CreateRoomDialog> {
                 border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(12)),
-                  borderSide: BorderSide(color: Color(0xFF3498DB), width: 2),
+                  borderSide: BorderSide(color: AppColors.primary, width: 2),
                 ),
               ),
               maxLength: 50,
@@ -108,7 +113,7 @@ class _CreateRoomDialogState extends State<CreateRoomDialog> {
                 border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(12)),
-                  borderSide: BorderSide(color: Color(0xFF3498DB), width: 2),
+                  borderSide: BorderSide(color: AppColors.primary, width: 2),
                 ),
               ),
               maxLines: 3,
@@ -125,7 +130,7 @@ class _CreateRoomDialogState extends State<CreateRoomDialog> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
-                        color: Color(0xFF7F8C8D),
+                        color: AppColors.textSecondary,
                       ),
                     ),
                   ),
@@ -135,7 +140,7 @@ class _CreateRoomDialogState extends State<CreateRoomDialog> {
                   child: ElevatedButton(
                     onPressed: _isLoading ? null : _createRoom,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF3498DB),
+                      backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       padding: const EdgeInsets.symmetric(vertical: 16),
