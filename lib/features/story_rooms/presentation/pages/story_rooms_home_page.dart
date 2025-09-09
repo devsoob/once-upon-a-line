@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:once_upon_a_line/core/design_system/colors.dart';
+import 'package:once_upon_a_line/core/widgets/app_logo.dart';
+import 'package:once_upon_a_line/core/widgets/profile_icon.dart';
 import 'package:get_it/get_it.dart';
 import 'package:once_upon_a_line/app/data/repositories/story_room_repository.dart';
 import 'package:once_upon_a_line/app/data/repositories/local_story_room_repository.dart';
@@ -177,16 +180,29 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: const Text(
-          'Once Upon A Line',
-          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 24, color: AppColors.textPrimary),
+        centerTitle: false,
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const AppLogo(width: 36),
+            const SizedBox(width: 8),
+            Text(
+              'Once Upon A Line',
+              style: GoogleFonts.dancingScript(
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+                color: AppColors.primary,
+              ),
+            ),
+          ],
         ),
         actions: [
-          IconButton(
-            icon: Icon(Icons.person_outline, color: AppColors.textPrimary),
-            onPressed: _showProfileDialog,
+          Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: ProfileIcon(onPressed: _showProfileDialog, size: 28),
           ),
         ],
+        titleSpacing: 16,
       ),
       body: Column(
         children: [
