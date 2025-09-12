@@ -10,9 +10,10 @@ class AppColors {
   static const Color logoEnd = Color(0xFFA853FF); // #a853ff
 
   // Primary palette selections
-  static const Color primary = logoMid; // vibrant mid-pink
-  static const Color primaryDark = Color(0xFFCC3764);
-  static const Color primaryLight = Color(0xFFFF9AB2);
+  // Softer pink-coral midpoint, less saturated
+  static const Color primary = Color(0xFFFF6D84);
+  static const Color primaryDark = Color(0xFFE2576E);
+  static const Color primaryLight = Color(0xFFFFB8C4);
 
   static const Color background = Colors.white;
   static const Color surface = Colors.white;
