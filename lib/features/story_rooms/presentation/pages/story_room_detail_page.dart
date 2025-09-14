@@ -102,7 +102,7 @@ class _StoryRoomDetailPageState extends State<StoryRoomDetailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -118,105 +118,12 @@ class _StoryRoomDetailPageState extends State<StoryRoomDetailPage> {
       body: SafeArea(
         child: Column(
           children: [
-            // Room Info Card
-            Container(
-              width: double.infinity,
-              margin: const EdgeInsets.all(16),
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withAlpha(13),
-                    blurRadius: 10,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 20,
-                        backgroundColor: const Color(0xFF3498DB),
-                        child: Text(
-                          widget.room.creatorNickname.isNotEmpty
-                              ? widget.room.creatorNickname[0].toUpperCase()
-                              : '?',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              widget.room.creatorNickname,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.textPrimary,
-                              ),
-                            ),
-                            Text(
-                              '${widget.room.participants.length}명 참여',
-                              style: const TextStyle(fontSize: 14, color: Color(0xFF7F8C8D)),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFE8F5E8),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          '${widget.room.totalSentences}줄',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFF27AE60),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  if (widget.room.description.isNotEmpty) ...[
-                    const SizedBox(height: 12),
-                    Text(
-                      widget.room.description,
-                      style: const TextStyle(fontSize: 14, color: Color(0xFF7F8C8D), height: 1.4),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-
-            // Story Content
+            // Story Content - Full width book-like layout
             Expanded(
               child: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 16),
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withAlpha(13),
-                      blurRadius: 10,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
+                width: double.infinity,
+                padding: const EdgeInsets.all(24),
+                decoration: const BoxDecoration(color: Colors.white),
                 child:
                     DiConfig.isFirebaseInitialized
                         ? StreamBuilder<List<StorySentence>>(
@@ -345,93 +252,34 @@ class _StoryRoomDetailPageState extends State<StoryRoomDetailPage> {
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children:
-            sentences
-                .map(
-                  (sentence) => _SentenceWidget(
-                    sentence: sentence,
-                    isMySentence: sentence.authorNickname == _nickname,
-                  ),
-                )
-                .toList(),
-      ),
-    );
-  }
-}
-
-class _SentenceWidget extends StatelessWidget {
-  const _SentenceWidget({required this.sentence, required this.isMySentence});
-
-  final StorySentence sentence;
-  final bool isMySentence;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: isMySentence ? const Color(0xFFE3F2FD) : const Color(0xFFF5F5F5),
-        borderRadius: BorderRadius.circular(12),
-        border: isMySentence ? Border.all(color: AppColors.primary, width: 1) : null,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              CircleAvatar(
-                radius: 12,
-                backgroundColor: isMySentence ? AppColors.primary : const Color(0xFF95A5A6),
-                child: Text(
-                  sentence.authorNickname.isNotEmpty
-                      ? sentence.authorNickname[0].toUpperCase()
-                      : '?',
-                  style: const TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                sentence.authorNickname,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: isMySentence ? AppColors.primary : const Color(0xFF7F8C8D),
-                ),
-              ),
-              const Spacer(),
-              Text(
-                _formatDate(sentence.createdAt),
-                style: const TextStyle(fontSize: 11, color: Color(0xFF95A5A6)),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            sentence.content,
-            style: const TextStyle(fontSize: 16, color: AppColors.textPrimary, height: 1.5),
+          // Book-like story content
+          Text.rich(
+            TextSpan(
+              children:
+                  sentences.asMap().entries.map((entry) {
+                    final int index = entry.key;
+                    final StorySentence sentence = entry.value;
+
+                    return TextSpan(
+                      children: [
+                        TextSpan(
+                          text: sentence.content,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            height: 1.8,
+                            color: AppColors.textPrimary,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                        if (index < sentences.length - 1) const TextSpan(text: ' '),
+                      ],
+                    );
+                  }).toList(),
+            ),
           ),
         ],
       ),
     );
-  }
-
-  String _formatDate(DateTime date) {
-    final DateTime now = DateTime.now();
-    final Duration difference = now.difference(date);
-
-    if (difference.inDays > 0) {
-      return '${difference.inDays}일 전';
-    } else if (difference.inHours > 0) {
-      return '${difference.inHours}시간 전';
-    } else if (difference.inMinutes > 0) {
-      return '${difference.inMinutes}분 전';
-    } else {
-      return '방금 전';
-    }
   }
 }
