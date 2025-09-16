@@ -23,6 +23,26 @@ class _StoryRoomDetailPageState extends State<StoryRoomDetailPage> {
   final TextEditingController _sentenceController = TextEditingController();
   String _nickname = '게스트';
   bool _isLoading = false;
+  final Map<String, Color> _nicknameToColor = <String, Color>{};
+  static const List<Color> _authorPalette = <Color>[
+    Color(0xFFDB4C40), // red coral
+    Color(0xFF3AA6B9), // teal blue
+    Color(0xFF7B9ACC), // periwinkle
+    Color(0xFF5CBA47), // green
+    Color(0xFFFFA726), // orange
+    Color(0xFF8E24AA), // purple
+    Color(0xFF26C6DA), // cyan
+    Color(0xFFFF7043), // deep orange
+  ];
+
+  Color _colorForAuthor(String nickname) {
+    if (_nicknameToColor.containsKey(nickname)) return _nicknameToColor[nickname]!;
+    // Deterministic index based on nickname hashCode so colors are stable across rebuilds
+    final int index = nickname.hashCode.abs() % _authorPalette.length;
+    final Color color = _authorPalette[index];
+    _nicknameToColor[nickname] = color;
+    return color;
+  }
 
   @override
   void initState() {
@@ -118,98 +138,89 @@ class _StoryRoomDetailPageState extends State<StoryRoomDetailPage> {
       body: SafeArea(
         child: Column(
           children: [
-            // Story Content - Full width book-like layout
+            // Story Content - light grey and scrollable
             Expanded(
               child: Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(24),
-                decoration: const BoxDecoration(color: Colors.white),
-                child:
-                    DiConfig.isFirebaseInitialized
-                        ? StreamBuilder<List<StorySentence>>(
-                          stream: GetIt.I<StorySentenceRepository>().getSentences(widget.room.id),
-                          builder: (context, snapshot) => _buildSentencesList(snapshot),
-                        )
-                        : FutureBuilder<List<StorySentence>>(
-                          future: GetIt.I<LocalStorySentenceRepository>().getSentences(
-                            widget.room.id,
+                color: const Color(0xFFF8F9FA),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+                  child:
+                      DiConfig.isFirebaseInitialized
+                          ? StreamBuilder<List<StorySentence>>(
+                            stream: GetIt.I<StorySentenceRepository>().getSentences(widget.room.id),
+                            builder: (context, snapshot) => _buildSentencesList(snapshot),
+                          )
+                          : FutureBuilder<List<StorySentence>>(
+                            future: GetIt.I<LocalStorySentenceRepository>().getSentences(
+                              widget.room.id,
+                            ),
+                            builder: (context, snapshot) => _buildSentencesList(snapshot),
                           ),
-                          builder: (context, snapshot) => _buildSentencesList(snapshot),
-                        ),
+                ),
               ),
             ),
 
-            // Input Section
+            // Bottom input and button fixed on white background
             Container(
-              margin: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.primary, width: 2),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withAlpha(13),
+                    color: Colors.black.withValues(alpha: 0.06),
                     blurRadius: 10,
-                    offset: const Offset(0, 2),
+                    offset: const Offset(0, -2),
                   ),
                 ],
               ),
+              padding: EdgeInsets.only(
+                left: 16,
+                right: 16,
+                top: 12,
+                bottom: MediaQuery.of(context).padding.bottom > 0 ? 8 : 16,
+              ),
               child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: TextField(
-                      controller: _sentenceController,
-                      maxLines: 3,
-                      style: const TextStyle(fontSize: 16, color: AppColors.textPrimary),
-                      decoration: const InputDecoration(
-                        hintText: '마침표(.)로 끝나는 한 문장을 작성해주세요...',
-                        hintStyle: TextStyle(color: AppColors.hint),
-                        border: InputBorder.none,
-                        enabledBorder: InputBorder.none,
-                        focusedBorder: InputBorder.none,
-                        contentPadding: EdgeInsets.zero,
-                        filled: true,
-                        fillColor: Colors.white,
+                  TextField(
+                    controller: _sentenceController,
+                    maxLines: 2,
+                    style: const TextStyle(fontSize: 16, color: AppColors.textPrimary),
+                    decoration: InputDecoration(
+                      hintText: '마침표(.)로 끝나는 한 문장을 작성해주세요...',
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: const BorderSide(color: Color(0xFFE5E8EB), width: 1),
                       ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: const BorderSide(color: AppColors.primary, width: 2),
+                      ),
+                      filled: true,
+                      fillColor: Colors.white,
+                      contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Text(
-                        '닉네임: $_nickname',
-                        style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
+                  const SizedBox(height: 14),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: _isLoading ? null : _addSentence,
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 24),
                       ),
-                      const Spacer(),
-                      ElevatedButton(
-                        onPressed: _isLoading ? null : _addSentence,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                        ),
-                        child:
-                            _isLoading
-                                ? const SizedBox(
-                                  height: 16,
-                                  width: 16,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                  ),
-                                )
-                                : const Text(
-                                  '추가',
-                                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                      child:
+                          _isLoading
+                              ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                                 ),
-                      ),
-                    ],
+                              )
+                              : const Text('추가'),
+                    ),
                   ),
                 ],
               ),
@@ -253,22 +264,22 @@ class _StoryRoomDetailPageState extends State<StoryRoomDetailPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Book-like story content
           Text.rich(
             TextSpan(
               children:
                   sentences.asMap().entries.map((entry) {
                     final int index = entry.key;
                     final StorySentence sentence = entry.value;
+                    final Color authorColor = _colorForAuthor(sentence.authorNickname);
 
                     return TextSpan(
                       children: [
                         TextSpan(
                           text: sentence.content,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 18,
                             height: 1.8,
-                            color: AppColors.textPrimary,
+                            color: authorColor,
                             fontWeight: FontWeight.w400,
                           ),
                         ),
