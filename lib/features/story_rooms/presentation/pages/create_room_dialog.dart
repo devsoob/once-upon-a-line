@@ -93,15 +93,7 @@ class _CreateRoomDialogState extends State<CreateRoomDialog> {
             const SizedBox(height: 20),
             TextField(
               controller: _titleController,
-              decoration: const InputDecoration(
-                labelText: '이야기 제목',
-                hintText: '예: 마법의 숲에서',
-                border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(12)),
-                  borderSide: BorderSide(color: AppColors.primary, width: 2),
-                ),
-              ),
+              decoration: const InputDecoration(labelText: '이야기 제목', hintText: '예: 마법의 숲에서'),
               maxLength: 50,
             ),
             const SizedBox(height: 16),
@@ -110,11 +102,6 @@ class _CreateRoomDialogState extends State<CreateRoomDialog> {
               decoration: const InputDecoration(
                 labelText: '이야기 설명 (선택사항)',
                 hintText: '이야기의 배경이나 설정을 간단히 설명해주세요',
-                border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(12)),
-                  borderSide: BorderSide(color: AppColors.primary, width: 2),
-                ),
               ),
               maxLines: 3,
               maxLength: 200,
@@ -123,28 +110,15 @@ class _CreateRoomDialogState extends State<CreateRoomDialog> {
             Row(
               children: [
                 Expanded(
-                  child: TextButton(
+                  child: OutlinedButton(
                     onPressed: _isLoading ? null : () => Navigator.of(context).pop(),
-                    child: const Text(
-                      '취소',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
+                    child: const Text('취소'),
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton(
                     onPressed: _isLoading ? null : _createRoom,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
                     child:
                         _isLoading
                             ? const SizedBox(

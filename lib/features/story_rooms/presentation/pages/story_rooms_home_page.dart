@@ -67,14 +67,11 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
             title: const Text('닉네임 설정'),
             content: TextField(
               controller: controller,
-              decoration: const InputDecoration(
-                hintText: '닉네임을 입력해주세요',
-                border: OutlineInputBorder(),
-              ),
+              decoration: const InputDecoration(hintText: '닉네임을 입력해주세요'),
               maxLength: 20,
             ),
             actions: [
-              TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('취소')),
+              OutlinedButton(onPressed: () => Navigator.of(context).pop(), child: const Text('취소')),
               ElevatedButton(
                 onPressed: () async {
                   if (controller.text.trim().isNotEmpty) {
@@ -154,7 +151,7 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
               ],
             ),
             actions: [
-              TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('닫기')),
+              OutlinedButton(onPressed: () => Navigator.of(context).pop(), child: const Text('닫기')),
               ElevatedButton(
                 onPressed: () {
                   Navigator.of(context).pop();
@@ -209,7 +206,7 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
           // Stories List
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -305,7 +302,7 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
     }
 
     return GridView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.zero,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         childAspectRatio: 0.64,
@@ -338,7 +335,7 @@ class _StoryRoomCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.04),
+              color: Colors.black.withValues(alpha: 0.04),
               blurRadius: 18,
               spreadRadius: 0,
               offset: const Offset(0, 6),
@@ -360,8 +357,8 @@ class _StoryRoomCard extends StatelessWidget {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    AppColors.primary.withOpacity(0.18),
-                    AppColors.primary.withOpacity(0.06),
+                    AppColors.primary.withValues(alpha: 0.18),
+                    AppColors.primary.withValues(alpha: 0.06),
                   ],
                 ),
               ),
@@ -371,7 +368,7 @@ class _StoryRoomCard extends StatelessWidget {
                   margin: const EdgeInsets.all(12),
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withOpacity(0.12),
+                    color: AppColors.primary.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Row(
