@@ -1,0 +1,18 @@
+<svg width="1024" height="1024" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Once Upon a Line app icon">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ff7a7a"/>
+      <stop offset="50%" stop-color="#ff477e"/>
+      <stop offset="100%" stop-color="#a853ff"/>
+    </linearGradient>
+  </defs>
+  <!-- Full-canvas background to avoid any transparency on iOS icons -->
+  <rect x="0" y="0" width="512" height="512" rx="112" fill="url(#g)"/>
+  <g stroke="#ffffff" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <rect x="136" y="124" width="240" height="264" rx="22"/>
+    <line x1="178" y1="124" x2="178" y2="388"/>
+    <line x1="196" y1="204" x2="328" y2="204"/>
+    <line x1="196" y1="240" x2="312" y2="240"/>
+  </g>
+</svg>
+

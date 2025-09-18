@@ -5,6 +5,12 @@
 
 set -e
 
+# Pre-build: ensure launcher icons exist
+if ! ls android/app/src/main/res/mipmap-*/ic_launcher.png >/dev/null 2>&1; then
+  echo "[prebuild] Generating launcher icons..."
+  dart run flutter_launcher_icons >/dev/null 2>&1 || true
+fi
+
 ENVIRONMENT=${1:-production}
 PROJECT_ID="once-upon-a-line"
 

@@ -5,6 +5,12 @@
 
 set -e
 
+# Pre-build: generate launcher icons if missing (avoid committing generated PNGs)
+if ! ls android/app/src/main/res/mipmap-*/ic_launcher.png >/dev/null 2>&1; then
+  echo "[prebuild] Generating launcher icons..."
+  dart run flutter_launcher_icons >/dev/null 2>&1 || true
+fi
+
 echo "🛠️  Firebase 개발 환경 시작"
 
 # Firebase 에뮬레이터 시작

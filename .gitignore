@@ -63,3 +63,9 @@ ios/Runner/GoogleService-Info.plist
 **/*.pem
 **/*.key
 **/*.crt
+
+# Generated app icons (exclude from VCS; regenerate via script)
+android/app/src/main/res/mipmap-*/ic_launcher.png
+android/app/src/main/res/mipmap-*/ic_launcher_foreground.png
+android/app/src/main/res/mipmap-*/ic_launcher_monochrome.png
+ios/Runner/Assets.xcassets/AppIcon.appiconset/*.png
