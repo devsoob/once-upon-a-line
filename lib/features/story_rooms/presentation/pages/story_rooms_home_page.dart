@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:once_upon_a_line/core/design_system/colors.dart';
+import 'package:once_upon_a_line/core/constants/app_colors.dart';
 import 'package:once_upon_a_line/core/widgets/app_logo.dart';
 import 'package:once_upon_a_line/core/widgets/profile_icon.dart';
+import 'package:once_upon_a_line/core/widgets/app_text_field.dart';
 import 'package:get_it/get_it.dart';
 import 'package:once_upon_a_line/app/data/repositories/story_room_repository.dart';
 import 'package:once_upon_a_line/app/data/repositories/local_story_room_repository.dart';
@@ -231,36 +232,12 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
                               ),
                             ),
                             const SizedBox(height: 8),
-                            TextField(
+                            AppTextField(
                               controller: controller,
-                              decoration: InputDecoration(
-                                hintText: '닉네임을 입력해주세요',
-                                hintStyle: TextStyle(color: AppColors.hint, fontSize: 16),
-                                filled: true,
-                                fillColor: Colors.white,
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: const BorderSide(color: Color(0xFFE5EAF0), width: 1),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: const BorderSide(color: Color(0xFFE5EAF0), width: 1),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: const BorderSide(color: AppColors.primary, width: 2),
-                                ),
-                                contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 16,
-                                ),
-                              ),
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                                color: AppColors.textPrimary,
-                              ),
+                              hintText: '닉네임을 입력해주세요',
                               maxLength: 20,
+                              textInputAction: TextInputAction.done,
+                              onSubmitted: (_) {},
                             ),
                           ],
                         ),

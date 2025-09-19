@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:once_upon_a_line/core/design_system/colors.dart';
+import 'package:once_upon_a_line/core/constants/app_colors.dart';
+import 'package:once_upon_a_line/core/widgets/app_text_field.dart';
 import 'package:get_it/get_it.dart';
 import 'package:once_upon_a_line/app/data/repositories/story_sentence_repository.dart';
 import 'package:once_upon_a_line/app/data/repositories/local_story_sentence_repository.dart';
@@ -23,6 +24,7 @@ class _StoryRoomDetailPageState extends State<StoryRoomDetailPage> {
   final TextEditingController _sentenceController = TextEditingController();
   String _nickname = '게스트';
   bool _isLoading = false;
+
   final Map<String, Color> _nicknameToColor = <String, Color>{};
   static const List<Color> _authorPalette = <Color>[
     Color(0xFFDB4C40), // red coral
@@ -182,24 +184,12 @@ class _StoryRoomDetailPageState extends State<StoryRoomDetailPage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  TextField(
+                  AppTextField(
                     controller: _sentenceController,
+                    hintText: '마침표(.)로 끝나는 한 문장을 작성해주세요...',
                     maxLines: 2,
-                    style: const TextStyle(fontSize: 16, color: AppColors.textPrimary),
-                    decoration: InputDecoration(
-                      hintText: '마침표(.)로 끝나는 한 문장을 작성해주세요...',
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(color: Color(0xFFE5E8EB), width: 1),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(color: AppColors.primary, width: 2),
-                      ),
-                      filled: true,
-                      fillColor: Colors.white,
-                      contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                    ),
+                    textInputAction: TextInputAction.newline,
+                    keyboardType: TextInputType.multiline,
                   ),
                   const SizedBox(height: 14),
                   SizedBox(
@@ -283,6 +273,7 @@ class _StoryRoomDetailPageState extends State<StoryRoomDetailPage> {
                             fontWeight: FontWeight.w400,
                           ),
                         ),
+
                         if (index < sentences.length - 1) const TextSpan(text: ' '),
                       ],
                     );

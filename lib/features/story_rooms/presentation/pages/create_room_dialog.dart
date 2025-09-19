@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:once_upon_a_line/core/design_system/colors.dart';
+import 'package:once_upon_a_line/core/constants/app_colors.dart';
+import 'package:once_upon_a_line/core/widgets/app_text_field.dart';
 import 'package:get_it/get_it.dart';
 import '../../../../app/data/repositories/story_room_repository.dart';
 import '../../../../app/data/repositories/local_story_room_repository.dart';
@@ -179,33 +180,11 @@ class _CreateRoomDialogState extends State<CreateRoomDialog> {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      TextField(
+                      AppTextField(
                         controller: _titleController,
-                        decoration: InputDecoration(
-                          hintText: '예: 마법의 숲에서',
-                          hintStyle: TextStyle(color: AppColors.hint, fontSize: 16),
-                          filled: true,
-                          fillColor: Colors.white,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: Color(0xFFE5EAF0), width: 1),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: Color(0xFFE5EAF0), width: 1),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: AppColors.primary, width: 2),
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                        ),
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: AppColors.textPrimary,
-                        ),
+                        hintText: '예: 마법의 숲에서',
                         maxLength: 50,
+                        textInputAction: TextInputAction.next,
                       ),
                     ],
                   ),
@@ -223,34 +202,13 @@ class _CreateRoomDialogState extends State<CreateRoomDialog> {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      TextField(
+                      AppTextField(
                         controller: _descriptionController,
-                        decoration: InputDecoration(
-                          hintText: '이야기의 배경이나 설정을 간단히 설명해주세요',
-                          hintStyle: TextStyle(color: AppColors.hint, fontSize: 16),
-                          filled: true,
-                          fillColor: Colors.white,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: Color(0xFFE5EAF0), width: 1),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: Color(0xFFE5EAF0), width: 1),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: AppColors.primary, width: 2),
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                        ),
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: AppColors.textPrimary,
-                        ),
+                        hintText: '이야기의 배경이나 설정을 간단히 설명해주세요',
                         maxLines: 3,
                         maxLength: 200,
+                        textInputAction: TextInputAction.newline,
+                        keyboardType: TextInputType.multiline,
                       ),
                     ],
                   ),
