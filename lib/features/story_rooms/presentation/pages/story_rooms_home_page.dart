@@ -24,6 +24,7 @@ class StoryRoomsHomePage extends StatefulWidget {
 class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
   late final UserSessionService _sessionService;
   String _nickname = '';
+  bool _needsRefresh = false;
 
   @override
   void initState() {
@@ -52,9 +53,16 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
     );
 
     if (room != null && mounted) {
-      Navigator.of(
+      final result = await Navigator.of(
         context,
       ).push(MaterialPageRoute(builder: (context) => StoryRoomDetailPage(room: room)));
+
+      // 뒤로가기 시 새로고침 플래그 설정
+      if (result == true) {
+        setState(() {
+          _needsRefresh = true;
+        });
+      }
     }
   }
 
@@ -557,10 +565,17 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
     );
   }
 
-  void _openRoom(StoryRoom room) {
-    Navigator.of(
+  Future<void> _openRoom(StoryRoom room) async {
+    final result = await Navigator.of(
       context,
     ).push(MaterialPageRoute(builder: (context) => StoryRoomDetailPage(room: room)));
+
+    // 뒤로가기 시 새로고침 플래그 설정
+    if (result == true && mounted) {
+      setState(() {
+        _needsRefresh = true;
+      });
+    }
   }
 
   @override
@@ -611,8 +626,24 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
                               builder: (context, snapshot) => _buildRoomsList(snapshot),
                             )
                             : FutureBuilder<List<StoryRoom>>(
-                              future: GetIt.I<LocalStoryRoomRepository>().getPublicRooms(),
-                              builder: (context, snapshot) => _buildRoomsList(snapshot),
+                              future:
+                                  _needsRefresh
+                                      ? GetIt.I<LocalStoryRoomRepository>().getPublicRooms()
+                                      : GetIt.I<LocalStoryRoomRepository>().getPublicRooms(),
+                              builder: (context, snapshot) {
+                                // 새로고침 후 플래그 리셋
+                                if (_needsRefresh &&
+                                    snapshot.connectionState == ConnectionState.done) {
+                                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                                    if (mounted) {
+                                      setState(() {
+                                        _needsRefresh = false;
+                                      });
+                                    }
+                                  });
+                                }
+                                return _buildRoomsList(snapshot);
+                              },
                             ),
                   ),
                 ],

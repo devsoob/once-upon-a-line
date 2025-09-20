@@ -128,6 +128,10 @@ class _StoryRoomDetailPageState extends State<StoryRoomDetailPage> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios, color: AppColors.textPrimary),
+          onPressed: () => Navigator.of(context).pop(true), // true를 반환하여 새로고침 필요함을 알림
+        ),
         title: Text(
           widget.room.title,
           style: const TextStyle(
