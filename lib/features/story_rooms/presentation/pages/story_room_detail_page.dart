@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:once_upon_a_line/core/constants/app_colors.dart';
 import 'package:once_upon_a_line/core/widgets/app_text_field.dart';
+import 'package:once_upon_a_line/core/widgets/app_toast.dart';
 import 'package:get_it/get_it.dart';
 import 'package:once_upon_a_line/app/data/repositories/story_sentence_repository.dart';
 import 'package:once_upon_a_line/app/data/repositories/local_story_sentence_repository.dart';
@@ -78,7 +79,7 @@ class _StoryRoomDetailPageState extends State<StoryRoomDetailPage> {
     final String text = _sentenceController.text;
     final String? error = _validateSentence(text);
     if (error != null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error)));
+      AppToast.show(context, error);
       return;
     }
 
@@ -106,11 +107,11 @@ class _StoryRoomDetailPageState extends State<StoryRoomDetailPage> {
       _sentenceController.clear();
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('문장이 추가되었습니다!')));
+        AppToast.show(context, '문장이 추가되었습니다!');
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('오류가 발생했습니다: $e')));
+        AppToast.show(context, '오류가 발생했습니다: $e');
       }
     } finally {
       if (mounted) {

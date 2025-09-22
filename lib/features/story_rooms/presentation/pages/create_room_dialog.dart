@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:once_upon_a_line/core/constants/app_colors.dart';
 import 'package:once_upon_a_line/core/widgets/app_text_field.dart';
+import 'package:once_upon_a_line/core/widgets/app_toast.dart';
 import 'package:get_it/get_it.dart';
 import '../../../../app/data/repositories/story_room_repository.dart';
 import '../../../../app/data/repositories/local_story_room_repository.dart';
@@ -30,7 +31,7 @@ class _CreateRoomDialogState extends State<CreateRoomDialog> {
 
   Future<void> _createRoom() async {
     if (_titleController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('제목을 입력해주세요')));
+      AppToast.show(context, '제목을 입력해주세요');
       return;
     }
 
@@ -62,7 +63,7 @@ class _CreateRoomDialogState extends State<CreateRoomDialog> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('오류가 발생했습니다: $e')));
+        AppToast.show(context, '오류가 발생했습니다: $e');
       }
     } finally {
       if (mounted) {
