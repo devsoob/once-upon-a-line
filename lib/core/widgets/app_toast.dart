@@ -115,11 +115,11 @@ class _ToastBannerState extends State<_ToastBanner> with SingleTickerProviderSta
                   filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
                   child: DecoratedBox(
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.6),
-                      border: Border.all(color: Colors.white.withOpacity(0.4)),
+                      color: Colors.white.withValues(alpha: 0.6),
+                      border: Border.all(color: Colors.white.withValues(alpha: 0.4)),
                       boxShadow: <BoxShadow>[
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.10),
+                          color: Colors.black.withValues(alpha: 0.10),
                           blurRadius: 24,
                           offset: const Offset(0, 8),
                         ),
