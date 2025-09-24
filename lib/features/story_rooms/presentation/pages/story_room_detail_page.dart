@@ -191,7 +191,7 @@ class _StoryRoomDetailPageState extends State<StoryRoomDetailPage> {
                 children: [
                   AppTextField(
                     controller: _sentenceController,
-                    hintText: '마침표(.)로 끝나는 한 문장을 작성해주세요...',
+                    hintText: '마침표(.)로 끝나는 한 문장을 작성해주세요.',
                     maxLines: 2,
                     textInputAction: TextInputAction.newline,
                     keyboardType: TextInputType.multiline,
