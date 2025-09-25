@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:once_upon_a_line/core/constants/app_colors.dart';
 import 'package:once_upon_a_line/core/widgets/app_text_field.dart';
 import 'package:once_upon_a_line/core/widgets/app_toast.dart';
@@ -25,6 +26,7 @@ class _StoryRoomDetailPageState extends State<StoryRoomDetailPage> {
   final TextEditingController _sentenceController = TextEditingController();
   String _nickname = '게스트';
   bool _isLoading = false;
+  bool _hasShownStreamError = false;
 
   final Map<String, Color> _nicknameToColor = <String, Color>{};
   static const List<Color> _authorPalette = <Color>[
@@ -109,9 +111,21 @@ class _StoryRoomDetailPageState extends State<StoryRoomDetailPage> {
       if (mounted) {
         AppToast.show(context, '문장이 추가되었습니다!');
       }
-    } catch (e) {
+    } catch (e, st) {
+      // Map common errors to friendly messages
+      String message = '문장 추가 중 오류가 발생했습니다';
+      final String raw = e.toString();
+      if (raw.contains('permission-denied') || raw.contains('PERMISSION_DENIED')) {
+        message = '권한 오류가 발생했어요. 잠시 후 다시 시도해 주세요.';
+      } else if (raw.contains('unavailable')) {
+        message = '네트워크 상태가 불안정해요. 연결을 확인해 주세요.';
+      }
+      if (kDebugMode) {
+        debugPrint('[StoryRoomDetail] addSentence failed: $e');
+        debugPrint('$st');
+      }
       if (mounted) {
-        AppToast.show(context, '오류가 발생했습니다: $e');
+        AppToast.show(context, message);
       }
     } finally {
       if (mounted) {
@@ -232,6 +246,17 @@ class _StoryRoomDetailPageState extends State<StoryRoomDetailPage> {
     }
 
     if (snapshot.hasError) {
+      if (kDebugMode) {
+        debugPrint('[StoryRoomDetail] stream error: ${snapshot.error}');
+      }
+      if (!_hasShownStreamError && mounted) {
+        _hasShownStreamError = true;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+          final String message = '이야기를 불러오는 중 오류가 발생했어요.';
+          AppToast.show(context, message);
+        });
+      }
       return Center(
         child: Text('오류가 발생했습니다: ${snapshot.error}', style: const TextStyle(color: Colors.red)),
       );

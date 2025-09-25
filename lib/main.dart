@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'di.dart';
 import 'core/routers/app_router.dart';
 import 'core/constants/app_colors.dart';
@@ -11,6 +14,31 @@ void main() async {
   try {
     // Initialize Firebase using the default configuration files
     await Firebase.initializeApp();
+    // Ensure the user is authenticated (anonymous) to satisfy Firestore rules
+    try {
+      await FirebaseAuth.instance.signInAnonymously();
+    } catch (_) {
+      // If sign-in fails, continue; reads/writes that require auth will fail gracefully
+    }
+
+    // Debug-only: log current user and perform a lightweight Firestore healthcheck
+    if (kDebugMode) {
+      final user = FirebaseAuth.instance.currentUser;
+      debugPrint('[Auth] isAnonymous=${user?.isAnonymous} uid=${user?.uid}');
+      try {
+        final docRef = FirebaseFirestore.instance.collection('__healthchecks__').doc('startup');
+        await docRef.set({
+          'ts': FieldValue.serverTimestamp(),
+          'uid': user?.uid,
+          'platform': 'flutter',
+        }, SetOptions(merge: true));
+        final snap = await docRef.get();
+        debugPrint('[Healthcheck] Firestore write+read ok, exists=${snap.exists}');
+      } catch (e, st) {
+        debugPrint('[Healthcheck] Firestore failed: $e');
+        debugPrint('$st');
+      }
+    }
     await DiConfig.init();
   } catch (e) {
     // If Firebase initialization fails, continue without Firebase
