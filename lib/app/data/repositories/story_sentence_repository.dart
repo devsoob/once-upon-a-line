@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
 import 'package:once_upon_a_line/app/data/models/story_sentence.dart';
@@ -43,29 +44,51 @@ class FirebaseStorySentenceRepository implements StorySentenceRepository {
     final String sentenceId = _uuid.v4();
     final DateTime now = DateTime.now();
 
-    // Get the next order number
-    final QuerySnapshot<Map<String, dynamic>> lastSentenceQuery =
-        await _sentencesCollection
-            .where('roomId', isEqualTo: roomId)
-            .orderBy('order', descending: true)
-            .limit(1)
-            .get();
+    if (kDebugMode) {
+      debugPrint('[Repo][Sentence] addSentence start roomId=$roomId by "$authorNickname"');
+    }
 
-    final int nextOrder =
-        lastSentenceQuery.docs.isEmpty
-            ? 1
-            : (lastSentenceQuery.docs.first.data()['order'] as int) + 1;
+    // Use a transaction to get and increment the room's counter, then write the sentence
+    late final StorySentence sentence;
+    await _firestore.runTransaction((transaction) async {
+      final DocumentReference<Map<String, dynamic>> roomRef =
+          _firestore.collection('story_rooms').doc(roomId);
+      final DocumentSnapshot<Map<String, dynamic>> roomSnap = await transaction.get(roomRef);
 
-    final StorySentence sentence = StorySentence(
-      id: sentenceId,
-      roomId: roomId,
-      content: content,
-      authorNickname: authorNickname,
-      createdAt: now,
-      order: nextOrder,
-    );
+      if (!roomSnap.exists) {
+        // If room doc does not exist, initialize counter as 0
+        transaction.set(roomRef, {
+          'totalSentences': 0,
+          'lastUpdatedAt': Timestamp.fromDate(now),
+        }, SetOptions(merge: true));
+      }
 
-    await _sentencesCollection.doc(sentenceId).set(sentence.toFirestore());
+      final int currentTotal = (roomSnap.data()?['totalSentences'] ?? 0) as int;
+      final int nextOrder = currentTotal + 1;
+
+      // Update room counters and lastUpdatedAt
+      transaction.update(roomRef, {
+        'totalSentences': nextOrder,
+        'lastUpdatedAt': Timestamp.fromDate(now),
+      });
+
+      // Prepare and write the new sentence with the computed order
+      sentence = StorySentence(
+        id: sentenceId,
+        roomId: roomId,
+        content: content,
+        authorNickname: authorNickname,
+        createdAt: now,
+        order: nextOrder,
+      );
+      final DocumentReference<Map<String, dynamic>> sentenceRef =
+          _sentencesCollection.doc(sentenceId);
+      transaction.set(sentenceRef, sentence.toFirestore());
+    });
+
+    if (kDebugMode) {
+      debugPrint('[Repo][Sentence] addSentence success id=$sentenceId order=${sentence.order}');
+    }
     return sentence;
   }
 
@@ -85,5 +108,15 @@ class FirebaseStorySentenceRepository implements StorySentenceRepository {
     }
 
     await batch.commit();
+
+    // Reset room counters after deletion for consistency
+    try {
+      await _firestore.collection('story_rooms').doc(roomId).update({
+        'totalSentences': 0,
+        'lastUpdatedAt': Timestamp.fromDate(DateTime.now()),
+      });
+    } catch (_) {
+      // ignore if room doesn't exist
+    }
   }
 }
