@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
 import 'package:once_upon_a_line/app/data/models/story_room.dart';
@@ -67,13 +68,21 @@ class FirebaseStoryRoomRepository implements StoryRoomRepository {
       participants: [creatorNickname],
       isPublic: true,
     );
-
+    if (kDebugMode) {
+      debugPrint('[Repo][Room] createRoom start title="$title" by "$creatorNickname"');
+    }
     await _roomsCollection.doc(roomId).set(room.toFirestore());
+    if (kDebugMode) {
+      debugPrint('[Repo][Room] createRoom success id=$roomId');
+    }
     return room;
   }
 
   @override
   Future<void> joinRoom(String roomId, String nickname) async {
+    if (kDebugMode) {
+      debugPrint('[Repo][Room] joinRoom roomId=$roomId nickname=$nickname');
+    }
     final DocumentReference<Map<String, dynamic>> docRef = _roomsCollection.doc(roomId);
     await _firestore.runTransaction((transaction) async {
       final DocumentSnapshot<Map<String, dynamic>> snapshot = await transaction.get(docRef);
@@ -92,6 +101,9 @@ class FirebaseStoryRoomRepository implements StoryRoomRepository {
 
   @override
   Future<void> leaveRoom(String roomId, String nickname) async {
+    if (kDebugMode) {
+      debugPrint('[Repo][Room] leaveRoom roomId=$roomId nickname=$nickname');
+    }
     final DocumentReference<Map<String, dynamic>> docRef = _roomsCollection.doc(roomId);
     await _firestore.runTransaction((transaction) async {
       final DocumentSnapshot<Map<String, dynamic>> snapshot = await transaction.get(docRef);
@@ -110,11 +122,17 @@ class FirebaseStoryRoomRepository implements StoryRoomRepository {
 
   @override
   Future<void> updateRoom(StoryRoom room) async {
+    if (kDebugMode) {
+      debugPrint('[Repo][Room] updateRoom id=${room.id}');
+    }
     await _roomsCollection.doc(room.id).update(room.toFirestore());
   }
 
   @override
   Future<void> deleteRoom(String roomId) async {
+    if (kDebugMode) {
+      debugPrint('[Repo][Room] deleteRoom id=$roomId');
+    }
     await _roomsCollection.doc(roomId).delete();
   }
 }
