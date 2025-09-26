@@ -1,32 +1,63 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:logger/logger.dart';
 import 'di.dart';
 import 'core/routers/app_router.dart';
 import 'core/constants/app_colors.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  debugPrint('[main] start');
 
   try {
+    if (kDebugMode) {
+      debugPrint('[Startup] kDebugMode=true');
+    }
+    debugPrint('[Startup] Before Firebase.initializeApp');
     // Initialize Firebase using the default configuration files
-    await Firebase.initializeApp();
+    try {
+      await Firebase.initializeApp().timeout(const Duration(seconds: 20));
+    } on TimeoutException catch (_) {
+      debugPrint('[Startup][Error] Firebase.initializeApp TIMEOUT (20s)');
+      rethrow;
+    } catch (e, st) {
+      debugPrint('[Startup][Error] Firebase.initializeApp failed: $e');
+      debugPrint('$st');
+      rethrow;
+    }
+    debugPrint('[Startup] Firebase.initializeApp OK');
     // Ensure the user is authenticated (anonymous) to satisfy Firestore rules
     try {
-      await FirebaseAuth.instance.signInAnonymously();
+      debugPrint('[Auth] Before signInAnonymously');
+      await FirebaseAuth.instance.signInAnonymously().timeout(const Duration(seconds: 15));
+      debugPrint('[Auth] signInAnonymously OK');
     } catch (_) {
       // If sign-in fails, continue; reads/writes that require auth will fail gracefully
+      debugPrint('[Auth] signInAnonymously failed (continuing anonymously-restricted)');
     }
 
     // Debug-only: log current user and perform a lightweight Firestore healthcheck
     if (kDebugMode) {
+      final logger = Logger(
+        printer: PrettyPrinter(
+          methodCount: 0,
+          errorMethodCount: 8,
+          lineLength: 100,
+          colors: true,
+          printEmojis: true,
+        ),
+      );
       final user = FirebaseAuth.instance.currentUser;
       debugPrint('[Auth] isAnonymous=${user?.isAnonymous} uid=${user?.uid}');
       try {
-        final docRef = FirebaseFirestore.instance.collection('__healthchecks__').doc('startup');
+        // Note: Firestore disallows collection IDs that begin and end with double underscores
+        // (e.g., `__healthchecks__`). Use a normal name to avoid `invalid-argument` errors.
+        final docRef = FirebaseFirestore.instance.collection('healthchecks').doc('startup');
         await docRef.set({
           'ts': FieldValue.serverTimestamp(),
           'uid': user?.uid,
@@ -37,6 +68,23 @@ void main() async {
       } catch (e, st) {
         debugPrint('[Healthcheck] Firestore failed: $e');
         debugPrint('$st');
+      }
+
+      // Debug-only probe: create/read a document in 'storySentences' to ensure the
+      // collection is auto-created in Firestore when a write occurs.
+      try {
+        final probeDoc = FirebaseFirestore.instance
+            .collection('story_sentences')
+            .doc('debug_probe_startup');
+        await probeDoc.set({
+          '_debugProbe': true,
+          'ts': FieldValue.serverTimestamp(),
+          'uid': user?.uid,
+        }, SetOptions(merge: true));
+        final probeSnap = await probeDoc.get();
+        logger.i("[Probe] storySentences created/read ok, exists=${probeSnap.exists}");
+      } catch (e, st) {
+        logger.e('[Probe] storySentences write/read failed: $e', error: e, stackTrace: st);
       }
     }
     await DiConfig.init();

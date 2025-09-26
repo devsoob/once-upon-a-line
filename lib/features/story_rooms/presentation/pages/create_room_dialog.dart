@@ -43,6 +43,7 @@ class _CreateRoomDialogState extends State<CreateRoomDialog> {
       StoryRoom room;
 
       if (DiConfig.isFirebaseInitialized) {
+        debugPrint('[UI][CreateRoom] using Firebase repository');
         final StoryRoomRepository firebaseRepo = GetIt.I<StoryRoomRepository>();
         room = await firebaseRepo.createRoom(
           title: _titleController.text.trim(),
@@ -50,6 +51,7 @@ class _CreateRoomDialogState extends State<CreateRoomDialog> {
           creatorNickname: widget.creatorNickname,
         );
       } else {
+        debugPrint('[UI][CreateRoom] using Local repository (Firebase fallback)');
         final LocalStoryRoomRepository localRepo = GetIt.I<LocalStoryRoomRepository>();
         room = await localRepo.createRoom(
           title: _titleController.text.trim(),
@@ -59,9 +61,11 @@ class _CreateRoomDialogState extends State<CreateRoomDialog> {
       }
 
       if (mounted) {
+        debugPrint('[UI][CreateRoom] success, closing dialog');
         Navigator.of(context).pop(room);
       }
     } catch (e) {
+      debugPrint('[UI][CreateRoom] failed: $e');
       if (mounted) {
         AppToast.show(context, '오류가 발생했습니다: $e');
       }
