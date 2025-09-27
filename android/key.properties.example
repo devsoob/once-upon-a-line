@@ -1,0 +1,12 @@
+# Example keystore properties for local release signing
+# Copy this file to android/key.properties and fill in real values.
+# Never commit the real key.properties.
+#
+# Path to the keystore file (relative to project root or absolute path)
+storeFile=keystore/release.keystore
+# Keystore password
+storePassword=CHANGE_ME
+# Alias name inside the keystore
+keyAlias=upload
+# Alias password
+keyPassword=CHANGE_ME

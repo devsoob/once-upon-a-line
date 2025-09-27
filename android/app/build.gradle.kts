@@ -11,6 +11,14 @@ android {
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
+    // Load release signing properties if available
+    val keystoreProps = java.util.Properties()
+    val keystorePropsFile = rootProject.file("android/key.properties")
+    val hasReleaseKeystore = keystorePropsFile.exists()
+    if (hasReleaseKeystore) {
+        keystorePropsFile.inputStream().use { keystoreProps.load(it) }
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -31,11 +39,29 @@ android {
         versionName = flutter.versionName
     }
 
+    // Configure signing if key.properties is provided locally (never commit secrets)
+    if (hasReleaseKeystore) {
+        signingConfigs {
+            create("release") {
+                val storeFilePath = keystoreProps["storeFile"] as String?
+                if (storeFilePath != null) {
+                    storeFile = file(storeFilePath)
+                }
+                storePassword = keystoreProps["storePassword"] as String?
+                keyAlias = keystoreProps["keyAlias"] as String?
+                keyPassword = keystoreProps["keyPassword"] as String?
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            // Use release signing if available; otherwise fall back to debug for local builds
+            signingConfig = if (hasReleaseKeystore) {
+                signingConfigs.getByName("release")
+            } else {
+                signingConfigs.getByName("debug")
+            }
         }
     }
 }
