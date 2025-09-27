@@ -1,0 +1,29 @@
+title = "once-upon-a-line gitleaks rules"
+
+[extend]
+# Start from the official gitleaks config for broad coverage
+# You can update this to a pinned release if desired
+useDefault = true
+
+[allowlist]
+# These files are allowed to contain secrets-like strings (false positives)
+# but should still generally avoid real secrets.
+files = [
+  "**/.gitignore",
+  "**/*.md",
+  "**/CHANGELOG*",
+  "**/*.iml",
+  "**/*.svg",
+  "**/*.png",
+  "**/*.jpg",
+  "**/*.jpeg",
+  "**/*.gif",
+]
+
+# Additional custom rules can be added here if your project has specific tokens
+# [[rules]]
+# id = "custom-example"
+# description = "Example custom pattern"
+# regex = '''(?i)MY_CUSTOM_TOKEN_[0-9A-Za-z\-_]{20,}'''
+# [rules.allowlist]
+# files = ["**/tests/**"]
