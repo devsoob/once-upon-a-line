@@ -94,29 +94,13 @@ class FirebaseStorySentenceRepository implements StorySentenceRepository {
 
   @override
   Future<void> deleteSentence(String sentenceId) async {
-    await _sentencesCollection.doc(sentenceId).delete();
+    // Temporarily disabled per MVP scope.
+    throw UnsupportedError('deleteSentence is disabled in current MVP');
   }
 
   @override
   Future<void> deleteAllSentencesInRoom(String roomId) async {
-    final QuerySnapshot<Map<String, dynamic>> sentencesQuery =
-        await _sentencesCollection.where('roomId', isEqualTo: roomId).get();
-
-    final WriteBatch batch = _firestore.batch();
-    for (final DocumentSnapshot<Map<String, dynamic>> doc in sentencesQuery.docs) {
-      batch.delete(doc.reference);
-    }
-
-    await batch.commit();
-
-    // Reset room counters after deletion for consistency
-    try {
-      await _firestore.collection('story_rooms').doc(roomId).update({
-        'totalSentences': 0,
-        'lastUpdatedAt': Timestamp.fromDate(DateTime.now()),
-      });
-    } catch (_) {
-      // ignore if room doesn't exist
-    }
+    // Temporarily disabled per MVP scope.
+    throw UnsupportedError('deleteAllSentencesInRoom is disabled in current MVP');
   }
 }

@@ -122,17 +122,13 @@ class FirebaseStoryRoomRepository implements StoryRoomRepository {
 
   @override
   Future<void> updateRoom(StoryRoom room) async {
-    if (kDebugMode) {
-      debugPrint('[Repo][Room] updateRoom id=${room.id}');
-    }
-    await _roomsCollection.doc(room.id).update(room.toFirestore());
+    // Temporarily disabled per MVP scope: only create/join/leave are allowed.
+    throw UnsupportedError('updateRoom is disabled in current MVP');
   }
 
   @override
   Future<void> deleteRoom(String roomId) async {
-    if (kDebugMode) {
-      debugPrint('[Repo][Room] deleteRoom id=$roomId');
-    }
-    await _roomsCollection.doc(roomId).delete();
+    // Temporarily disabled per MVP scope.
+    throw UnsupportedError('deleteRoom is disabled in current MVP');
   }
 }

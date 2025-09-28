@@ -69,15 +69,13 @@ class LocalStorySentenceRepository {
   }
 
   Future<void> deleteSentence(String sentenceId) async {
-    final List<StorySentence> allSentences = await _getAllSentences();
-    allSentences.removeWhere((sentence) => sentence.id == sentenceId);
-    await _saveAllSentences(allSentences);
+    // Temporarily disabled per MVP scope.
+    throw UnsupportedError('deleteSentence is disabled in current MVP');
   }
 
   Future<void> deleteAllSentencesInRoom(String roomId) async {
-    final List<StorySentence> allSentences = await _getAllSentences();
-    allSentences.removeWhere((sentence) => sentence.roomId == roomId);
-    await _saveAllSentences(allSentences);
+    // Temporarily disabled per MVP scope.
+    throw UnsupportedError('deleteAllSentencesInRoom is disabled in current MVP');
   }
 
   Future<List<StorySentence>> _getAllSentences() async {

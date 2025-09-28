@@ -124,19 +124,13 @@ class LocalStoryRoomRepository {
   }
 
   Future<void> updateRoom(StoryRoom room) async {
-    final List<StoryRoom> rooms = await getPublicRooms();
-    final int roomIndex = rooms.indexWhere((r) => r.id == room.id);
-
-    if (roomIndex != -1) {
-      rooms[roomIndex] = room;
-      await _saveRooms(rooms);
-    }
+    // Temporarily disabled per MVP scope.
+    throw UnsupportedError('updateRoom is disabled in current MVP');
   }
 
   Future<void> deleteRoom(String roomId) async {
-    final List<StoryRoom> rooms = await getPublicRooms();
-    rooms.removeWhere((room) => room.id == roomId);
-    await _saveRooms(rooms);
+    // Temporarily disabled per MVP scope.
+    throw UnsupportedError('deleteRoom is disabled in current MVP');
   }
 
   Future<void> _saveRooms(List<StoryRoom> rooms) async {
