@@ -70,21 +70,18 @@ void main() async {
         debugPrint('$st');
       }
 
-      // Debug-only probe: create/read a document in 'storySentences' to ensure the
-      // collection is auto-created in Firestore when a write occurs.
+      // Debug-only cleanup: remove any leftover probe document if it exists
       try {
         final probeDoc = FirebaseFirestore.instance
             .collection('story_sentences')
             .doc('debug_probe_startup');
-        await probeDoc.set({
-          '_debugProbe': true,
-          'ts': FieldValue.serverTimestamp(),
-          'uid': user?.uid,
-        }, SetOptions(merge: true));
         final probeSnap = await probeDoc.get();
-        logger.i("[Probe] storySentences created/read ok, exists=${probeSnap.exists}");
+        if (probeSnap.exists) {
+          await probeDoc.delete();
+          logger.i('[Probe] Removed legacy debug probe document');
+        }
       } catch (e, st) {
-        logger.e('[Probe] storySentences write/read failed: $e', error: e, stackTrace: st);
+        logger.w('[Probe] Cleanup failed (ignored): $e', error: e, stackTrace: st);
       }
     }
     await DiConfig.init();
