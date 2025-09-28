@@ -1,27 +1,19 @@
 {
   "indexes": [
     {
-      "collectionGroup": "storyRooms",
+      "collectionGroup": "story_rooms",
       "queryScope": "COLLECTION",
       "fields": [
-        {
-          "fieldPath": "createdAt",
-          "order": "DESCENDING"
-        }
+        { "fieldPath": "isPublic", "order": "ASCENDING" },
+        { "fieldPath": "lastUpdatedAt", "order": "DESCENDING" }
       ]
     },
     {
-      "collectionGroup": "storySentences",
+      "collectionGroup": "story_sentences",
       "queryScope": "COLLECTION",
       "fields": [
-        {
-          "fieldPath": "roomId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "sentenceOrder",
-          "order": "ASCENDING"
-        }
+        { "fieldPath": "roomId", "order": "ASCENDING" },
+        { "fieldPath": "order", "order": "ASCENDING" }
       ]
     }
   ],
