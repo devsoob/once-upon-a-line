@@ -28,13 +28,34 @@ class StorySentence {
   }
 
   static StorySentence fromFirestore(String id, Map<String, dynamic> data) {
+    DateTime _parseTimestamp(dynamic value, {DateTime? fallback}) {
+      if (value is Timestamp) return value.toDate();
+      if (value is int) return DateTime.fromMillisecondsSinceEpoch(value);
+      if (value is String) {
+        try {
+          return DateTime.parse(value);
+        } catch (_) {}
+      }
+      return fallback ?? DateTime.now();
+    }
+
+    int _parseInt(dynamic value, {int fallback = 0}) {
+      if (value is int) return value;
+      if (value is num) return value.toInt();
+      if (value is String) {
+        final int? parsed = int.tryParse(value);
+        if (parsed != null) return parsed;
+      }
+      return fallback;
+    }
+
     return StorySentence(
       id: id,
-      roomId: data['roomId'] ?? '',
-      content: data['content'] ?? '',
-      authorNickname: data['authorNickname'] ?? '',
-      createdAt: (data['createdAt'] as Timestamp).toDate(),
-      order: data['order'] ?? 0,
+      roomId: (data['roomId'] ?? '').toString(),
+      content: (data['content'] ?? '').toString(),
+      authorNickname: (data['authorNickname'] ?? '').toString(),
+      createdAt: _parseTimestamp(data['createdAt']),
+      order: _parseInt(data['order']),
     );
   }
 

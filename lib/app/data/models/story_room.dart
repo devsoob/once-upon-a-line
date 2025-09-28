@@ -40,17 +40,47 @@ class StoryRoom {
   }
 
   static StoryRoom fromFirestore(String id, Map<String, dynamic> data) {
+    // Safe parsing with fallbacks to prevent runtime errors if fields are missing or malformed
+    DateTime _parseTimestamp(dynamic value, {DateTime? fallback}) {
+      if (value is Timestamp) return value.toDate();
+      if (value is int) return DateTime.fromMillisecondsSinceEpoch(value);
+      if (value is String) {
+        // Attempt to parse ISO8601
+        try {
+          return DateTime.parse(value);
+        } catch (_) {}
+      }
+      return fallback ?? DateTime.now();
+    }
+
+    List<String> _parseStringList(dynamic value) {
+      if (value is List) {
+        return value.map((e) => e?.toString() ?? '').where((e) => e.isNotEmpty).toList();
+      }
+      return <String>[];
+    }
+
+    int _parseInt(dynamic value, {int fallback = 0}) {
+      if (value is int) return value;
+      if (value is num) return value.toInt();
+      if (value is String) {
+        final int? parsed = int.tryParse(value);
+        if (parsed != null) return parsed;
+      }
+      return fallback;
+    }
+
     return StoryRoom(
       id: id,
-      title: data['title'] ?? '',
-      description: data['description'] ?? '',
-      creatorNickname: data['creatorNickname'] ?? '',
-      createdAt: (data['createdAt'] as Timestamp).toDate(),
-      lastUpdatedAt: (data['lastUpdatedAt'] as Timestamp).toDate(),
-      participants: List<String>.from(data['participants'] ?? []),
-      isPublic: data['isPublic'] ?? true,
-      coverImageUrl: data['coverImageUrl'],
-      totalSentences: data['totalSentences'] ?? 0,
+      title: (data['title'] ?? '').toString(),
+      description: (data['description'] ?? '').toString(),
+      creatorNickname: (data['creatorNickname'] ?? '').toString(),
+      createdAt: _parseTimestamp(data['createdAt']),
+      lastUpdatedAt: _parseTimestamp(data['lastUpdatedAt']),
+      participants: _parseStringList(data['participants']),
+      isPublic: (data['isPublic'] is bool) ? data['isPublic'] as bool : true,
+      coverImageUrl: data['coverImageUrl']?.toString(),
+      totalSentences: _parseInt(data['totalSentences']),
     );
   }
 
