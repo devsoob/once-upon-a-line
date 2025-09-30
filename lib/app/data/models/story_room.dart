@@ -41,7 +41,7 @@ class StoryRoom {
 
   static StoryRoom fromFirestore(String id, Map<String, dynamic> data) {
     // Safe parsing with fallbacks to prevent runtime errors if fields are missing or malformed
-    DateTime _parseTimestamp(dynamic value, {DateTime? fallback}) {
+    DateTime parseTimestamp(dynamic value, {DateTime? fallback}) {
       if (value is Timestamp) return value.toDate();
       if (value is int) return DateTime.fromMillisecondsSinceEpoch(value);
       if (value is String) {
@@ -53,14 +53,14 @@ class StoryRoom {
       return fallback ?? DateTime.now();
     }
 
-    List<String> _parseStringList(dynamic value) {
+    List<String> parseStringList(dynamic value) {
       if (value is List) {
         return value.map((e) => e?.toString() ?? '').where((e) => e.isNotEmpty).toList();
       }
       return <String>[];
     }
 
-    int _parseInt(dynamic value, {int fallback = 0}) {
+    int parseInt(dynamic value, {int fallback = 0}) {
       if (value is int) return value;
       if (value is num) return value.toInt();
       if (value is String) {
@@ -75,12 +75,12 @@ class StoryRoom {
       title: (data['title'] ?? '').toString(),
       description: (data['description'] ?? '').toString(),
       creatorNickname: (data['creatorNickname'] ?? '').toString(),
-      createdAt: _parseTimestamp(data['createdAt']),
-      lastUpdatedAt: _parseTimestamp(data['lastUpdatedAt']),
-      participants: _parseStringList(data['participants']),
+      createdAt: parseTimestamp(data['createdAt']),
+      lastUpdatedAt: parseTimestamp(data['lastUpdatedAt']),
+      participants: parseStringList(data['participants']),
       isPublic: (data['isPublic'] is bool) ? data['isPublic'] as bool : true,
       coverImageUrl: data['coverImageUrl']?.toString(),
-      totalSentences: _parseInt(data['totalSentences']),
+      totalSentences: parseInt(data['totalSentences']),
     );
   }
 

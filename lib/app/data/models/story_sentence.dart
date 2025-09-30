@@ -28,7 +28,7 @@ class StorySentence {
   }
 
   static StorySentence fromFirestore(String id, Map<String, dynamic> data) {
-    DateTime _parseTimestamp(dynamic value, {DateTime? fallback}) {
+    DateTime parseTimestamp(dynamic value, {DateTime? fallback}) {
       if (value is Timestamp) return value.toDate();
       if (value is int) return DateTime.fromMillisecondsSinceEpoch(value);
       if (value is String) {
@@ -39,7 +39,7 @@ class StorySentence {
       return fallback ?? DateTime.now();
     }
 
-    int _parseInt(dynamic value, {int fallback = 0}) {
+    int parseInt(dynamic value, {int fallback = 0}) {
       if (value is int) return value;
       if (value is num) return value.toInt();
       if (value is String) {
@@ -54,8 +54,8 @@ class StorySentence {
       roomId: (data['roomId'] ?? '').toString(),
       content: (data['content'] ?? '').toString(),
       authorNickname: (data['authorNickname'] ?? '').toString(),
-      createdAt: _parseTimestamp(data['createdAt']),
-      order: _parseInt(data['order']),
+      createdAt: parseTimestamp(data['createdAt']),
+      order: parseInt(data['order']),
     );
   }
 
