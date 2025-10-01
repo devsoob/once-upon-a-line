@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
@@ -71,9 +72,15 @@ class FirebaseStoryRoomRepository implements StoryRoomRepository {
     if (kDebugMode) {
       debugPrint('[Repo][Room] createRoom start title="$title" by "$creatorNickname"');
     }
-    await _roomsCollection.doc(roomId).set(room.toFirestore());
+    // Optimistic write: do not await to avoid UI stall on iOS simulator
+    _roomsCollection.doc(roomId).set(room.toFirestore()).catchError((e, st) {
+      if (kDebugMode) {
+        debugPrint('[Repo][Room] createRoom async set error: $e');
+        debugPrint(st.toString());
+      }
+    });
     if (kDebugMode) {
-      debugPrint('[Repo][Room] createRoom success id=$roomId');
+      debugPrint('[Repo][Room] createRoom enqueued id=$roomId');
     }
     return room;
   }

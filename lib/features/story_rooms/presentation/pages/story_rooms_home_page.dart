@@ -29,6 +29,7 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
   @override
   void initState() {
     super.initState();
+    debugPrint('[UI] StoryRoomsHomePage.initState');
     _sessionService = GetIt.I<UserSessionService>();
     _loadNickname();
   }
@@ -580,6 +581,7 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('[UI] StoryRoomsHomePage.build');
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
@@ -696,6 +698,7 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
   }
 
   Widget _buildRoomsList(AsyncSnapshot<List<StoryRoom>> snapshot) {
+    debugPrint('[UI] _buildRoomsList state=${snapshot.connectionState} hasError=${snapshot.hasError} len=${snapshot.data?.length}');
     if (snapshot.connectionState == ConnectionState.waiting) {
       return const Center(child: CircularProgressIndicator());
     }

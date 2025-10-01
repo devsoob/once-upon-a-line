@@ -4,14 +4,25 @@ import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:logger/logger.dart';
 import 'di.dart';
 import 'core/routers/app_router.dart';
 import 'core/constants/app_colors.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // Global error handlers (minimal, for crash diagnostics)
+  FlutterError.onError = (FlutterErrorDetails details) {
+    FlutterError.dumpErrorToConsole(details);
+    debugPrint('[GlobalError][FlutterError] ${details.exceptionAsString()}');
+    if (details.stack != null) {
+      debugPrint(details.stack.toString());
+    }
+  };
+  WidgetsBinding.instance.platformDispatcher.onError = (Object error, StackTrace stack) {
+    debugPrint('[GlobalError][Platform] $error');
+    debugPrint(stack.toString());
+    return true; // prevent silent crash to surface logs
+  };
   debugPrint('[main] start');
 
   try {
@@ -41,56 +52,22 @@ void main() async {
       debugPrint('[Auth] signInAnonymously failed (continuing anonymously-restricted)');
     }
 
-    // Debug-only: log current user and perform a lightweight Firestore healthcheck
+    // Debug healthcheck disabled to avoid early crashes before DI/runApp during iOS debugging.
     if (kDebugMode) {
-      final logger = Logger(
-        printer: PrettyPrinter(
-          methodCount: 0,
-          errorMethodCount: 8,
-          lineLength: 100,
-          colors: true,
-          printEmojis: true,
-        ),
-      );
       final user = FirebaseAuth.instance.currentUser;
       debugPrint('[Auth] isAnonymous=${user?.isAnonymous} uid=${user?.uid}');
-      try {
-        // Note: Firestore disallows collection IDs that begin and end with double underscores
-        // (e.g., `__healthchecks__`). Use a normal name to avoid `invalid-argument` errors.
-        final docRef = FirebaseFirestore.instance.collection('healthchecks').doc('startup');
-        await docRef.set({
-          'ts': FieldValue.serverTimestamp(),
-          'uid': user?.uid,
-          'platform': 'flutter',
-        }, SetOptions(merge: true));
-        final snap = await docRef.get();
-        debugPrint('[Healthcheck] Firestore write+read ok, exists=${snap.exists}');
-      } catch (e, st) {
-        debugPrint('[Healthcheck] Firestore failed: $e');
-        debugPrint('$st');
-      }
-
-      // Debug-only cleanup: remove any leftover probe document if it exists
-      try {
-        final probeDoc = FirebaseFirestore.instance
-            .collection('story_sentences')
-            .doc('debug_probe_startup');
-        final probeSnap = await probeDoc.get();
-        if (probeSnap.exists) {
-          await probeDoc.delete();
-          logger.i('[Probe] Removed legacy debug probe document');
-        }
-      } catch (e, st) {
-        logger.w('[Probe] Cleanup failed (ignored): $e', error: e, stackTrace: st);
-      }
+      debugPrint('[Healthcheck] Skipped in debug build');
     }
+    debugPrint('[Startup] DiConfig.init start');
     await DiConfig.init();
+    debugPrint('[Startup] DiConfig.init done');
   } catch (e) {
     // If Firebase initialization fails, continue without Firebase
     // Initialize DI without Firebase dependencies
     await DiConfig.initWithoutFirebase();
   }
 
+  debugPrint('[Startup] Before runApp');
   runApp(const OnceUponALineApp());
 }
 
@@ -99,6 +76,7 @@ class OnceUponALineApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('[UI] OnceUponALineApp.build');
     // 시스템 UI 스타일 지정
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(

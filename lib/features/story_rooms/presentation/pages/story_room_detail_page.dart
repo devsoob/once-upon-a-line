@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:once_upon_a_line/core/constants/app_colors.dart';
@@ -85,55 +86,53 @@ class _StoryRoomDetailPageState extends State<StoryRoomDetailPage> {
       return;
     }
 
+    // Optimistic UI: clear and unlock immediately
     setState(() {
       _isLoading = true;
     });
+    _sentenceController.clear();
+    setState(() {
+      _isLoading = false;
+    });
 
-    try {
-      if (DiConfig.isFirebaseInitialized) {
-        final StorySentenceRepository firebaseRepo = GetIt.I<StorySentenceRepository>();
-        await firebaseRepo.addSentence(
-          roomId: widget.room.id,
-          content: text.trim(),
-          authorNickname: _nickname,
-        );
-      } else {
-        final LocalStorySentenceRepository localRepo = GetIt.I<LocalStorySentenceRepository>();
-        await localRepo.addSentence(
-          roomId: widget.room.id,
-          content: text.trim(),
-          authorNickname: _nickname,
-        );
+    // Fire-and-forget write; report errors via toast, stream will update UI
+    Future<void>(() async {
+      try {
+        if (DiConfig.isFirebaseInitialized) {
+          final StorySentenceRepository firebaseRepo = GetIt.I<StorySentenceRepository>();
+          await firebaseRepo.addSentence(
+            roomId: widget.room.id,
+            content: text.trim(),
+            authorNickname: _nickname,
+          );
+        } else {
+          final LocalStorySentenceRepository localRepo = GetIt.I<LocalStorySentenceRepository>();
+          await localRepo.addSentence(
+            roomId: widget.room.id,
+            content: text.trim(),
+            authorNickname: _nickname,
+          );
+        }
+        if (mounted) {
+          AppToast.show(context, '문장이 추가되었습니다!');
+        }
+      } catch (e, st) {
+        String message = '문장 추가 중 오류가 발생했습니다';
+        final String raw = e.toString();
+        if (raw.contains('permission-denied') || raw.contains('PERMISSION_DENIED')) {
+          message = '권한 오류가 발생했어요. 잠시 후 다시 시도해 주세요.';
+        } else if (raw.contains('unavailable')) {
+          message = '네트워크 상태가 불안정해요. 연결을 확인해 주세요.';
+        }
+        if (kDebugMode) {
+          debugPrint('[StoryRoomDetail] addSentence failed (optimistic): $e');
+          debugPrint('$st');
+        }
+        if (mounted) {
+          AppToast.show(context, message);
+        }
       }
-
-      _sentenceController.clear();
-
-      if (mounted) {
-        AppToast.show(context, '문장이 추가되었습니다!');
-      }
-    } catch (e, st) {
-      // Map common errors to friendly messages
-      String message = '문장 추가 중 오류가 발생했습니다';
-      final String raw = e.toString();
-      if (raw.contains('permission-denied') || raw.contains('PERMISSION_DENIED')) {
-        message = '권한 오류가 발생했어요. 잠시 후 다시 시도해 주세요.';
-      } else if (raw.contains('unavailable')) {
-        message = '네트워크 상태가 불안정해요. 연결을 확인해 주세요.';
-      }
-      if (kDebugMode) {
-        debugPrint('[StoryRoomDetail] addSentence failed: $e');
-        debugPrint('$st');
-      }
-      if (mounted) {
-        AppToast.show(context, message);
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    }
+    });
   }
 
   @override

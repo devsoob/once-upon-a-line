@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:once_upon_a_line/core/constants/app_colors.dart';
 import 'package:once_upon_a_line/core/widgets/app_text_field.dart';
@@ -40,29 +41,75 @@ class _CreateRoomDialogState extends State<CreateRoomDialog> {
     });
 
     try {
-      StoryRoom room;
+      StoryRoom? room;
 
       if (DiConfig.isFirebaseInitialized) {
         debugPrint('[UI][CreateRoom] using Firebase repository');
         final StoryRoomRepository firebaseRepo = GetIt.I<StoryRoomRepository>();
-        room = await firebaseRepo.createRoom(
-          title: _titleController.text.trim(),
-          description: _descriptionController.text.trim(),
-          creatorNickname: widget.creatorNickname,
-        );
+        // Prevent indefinite wait: timeout fallback closes dialog without navigation
+        room = await firebaseRepo
+            .createRoom(
+              title: _titleController.text.trim(),
+              description: _descriptionController.text.trim(),
+              creatorNickname: widget.creatorNickname,
+            )
+            .timeout(const Duration(seconds: 5));
       } else {
         debugPrint('[UI][CreateRoom] using Local repository (Firebase fallback)');
         final LocalStoryRoomRepository localRepo = GetIt.I<LocalStoryRoomRepository>();
-        room = await localRepo.createRoom(
-          title: _titleController.text.trim(),
-          description: _descriptionController.text.trim(),
-          creatorNickname: widget.creatorNickname,
-        );
+        room = await localRepo
+            .createRoom(
+              title: _titleController.text.trim(),
+              description: _descriptionController.text.trim(),
+              creatorNickname: widget.creatorNickname,
+            )
+            .timeout(const Duration(seconds: 5));
       }
 
       if (mounted) {
         debugPrint('[UI][CreateRoom] success, closing dialog');
-        Navigator.of(context).pop(room);
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
+          if (!mounted) return;
+          try {
+            if (Navigator.canPop(context)) {
+              debugPrint('[UI][CreateRoom] pop via local navigator');
+              Navigator.pop(context, room);
+              return;
+            }
+          } catch (_) {}
+          try {
+            debugPrint('[UI][CreateRoom] pop via root navigator');
+            Navigator.of(context, rootNavigator: true).pop(room);
+            return;
+          } catch (_) {}
+          // Final fallback: slight delay then attempt root pop again
+          await Future<void>.delayed(const Duration(milliseconds: 100));
+          if (!mounted) return;
+          try {
+            debugPrint('[UI][CreateRoom] fallback delayed root pop');
+            Navigator.of(context, rootNavigator: true).pop(room);
+          } catch (e) {
+            debugPrint('[UI][CreateRoom] pop failed: $e');
+          }
+        });
+      }
+    } on TimeoutException {
+      debugPrint('[UI][CreateRoom] timeout; closing dialog without navigation');
+      if (mounted) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+          try {
+            if (Navigator.canPop(context)) {
+              Navigator.pop(context, null);
+              return;
+            }
+          } catch (_) {}
+          try {
+            Navigator.of(context, rootNavigator: true).pop(null);
+          } catch (e) {
+            debugPrint('[UI][CreateRoom] timeout pop failed: $e');
+          }
+        });
       }
     } catch (e) {
       debugPrint('[UI][CreateRoom] failed: $e');
