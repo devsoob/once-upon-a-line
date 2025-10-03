@@ -44,7 +44,7 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
 
   Future<void> _createRoom() async {
     if (_nickname.isEmpty) {
-      _showNicknameDialog();
+      _showNicknameDialog(continueCreateFlow: true);
       return;
     }
 
@@ -67,7 +67,7 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
     }
   }
 
-  void _showNicknameDialog() {
+  void _showNicknameDialog({bool continueCreateFlow = false}) {
     final TextEditingController controller = TextEditingController();
 
     showDialog(
@@ -293,7 +293,9 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
                                       _nickname = nickname;
                                     });
                                     Navigator.of(context).pop();
-                                    _createRoom();
+                                    if (continueCreateFlow) {
+                                      _createRoom();
+                                    }
                                   }
                                 },
                                 style: ElevatedButton.styleFrom(
