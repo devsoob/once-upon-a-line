@@ -70,6 +70,25 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
   void _showNicknameDialog({bool continueCreateFlow = false}) {
     final TextEditingController controller = TextEditingController();
 
+    Future<void> submit() async {
+      if (controller.text.trim().isNotEmpty) {
+        final String nickname = controller.text.trim();
+        final UserSession session = UserSession(
+          nickname: nickname,
+          lastWriteAt: DateTime.now(),
+        );
+        await _sessionService.saveSession(session);
+        if (!mounted) return;
+        setState(() {
+          _nickname = nickname;
+        });
+        Navigator.of(context).pop();
+        if (continueCreateFlow) {
+          _createRoom();
+        }
+      }
+    }
+
     showDialog(
       context: context,
       builder:
@@ -246,7 +265,7 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
                               hintText: '닉네임을 입력해주세요',
                               maxLength: 20,
                               textInputAction: TextInputAction.done,
-                              onSubmitted: (_) {},
+                              onSubmitted: (_) => submit(),
                             ),
                           ],
                         ),
@@ -278,44 +297,32 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
                             ),
                             const SizedBox(width: 12),
                             Expanded(
-                              child: ElevatedButton(
-                                onPressed: () async {
-                                  if (controller.text.trim().isNotEmpty) {
-                                    final String nickname = controller.text.trim();
-                                    final UserSession session = UserSession(
-                                      nickname: nickname,
-                                      lastWriteAt: DateTime.now(),
-                                    );
-                                    await _sessionService.saveSession(session);
-                                    if (!mounted) return;
-                                    if (!context.mounted) return;
-                                    setState(() {
-                                      _nickname = nickname;
-                                    });
-                                    Navigator.of(context).pop();
-                                    if (continueCreateFlow) {
-                                      _createRoom();
-                                    }
-                                  }
+                              child: ValueListenableBuilder<TextEditingValue>(
+                                valueListenable: controller,
+                                builder: (context, value, _) {
+                                  final bool enabled = value.text.trim().isNotEmpty;
+                                  return ElevatedButton(
+                                    onPressed: enabled ? submit : null,
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppColors.primary,
+                                      foregroundColor: Colors.white,
+                                      padding: const EdgeInsets.symmetric(vertical: 16),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      elevation: 0,
+                                      shadowColor: Colors.transparent,
+                                    ),
+                                    child: const Text(
+                                      '확인',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                        letterSpacing: -0.2,
+                                      ),
+                                    ),
+                                  );
                                 },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.primary,
-                                  foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(vertical: 16),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  elevation: 0,
-                                  shadowColor: Colors.transparent,
-                                ),
-                                child: const Text(
-                                  '확인',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                    letterSpacing: -0.2,
-                                  ),
-                                ),
                               ),
                             ),
                           ],
@@ -327,7 +334,7 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
               ),
             ),
           ),
-    );
+    ).whenComplete(() => controller.dispose());
   }
 
   void _showProfileDialog() {
@@ -626,29 +633,26 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
                     child:
                         DiConfig.isFirebaseInitialized
                             ? StreamBuilder<List<StoryRoom>>(
-                              stream: GetIt.I<StoryRoomRepository>().getPublicRooms(),
-                              builder: (context, snapshot) => _buildRoomsList(snapshot),
-                            )
+                                stream: GetIt.I<StoryRoomRepository>().getPublicRooms(),
+                                builder: (context, snapshot) => _buildRoomsList(snapshot),
+                              )
                             : FutureBuilder<List<StoryRoom>>(
-                              future:
-                                  _needsRefresh
-                                      ? GetIt.I<LocalStoryRoomRepository>().getPublicRooms()
-                                      : GetIt.I<LocalStoryRoomRepository>().getPublicRooms(),
-                              builder: (context, snapshot) {
-                                // 새로고침 후 플래그 리셋
-                                if (_needsRefresh &&
-                                    snapshot.connectionState == ConnectionState.done) {
-                                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                                    if (mounted) {
-                                      setState(() {
-                                        _needsRefresh = false;
-                                      });
-                                    }
-                                  });
-                                }
-                                return _buildRoomsList(snapshot);
-                              },
-                            ),
+                                future: GetIt.I<LocalStoryRoomRepository>().getPublicRooms(),
+                                builder: (context, snapshot) {
+                                  // 새로고침 후 플래그 리셋
+                                  if (_needsRefresh &&
+                                      snapshot.connectionState == ConnectionState.done) {
+                                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                                      if (mounted) {
+                                        setState(() {
+                                          _needsRefresh = false;
+                                        });
+                                      }
+                                    });
+                                  }
+                                  return _buildRoomsList(snapshot);
+                                },
+                              ),
                   ),
                 ],
               ),
