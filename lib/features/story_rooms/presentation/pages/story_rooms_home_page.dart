@@ -73,10 +73,7 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
     Future<void> submit() async {
       if (controller.text.trim().isNotEmpty) {
         final String nickname = controller.text.trim();
-        final UserSession session = UserSession(
-          nickname: nickname,
-          lastWriteAt: DateTime.now(),
-        );
+        final UserSession session = UserSession(nickname: nickname, lastWriteAt: DateTime.now());
         await _sessionService.saveSession(session);
         if (!mounted) return;
         setState(() {
@@ -633,26 +630,26 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
                     child:
                         DiConfig.isFirebaseInitialized
                             ? StreamBuilder<List<StoryRoom>>(
-                                stream: GetIt.I<StoryRoomRepository>().getPublicRooms(),
-                                builder: (context, snapshot) => _buildRoomsList(snapshot),
-                              )
+                              stream: GetIt.I<StoryRoomRepository>().getPublicRooms(),
+                              builder: (context, snapshot) => _buildRoomsList(snapshot),
+                            )
                             : FutureBuilder<List<StoryRoom>>(
-                                future: GetIt.I<LocalStoryRoomRepository>().getPublicRooms(),
-                                builder: (context, snapshot) {
-                                  // 새로고침 후 플래그 리셋
-                                  if (_needsRefresh &&
-                                      snapshot.connectionState == ConnectionState.done) {
-                                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                                      if (mounted) {
-                                        setState(() {
-                                          _needsRefresh = false;
-                                        });
-                                      }
-                                    });
-                                  }
-                                  return _buildRoomsList(snapshot);
-                                },
-                              ),
+                              future: GetIt.I<LocalStoryRoomRepository>().getPublicRooms(),
+                              builder: (context, snapshot) {
+                                // 새로고침 후 플래그 리셋
+                                if (_needsRefresh &&
+                                    snapshot.connectionState == ConnectionState.done) {
+                                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                                    if (mounted) {
+                                      setState(() {
+                                        _needsRefresh = false;
+                                      });
+                                    }
+                                  });
+                                }
+                                return _buildRoomsList(snapshot);
+                              },
+                            ),
                   ),
                 ],
               ),
@@ -661,16 +658,7 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
         ],
       ),
       bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          // boxShadow: [
-          //   BoxShadow(
-          //     color: Colors.black.withOpacity(0.1),
-          //     blurRadius: 10,
-          //     offset: const Offset(0, -2),
-          //   ),
-          // ],
-        ),
+        decoration: BoxDecoration(color: Colors.white),
         child: SafeArea(
           child: Padding(
             padding: EdgeInsets.only(
@@ -704,7 +692,9 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
   }
 
   Widget _buildRoomsList(AsyncSnapshot<List<StoryRoom>> snapshot) {
-    debugPrint('[UI] _buildRoomsList state=${snapshot.connectionState} hasError=${snapshot.hasError} len=${snapshot.data?.length}');
+    debugPrint(
+      '[UI] _buildRoomsList state=${snapshot.connectionState} hasError=${snapshot.hasError} len=${snapshot.data?.length}',
+    );
     if (snapshot.connectionState == ConnectionState.waiting) {
       return const Center(child: CircularProgressIndicator());
     }
