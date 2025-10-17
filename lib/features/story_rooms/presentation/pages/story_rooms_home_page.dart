@@ -3,7 +3,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:once_upon_a_line/core/constants/app_colors.dart';
 import 'package:once_upon_a_line/core/widgets/app_logo.dart';
 import 'package:once_upon_a_line/core/widgets/profile_icon.dart';
-import 'package:once_upon_a_line/core/widgets/app_text_field.dart';
 import 'package:get_it/get_it.dart';
 import 'package:once_upon_a_line/app/data/repositories/story_room_repository.dart';
 import 'package:once_upon_a_line/app/data/repositories/local_story_room_repository.dart';
@@ -67,275 +66,11 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
     }
   }
 
-  void _showNicknameDialog({bool continueCreateFlow = false}) {
+  Future<void> _showNicknameDialog({bool continueCreateFlow = false}) async {
     final TextEditingController controller = TextEditingController();
 
-    Future<void> submit() async {
-      if (controller.text.trim().isNotEmpty) {
-        final String nickname = controller.text.trim();
-        final UserSession session = UserSession(nickname: nickname, lastWriteAt: DateTime.now());
-        await _sessionService.saveSession(session);
-        if (!mounted) return;
-        setState(() {
-          _nickname = nickname;
-        });
-        Navigator.of(context).pop();
-        if (continueCreateFlow) {
-          _createRoom();
-        }
-      }
-    }
 
-    showDialog(
-      context: context,
-      builder:
-          (context) => Dialog(
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(24),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.08),
-                    blurRadius: 32,
-                    offset: const Offset(0, 8),
-                  ),
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.04),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Header with gradient
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.fromLTRB(24, 24, 24, 20),
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [AppColors.logoStart, AppColors.logoMid, AppColors.logoEnd],
-                      ),
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(24),
-                        topRight: Radius.circular(24),
-                      ),
-                    ),
-                    child: Column(
-                      children: [
-                        Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.2),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: const Icon(Icons.edit_rounded, color: Colors.white, size: 20),
-                            ),
-                            const SizedBox(width: 12),
-                            const Expanded(
-                              child: Text(
-                                '닉네임 설정',
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.white,
-                                  letterSpacing: -0.5,
-                                ),
-                              ),
-                            ),
-                            IconButton(
-                              onPressed: () => Navigator.of(context).pop(),
-                              icon: const Icon(Icons.close_rounded, color: Colors.white, size: 24),
-                              style: IconButton.styleFrom(
-                                backgroundColor: Colors.white.withValues(alpha: 0.1),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          '다른 사용자들이 볼 닉네임을 설정하세요',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.white.withValues(alpha: 0.9),
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  // Content
-                  Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Current nickname display
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: const Color(0xFFE5EAF0), width: 1),
-                          ),
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 40,
-                                height: 40,
-                                decoration: BoxDecoration(
-                                  gradient: const LinearGradient(
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                    colors: [AppColors.primary, AppColors.primaryDark],
-                                  ),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    _nickname.isNotEmpty ? _nickname[0].toUpperCase() : '?',
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w700,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Text(
-                                      '현재 닉네임',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w500,
-                                        color: AppColors.textSecondary,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      _nickname,
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                        color: AppColors.textPrimary,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        // New nickname input
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              '새 닉네임',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.textPrimary,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            AppTextField(
-                              controller: controller,
-                              hintText: '닉네임을 입력해주세요',
-                              maxLength: 20,
-                              textInputAction: TextInputAction.done,
-                              onSubmitted: (_) => submit(),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 32),
-                        // Action buttons
-                        Row(
-                          children: [
-                            Expanded(
-                              child: OutlinedButton(
-                                onPressed: () => Navigator.of(context).pop(),
-                                style: OutlinedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(vertical: 16),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  side: const BorderSide(color: AppColors.primary, width: 1.5),
-                                  backgroundColor: Colors.white,
-                                  overlayColor: AppColors.primary.withValues(alpha: 0.1),
-                                ),
-                                child: const Text(
-                                  '취소',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColors.primary,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: ValueListenableBuilder<TextEditingValue>(
-                                valueListenable: controller,
-                                builder: (context, value, _) {
-                                  final bool enabled = value.text.trim().isNotEmpty;
-                                  return ElevatedButton(
-                                    onPressed: enabled ? submit : null,
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: AppColors.primary,
-                                      foregroundColor: Colors.white,
-                                      padding: const EdgeInsets.symmetric(vertical: 16),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      elevation: 0,
-                                      shadowColor: Colors.transparent,
-                                    ),
-                                    child: const Text(
-                                      '확인',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                        letterSpacing: -0.2,
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-    ).whenComplete(() => controller.dispose());
-  }
-
-  void _showProfileDialog() {
-    showDialog(
+    final String? newNickname = await showDialog<String>(
       context: context,
       builder:
           (context) => Dialog(
@@ -538,7 +273,9 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
                               child: ElevatedButton(
                                 onPressed: () {
                                   Navigator.of(context).pop();
-                                  _showNicknameDialog();
+                                  if (mounted) {
+                                    _showNicknameDialog(continueCreateFlow: continueCreateFlow);
+                                  }
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: AppColors.primary,
@@ -570,6 +307,18 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
             ),
           ),
     );
+
+    if (newNickname != null && mounted) {
+      setState(() {
+        _nickname = newNickname;
+      });
+      if (continueCreateFlow) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) _createRoom();
+        });
+      }
+    }
+    controller.dispose();
   }
 
   Future<void> _openRoom(StoryRoom room) async {
@@ -612,7 +361,7 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 16),
-            child: ProfileIcon(onPressed: _showProfileDialog, size: 28),
+            child: ProfileIcon(onPressed: () => _showNicknameDialog(), size: 28),
           ),
         ],
         titleSpacing: 16,
