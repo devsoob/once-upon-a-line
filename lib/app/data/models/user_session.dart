@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserSession {
@@ -34,38 +35,40 @@ class UserSession {
   static const String _sessionKey = 'user_session';
 
   static Future<UserSession?> load(SharedPreferences prefs) async {
-    final String? jsonString = prefs.getString(_sessionKey);
-    if (jsonString == null) return null;
+    final String? stored = prefs.getString(_sessionKey);
+    if (stored == null) return null;
+    // Try JSON first
     try {
-      // Simple JSON-like format: nickname:value,lastWriteAt:value,joinedRooms:value1,value2
-      final Map<String, dynamic> json = {};
-      final List<String> pairs = jsonString.split(',');
-      for (final String pair in pairs) {
-        final List<String> keyValue = pair.split(':');
-        if (keyValue.length == 2) {
-          final String key = keyValue[0];
-          final String value = keyValue[1];
-          if (key == 'nickname') {
-            json[key] = value;
-          } else if (key == 'lastWriteAt') {
-            json[key] = int.tryParse(value) ?? 0;
-          } else if (key == 'joinedRooms') {
-            json[key] = value.isEmpty ? <String>[] : value.split('|');
+      final Map<String, dynamic> jsonMap = json.decode(stored) as Map<String, dynamic>;
+      return fromJson(jsonMap);
+    } catch (_) {
+      // Fallback to legacy delimited format: nickname:...,lastWriteAt:...,joinedRooms:a|b|c
+      try {
+        final Map<String, dynamic> map = <String, dynamic>{};
+        final List<String> pairs = stored.split(',');
+        for (final String pair in pairs) {
+          final List<String> keyValue = pair.split(':');
+          if (keyValue.length == 2) {
+            final String key = keyValue[0];
+            final String value = keyValue[1];
+            if (key == 'nickname') {
+              map[key] = value;
+            } else if (key == 'lastWriteAt') {
+              map[key] = int.tryParse(value) ?? 0;
+            } else if (key == 'joinedRooms') {
+              map[key] = value.isEmpty ? <String>[] : value.split('|');
+            }
           }
         }
+        return fromJson(map);
+      } catch (_) {
+        return null;
       }
-      return fromJson(json);
-    } catch (_) {
-      return null;
     }
   }
 
   Future<void> save(SharedPreferences prefs) async {
-    final Map<String, dynamic> json = toJson();
-    final List<String> pairs = [];
-    pairs.add('nickname:${json['nickname']}');
-    pairs.add('lastWriteAt:${json['lastWriteAt']}');
-    pairs.add('joinedRooms:${(json['joinedRooms'] as List<String>).join('|')}');
-    await prefs.setString(_sessionKey, pairs.join(','));
+    final Map<String, dynamic> map = toJson();
+    await prefs.setString(_sessionKey, json.encode(map));
   }
 }
