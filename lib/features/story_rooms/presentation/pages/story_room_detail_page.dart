@@ -6,12 +6,13 @@ import 'package:once_upon_a_line/core/widgets/app_text_field.dart';
 import 'package:once_upon_a_line/core/widgets/app_toast.dart';
 import 'package:get_it/get_it.dart';
 import 'package:once_upon_a_line/app/data/repositories/story_sentence_repository.dart';
-import 'package:once_upon_a_line/app/data/repositories/local_story_sentence_repository.dart';
 import 'package:once_upon_a_line/app/data/models/story_room.dart';
 import 'package:once_upon_a_line/app/data/models/story_sentence.dart';
 import 'package:once_upon_a_line/app/data/services/user_session_service.dart';
 import 'package:once_upon_a_line/app/data/models/user_session.dart';
-import 'package:once_upon_a_line/di.dart';
+import 'package:once_upon_a_line/core/logger.dart';
+import 'package:go_router/go_router.dart';
+import 'package:once_upon_a_line/core/routers/router_name.dart';
 
 class StoryRoomDetailPage extends StatefulWidget {
   const StoryRoomDetailPage({super.key, required this.room});
@@ -98,21 +99,12 @@ class _StoryRoomDetailPageState extends State<StoryRoomDetailPage> {
     // Fire-and-forget write; report errors via toast, stream will update UI
     Future<void>(() async {
       try {
-        if (DiConfig.isFirebaseInitialized) {
-          final StorySentenceRepository firebaseRepo = GetIt.I<StorySentenceRepository>();
-          await firebaseRepo.addSentence(
-            roomId: widget.room.id,
-            content: text.trim(),
-            authorNickname: _nickname,
-          );
-        } else {
-          final LocalStorySentenceRepository localRepo = GetIt.I<LocalStorySentenceRepository>();
-          await localRepo.addSentence(
-            roomId: widget.room.id,
-            content: text.trim(),
-            authorNickname: _nickname,
-          );
-        }
+        final StorySentenceRepository repo = GetIt.I<StorySentenceRepository>();
+        await repo.addSentence(
+          roomId: widget.room.id,
+          content: text.trim(),
+          authorNickname: _nickname,
+        );
         if (mounted) {
           AppToast.show(context, '문장이 추가되었습니다!');
         }
@@ -125,8 +117,7 @@ class _StoryRoomDetailPageState extends State<StoryRoomDetailPage> {
           message = '네트워크 상태가 불안정해요. 연결을 확인해 주세요.';
         }
         if (kDebugMode) {
-          debugPrint('[StoryRoomDetail] addSentence failed (optimistic): $e');
-          debugPrint('$st');
+          logger.e('[StoryRoomDetail] addSentence failed (optimistic): $e', error: e, stackTrace: st);
         }
         if (mounted) {
           AppToast.show(context, message);
@@ -137,14 +128,30 @@ class _StoryRoomDetailPageState extends State<StoryRoomDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return WillPopScope(
+      onWillPop: () async {
+        // If this page was opened via Navigator.push, pop it. Otherwise, route to home.
+        if (Navigator.of(context).canPop()) {
+          Navigator.of(context).pop(true);
+        } else {
+          context.goNamed(homeRouteName);
+        }
+        return false;
+      },
+      child: Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios, color: AppColors.textPrimary),
-          onPressed: () => Navigator.of(context).pop(true), // true를 반환하여 새로고침 필요함을 알림
+          onPressed: () {
+            if (Navigator.of(context).canPop()) {
+              Navigator.of(context).pop(true);
+            } else {
+              context.goNamed(homeRouteName);
+            }
+          },
         ),
         title: Text(
           widget.room.title,
@@ -165,18 +172,11 @@ class _StoryRoomDetailPageState extends State<StoryRoomDetailPage> {
                 color: const Color(0xFFF8F9FA),
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
-                  child:
-                      DiConfig.isFirebaseInitialized
-                          ? StreamBuilder<List<StorySentence>>(
-                            stream: GetIt.I<StorySentenceRepository>().getSentences(widget.room.id),
-                            builder: (context, snapshot) => _buildSentencesList(snapshot),
-                          )
-                          : FutureBuilder<List<StorySentence>>(
-                            future: GetIt.I<LocalStorySentenceRepository>().getSentences(
-                              widget.room.id,
-                            ),
-                            builder: (context, snapshot) => _buildSentencesList(snapshot),
-                          ),
+                  child: StreamBuilder<List<StorySentence>>(
+                    stream: GetIt.I<StorySentenceRepository>().getSentences(widget.room.id),
+                    initialData: const <StorySentence>[],
+                    builder: (context, snapshot) => _buildSentencesList(snapshot),
+                  ),
                 ),
               ),
             ),
@@ -236,6 +236,7 @@ class _StoryRoomDetailPageState extends State<StoryRoomDetailPage> {
           ],
         ),
       ),
+    ),
     );
   }
 
@@ -246,7 +247,7 @@ class _StoryRoomDetailPageState extends State<StoryRoomDetailPage> {
 
     if (snapshot.hasError) {
       if (kDebugMode) {
-        debugPrint('[StoryRoomDetail] stream error: ${snapshot.error}');
+        logger.e('[StoryRoomDetail] stream error: ${snapshot.error}');
       }
       if (!_hasShownStreamError && mounted) {
         _hasShownStreamError = true;

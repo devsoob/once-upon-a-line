@@ -1,8 +1,9 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:uuid/uuid.dart';
-import 'package:once_upon_a_line/app/data/models/story_room.dart';
+  import 'package:flutter/foundation.dart';
+  import 'package:cloud_firestore/cloud_firestore.dart';
+  import 'package:uuid/uuid.dart';
+  import 'package:once_upon_a_line/app/data/models/story_room.dart';
+  import 'package:once_upon_a_line/core/logger.dart';
 
 abstract class StoryRoomRepository {
   Stream<List<StoryRoom>> getPublicRooms();
@@ -70,17 +71,16 @@ class FirebaseStoryRoomRepository implements StoryRoomRepository {
       isPublic: true,
     );
     if (kDebugMode) {
-      debugPrint('[Repo][Room] createRoom start title="$title" by "$creatorNickname"');
+      logger.i('[Repo][Room] createRoom start title="$title" by "$creatorNickname"');
     }
     // Optimistic write: do not await to avoid UI stall on iOS simulator
     _roomsCollection.doc(roomId).set(room.toFirestore()).catchError((e, st) {
       if (kDebugMode) {
-        debugPrint('[Repo][Room] createRoom async set error: $e');
-        debugPrint(st.toString());
+        logger.e('[Repo][Room] createRoom async set error: $e', error: e, stackTrace: st);
       }
     });
     if (kDebugMode) {
-      debugPrint('[Repo][Room] createRoom enqueued id=$roomId');
+      logger.i('[Repo][Room] createRoom enqueued id=$roomId');
     }
     return room;
   }
@@ -88,7 +88,7 @@ class FirebaseStoryRoomRepository implements StoryRoomRepository {
   @override
   Future<void> joinRoom(String roomId, String nickname) async {
     if (kDebugMode) {
-      debugPrint('[Repo][Room] joinRoom roomId=$roomId nickname=$nickname');
+      logger.d('[Repo][Room] joinRoom roomId=$roomId nickname=$nickname');
     }
     final DocumentReference<Map<String, dynamic>> docRef = _roomsCollection.doc(roomId);
     await _firestore.runTransaction((transaction) async {
@@ -109,7 +109,7 @@ class FirebaseStoryRoomRepository implements StoryRoomRepository {
   @override
   Future<void> leaveRoom(String roomId, String nickname) async {
     if (kDebugMode) {
-      debugPrint('[Repo][Room] leaveRoom roomId=$roomId nickname=$nickname');
+      logger.d('[Repo][Room] leaveRoom roomId=$roomId nickname=$nickname');
     }
     final DocumentReference<Map<String, dynamic>> docRef = _roomsCollection.doc(roomId);
     await _firestore.runTransaction((transaction) async {

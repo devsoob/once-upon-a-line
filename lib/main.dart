@@ -7,67 +7,64 @@ import 'package:flutter/foundation.dart';
 import 'di.dart';
 import 'core/routers/app_router.dart';
 import 'core/constants/app_colors.dart';
+import 'core/logger.dart';
+import 'core/constants/timeouts.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // Global error handlers (minimal, for crash diagnostics)
   FlutterError.onError = (FlutterErrorDetails details) {
     FlutterError.dumpErrorToConsole(details);
-    debugPrint('[GlobalError][FlutterError] ${details.exceptionAsString()}');
-    if (details.stack != null) {
-      debugPrint(details.stack.toString());
-    }
+    logger.e('[GlobalError][FlutterError] ${details.exceptionAsString()}', error: details.exception, stackTrace: details.stack);
   };
   WidgetsBinding.instance.platformDispatcher.onError = (Object error, StackTrace stack) {
-    debugPrint('[GlobalError][Platform] $error');
-    debugPrint(stack.toString());
+    logger.e('[GlobalError][Platform] $error', error: error, stackTrace: stack);
     return true; // prevent silent crash to surface logs
   };
-  debugPrint('[main] start');
+  logger.i('[main] start');
 
   try {
     if (kDebugMode) {
-      debugPrint('[Startup] kDebugMode=true');
+      logger.i('[Startup] kDebugMode=true');
     }
-    debugPrint('[Startup] Before Firebase.initializeApp');
+    logger.i('[Startup] Before Firebase.initializeApp');
     // Initialize Firebase using the default configuration files
     try {
-      await Firebase.initializeApp().timeout(const Duration(seconds: 20));
+      await Firebase.initializeApp().timeout(AppTimeouts.firebaseInit);
     } on TimeoutException catch (_) {
-      debugPrint('[Startup][Error] Firebase.initializeApp TIMEOUT (20s)');
+      logger.e('[Startup][Error] Firebase.initializeApp TIMEOUT (${AppTimeouts.firebaseInit.inSeconds}s)');
       rethrow;
     } catch (e, st) {
-      debugPrint('[Startup][Error] Firebase.initializeApp failed: $e');
-      debugPrint('$st');
+      logger.e('[Startup][Error] Firebase.initializeApp failed: $e', error: e, stackTrace: st);
       rethrow;
     }
-    debugPrint('[Startup] Firebase.initializeApp OK');
+    logger.i('[Startup] Firebase.initializeApp OK');
     // Ensure the user is authenticated (anonymous) to satisfy Firestore rules
     try {
-      debugPrint('[Auth] Before signInAnonymously');
-      await FirebaseAuth.instance.signInAnonymously().timeout(const Duration(seconds: 15));
-      debugPrint('[Auth] signInAnonymously OK');
+      logger.i('[Auth] Before signInAnonymously');
+      await FirebaseAuth.instance.signInAnonymously().timeout(AppTimeouts.anonymousSignIn);
+      logger.i('[Auth] signInAnonymously OK');
     } catch (_) {
       // If sign-in fails, continue; reads/writes that require auth will fail gracefully
-      debugPrint('[Auth] signInAnonymously failed (continuing anonymously-restricted)');
+      logger.w('[Auth] signInAnonymously failed (continuing anonymously-restricted)');
     }
 
     // Debug healthcheck disabled to avoid early crashes before DI/runApp during iOS debugging.
     if (kDebugMode) {
       final user = FirebaseAuth.instance.currentUser;
-      debugPrint('[Auth] isAnonymous=${user?.isAnonymous} uid=${user?.uid}');
-      debugPrint('[Healthcheck] Skipped in debug build');
+      logger.i('[Auth] isAnonymous=${user?.isAnonymous} uid=${user?.uid}');
+      logger.i('[Healthcheck] Skipped in debug build');
     }
-    debugPrint('[Startup] DiConfig.init start');
+    logger.i('[Startup] DiConfig.init start');
     await DiConfig.init();
-    debugPrint('[Startup] DiConfig.init done');
+    logger.i('[Startup] DiConfig.init done');
   } catch (e) {
     // If Firebase initialization fails, continue without Firebase
     // Initialize DI without Firebase dependencies
     await DiConfig.initWithoutFirebase();
   }
 
-  debugPrint('[Startup] Before runApp');
+  logger.i('[Startup] Before runApp');
   runApp(const OnceUponALineApp());
 }
 
@@ -76,7 +73,7 @@ class OnceUponALineApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('[UI] OnceUponALineApp.build');
+    logger.d('[UI] OnceUponALineApp.build');
     // 시스템 UI 스타일 지정
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(

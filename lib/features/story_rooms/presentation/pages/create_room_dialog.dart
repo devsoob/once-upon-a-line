@@ -5,9 +5,9 @@ import 'package:once_upon_a_line/core/widgets/app_text_field.dart';
 import 'package:once_upon_a_line/core/widgets/app_toast.dart';
 import 'package:get_it/get_it.dart';
 import '../../../../app/data/repositories/story_room_repository.dart';
-import '../../../../app/data/repositories/local_story_room_repository.dart';
 import '../../../../app/data/models/story_room.dart';
-import '../../../../di.dart';
+import 'package:once_upon_a_line/core/logger.dart';
+import 'package:once_upon_a_line/core/constants/timeouts.dart';
 
 class CreateRoomDialog extends StatefulWidget {
   const CreateRoomDialog({super.key, required this.creatorNickname});
@@ -43,42 +43,30 @@ class _CreateRoomDialogState extends State<CreateRoomDialog> {
     try {
       StoryRoom? room;
 
-      if (DiConfig.isFirebaseInitialized) {
-        debugPrint('[UI][CreateRoom] using Firebase repository');
-        final StoryRoomRepository firebaseRepo = GetIt.I<StoryRoomRepository>();
-        // Prevent indefinite wait: timeout fallback closes dialog without navigation
-        room = await firebaseRepo
-            .createRoom(
-              title: _titleController.text.trim(),
-              description: _descriptionController.text.trim(),
-              creatorNickname: widget.creatorNickname,
-            )
-            .timeout(const Duration(seconds: 5));
-      } else {
-        debugPrint('[UI][CreateRoom] using Local repository (Firebase fallback)');
-        final LocalStoryRoomRepository localRepo = GetIt.I<LocalStoryRoomRepository>();
-        room = await localRepo
-            .createRoom(
-              title: _titleController.text.trim(),
-              description: _descriptionController.text.trim(),
-              creatorNickname: widget.creatorNickname,
-            )
-            .timeout(const Duration(seconds: 5));
-      }
+      logger.i('[UI][CreateRoom] creating room');
+      final StoryRoomRepository repo = GetIt.I<StoryRoomRepository>();
+      // Prevent indefinite wait: timeout fallback closes dialog without navigation
+      room = await repo
+          .createRoom(
+            title: _titleController.text.trim(),
+            description: _descriptionController.text.trim(),
+            creatorNickname: widget.creatorNickname,
+          )
+          .timeout(AppTimeouts.createRoom);
 
       if (mounted) {
-        debugPrint('[UI][CreateRoom] success, closing dialog');
+        logger.i('[UI][CreateRoom] success, closing dialog');
         WidgetsBinding.instance.addPostFrameCallback((_) async {
           if (!mounted) return;
           try {
             if (Navigator.canPop(context)) {
-              debugPrint('[UI][CreateRoom] pop via local navigator');
+              logger.d('[UI][CreateRoom] pop via local navigator');
               Navigator.pop(context, room);
               return;
             }
           } catch (_) {}
           try {
-            debugPrint('[UI][CreateRoom] pop via root navigator');
+            logger.d('[UI][CreateRoom] pop via root navigator');
             Navigator.of(context, rootNavigator: true).pop(room);
             return;
           } catch (_) {}
@@ -86,15 +74,15 @@ class _CreateRoomDialogState extends State<CreateRoomDialog> {
           await Future<void>.delayed(const Duration(milliseconds: 100));
           if (!mounted) return;
           try {
-            debugPrint('[UI][CreateRoom] fallback delayed root pop');
+            logger.d('[UI][CreateRoom] fallback delayed root pop');
             Navigator.of(context, rootNavigator: true).pop(room);
           } catch (e) {
-            debugPrint('[UI][CreateRoom] pop failed: $e');
+            logger.e('[UI][CreateRoom] pop failed: $e');
           }
         });
       }
     } on TimeoutException {
-      debugPrint('[UI][CreateRoom] timeout; closing dialog without navigation');
+      logger.w('[UI][CreateRoom] timeout; closing dialog without navigation');
       if (mounted) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (!mounted) return;
@@ -107,12 +95,12 @@ class _CreateRoomDialogState extends State<CreateRoomDialog> {
           try {
             Navigator.of(context, rootNavigator: true).pop(null);
           } catch (e) {
-            debugPrint('[UI][CreateRoom] timeout pop failed: $e');
+            logger.e('[UI][CreateRoom] timeout pop failed: $e');
           }
         });
       }
     } catch (e) {
-      debugPrint('[UI][CreateRoom] failed: $e');
+      logger.e('[UI][CreateRoom] failed: $e');
       if (mounted) {
         AppToast.show(context, '오류가 발생했습니다: $e');
       }
