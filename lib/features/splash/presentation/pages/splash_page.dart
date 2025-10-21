@@ -4,6 +4,7 @@ import 'dart:ui' show PathMetric, PathMetrics;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:once_upon_a_line/core/constants/app_colors.dart';
+import 'package:once_upon_a_line/core/routers/router_name.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -26,7 +27,7 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
 
     _timer = Timer(const Duration(milliseconds: 1600), () {
       if (!mounted) return;
-      context.go('/');
+      context.goNamed(homeRouteName);
     });
   }
 

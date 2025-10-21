@@ -14,23 +14,27 @@ class AppRouter {
     routes: <RouteBase>[
       GoRoute(
         path: splashRoutePath,
-        name: 'slash',
+        name: splashRouteName,
         pageBuilder: (BuildContext context, GoRouterState state) {
           return const MaterialPage<void>(child: SplashPage());
         },
       ),
       GoRoute(
         path: homeRoutePath,
+        name: homeRouteName,
         pageBuilder: (BuildContext context, GoRouterState state) {
           return const MaterialPage<void>(child: StoryRoomsHomePage());
         },
       ),
       GoRoute(
         path: storyDetailRoutePath,
-        pageBuilder: (BuildContext context, GoRouterState state) {
+        name: storyDetailRouteName,
+        pageBuilder: (context, state) {
           final StoryRoom? room = state.extra as StoryRoom?;
           if (room == null) {
-            return const MaterialPage<void>(child: Scaffold(body: Center(child: Text('잘못된 경로'))));
+            return const MaterialPage<void>(
+              child: Scaffold(body: Center(child: Text('잘못된 경로'))),
+            );
           }
           return MaterialPage<void>(child: StoryRoomDetailPage(room: room));
         },
