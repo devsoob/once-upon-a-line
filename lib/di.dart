@@ -6,6 +6,7 @@ import 'app/data/repositories/local_story_room_repository.dart';
 import 'app/data/repositories/story_sentence_repository.dart';
 import 'app/data/repositories/local_story_sentence_repository.dart';
 import 'app/data/services/user_session_service.dart';
+import 'app/data/repositories/local_adapters.dart';
 
 final GetIt di = GetIt.instance;
 bool _isFirebaseInitialized = false;
@@ -19,9 +20,7 @@ class DiConfig {
     di.registerSingleton<FirebaseFirestore>(firestore);
     _isFirebaseInitialized = true;
 
-    // No legacy local repositories required in Firebase mode
-
-    // New Firebase repositories
+    // Repositories via interfaces (Firebase implementations)
     di.registerLazySingleton<StorySentenceRepository>(
       () => FirebaseStorySentenceRepository(di<FirebaseFirestore>()),
     );
@@ -40,17 +39,11 @@ class DiConfig {
 
     di.registerSingleton<SharedPreferences>(prefs);
 
-    // No legacy local repositories required in local-only mode beyond story fallbacks
-
-    // Local story room repository (Firebase fallback)
-    di.registerLazySingleton<LocalStoryRoomRepository>(
-      () => LocalStoryRoomRepository(di<SharedPreferences>()),
-    );
-
-    // Local story sentence repository (Firebase fallback)
-    di.registerLazySingleton<LocalStorySentenceRepository>(
-      () => LocalStorySentenceRepository(di<SharedPreferences>()),
-    );
+    // Register local repositories and expose via interface adapters
+    final LocalStoryRoomRepository localRoom = LocalStoryRoomRepository(di<SharedPreferences>());
+    final LocalStorySentenceRepository localSentence = LocalStorySentenceRepository(di<SharedPreferences>());
+    di.registerLazySingleton<StoryRoomRepository>(() => LocalStoryRoomRepositoryAdapter(localRoom));
+    di.registerLazySingleton<StorySentenceRepository>(() => LocalStorySentenceRepositoryAdapter(localSentence));
 
     // Services
     di.registerLazySingleton<UserSessionService>(
