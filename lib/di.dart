@@ -42,6 +42,9 @@ class DiConfig {
     // Register local repositories and expose via interface adapters
     final LocalStoryRoomRepository localRoom = LocalStoryRoomRepository(di<SharedPreferences>());
     final LocalStorySentenceRepository localSentence = LocalStorySentenceRepository(di<SharedPreferences>());
+    // Register concrete types for direct lookup by UI fallback paths
+    di.registerSingleton<LocalStoryRoomRepository>(localRoom);
+    di.registerSingleton<LocalStorySentenceRepository>(localSentence);
     di.registerLazySingleton<StoryRoomRepository>(() => LocalStoryRoomRepositoryAdapter(localRoom));
     di.registerLazySingleton<StorySentenceRepository>(() => LocalStorySentenceRepositoryAdapter(localSentence));
 
