@@ -89,6 +89,7 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
                     offset: const Offset(0, 8),
                   ),
                   BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.04),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
