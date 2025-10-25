@@ -5,6 +5,8 @@ import 'package:once_upon_a_line/features/story_rooms/presentation/pages/story_r
 import 'package:once_upon_a_line/app/data/models/story_room.dart';
 import 'package:once_upon_a_line/features/splash/presentation/pages/splash_page.dart';
 import 'package:once_upon_a_line/core/routers/router_name.dart';
+import 'package:once_upon_a_line/features/my_stories/presentation/pages/my_stories_page.dart';
+import 'package:once_upon_a_line/features/root/presentation/pages/root_shell.dart';
 
 class AppRouter {
   AppRouter._();
@@ -19,12 +21,24 @@ class AppRouter {
           return const MaterialPage<void>(child: SplashPage());
         },
       ),
-      GoRoute(
-        path: homeRoutePath,
-        name: homeRouteName,
-        pageBuilder: (BuildContext context, GoRouterState state) {
-          return const MaterialPage<void>(child: StoryRoomsHomePage());
-        },
+      ShellRoute(
+        builder: (context, state, child) => RootShell(child: child),
+        routes: <RouteBase>[
+          GoRoute(
+            path: homeRoutePath,
+            name: homeRouteName,
+            pageBuilder: (BuildContext context, GoRouterState state) {
+              return const MaterialPage<void>(child: StoryRoomsHomePage());
+            },
+          ),
+          GoRoute(
+            path: myStoriesRoutePath,
+            name: myStoriesRouteName,
+            pageBuilder: (BuildContext context, GoRouterState state) {
+              return const MaterialPage<void>(child: MyStoriesPage());
+            },
+          ),
+        ],
       ),
       GoRoute(
         path: storyDetailRoutePath,

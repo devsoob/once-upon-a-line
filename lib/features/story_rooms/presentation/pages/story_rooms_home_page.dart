@@ -11,7 +11,8 @@ import 'package:once_upon_a_line/app/data/services/user_session_service.dart';
 import 'package:once_upon_a_line/app/data/models/user_session.dart';
 import 'package:once_upon_a_line/di.dart';
 import 'package:once_upon_a_line/features/story_rooms/presentation/pages/create_room_dialog.dart';
-import 'package:once_upon_a_line/features/story_rooms/presentation/pages/story_room_detail_page.dart';
+import 'package:go_router/go_router.dart';
+import 'package:once_upon_a_line/core/routers/router_name.dart';
 
 class StoryRoomsHomePage extends StatefulWidget {
   const StoryRoomsHomePage({super.key});
@@ -53,9 +54,7 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
     );
 
     if (room != null && mounted) {
-      final result = await Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (context) => StoryRoomDetailPage(room: room)));
+      final result = await context.pushNamed(storyDetailRouteName, extra: room);
 
       // 뒤로가기 시 새로고침 플래그 설정
       if (result == true) {
@@ -116,193 +115,197 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                          Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.2),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: const Icon(
-                                  Icons.person_rounded,
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.2),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Icon(
+                                Icons.person_rounded,
+                                color: Colors.white,
+                                size: 20,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            const Expanded(
+                              child: Text(
+                                '프로필',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w700,
                                   color: Colors.white,
-                                  size: 20,
+                                  letterSpacing: -0.5,
                                 ),
                               ),
-                              const SizedBox(width: 12),
-                              const Expanded(
-                                child: Text(
-                                  '프로필',
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w700,
-                                    color: Colors.white,
-                                    letterSpacing: -0.5,
+                            ),
+                            IconButton(
+                              onPressed: () => Navigator.of(context).pop(),
+                              icon: const Icon(Icons.close_rounded, color: Colors.white, size: 24),
+                              style: IconButton.styleFrom(
+                                backgroundColor: Colors.white.withValues(alpha: 0.1),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          '계정 정보를 확인하고 관리하세요',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.white.withValues(alpha: 0.9),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Content
+                  Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      children: [
+                        // Profile info card
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: const Color(0xFFE5EAF0), width: 1),
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 60,
+                                height: 60,
+                                decoration: BoxDecoration(
+                                  gradient: const LinearGradient(
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                    colors: [AppColors.primary, AppColors.primaryDark],
+                                  ),
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    _nickname.isNotEmpty ? _nickname[0].toUpperCase() : '?',
+                                    style: const TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.white,
+                                    ),
                                   ),
                                 ),
                               ),
-                              IconButton(
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      _nickname,
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w700,
+                                        color: AppColors.textPrimary,
+                                        letterSpacing: -0.3,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 4,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.primary.withValues(alpha: 0.1),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: const Text(
+                                        '게스트 사용자',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600,
+                                          color: AppColors.primary,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        // Action buttons
+                        Row(
+                          children: [
+                            Expanded(
+                              child: OutlinedButton(
                                 onPressed: () => Navigator.of(context).pop(),
-                                icon: const Icon(Icons.close_rounded, color: Colors.white, size: 24),
-                                style: IconButton.styleFrom(
-                                  backgroundColor: Colors.white.withValues(alpha: 0.1),
+                                style: OutlinedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(vertical: 16),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
+                                  side: const BorderSide(color: AppColors.primary, width: 1.5),
+                                  backgroundColor: Colors.white,
+                                  overlayColor: AppColors.primary.withValues(alpha: 0.1),
+                                ),
+                                child: const Text(
+                                  '닫기',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.primary,
+                                  ),
                                 ),
                               ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            '계정 정보를 확인하고 관리하세요',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.white.withValues(alpha: 0.9),
-                              fontWeight: FontWeight.w500,
                             ),
-                          ),
-                        ],
-                      ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                                    if (mounted) {
+                                      _showNicknameEditDialog(
+                                        continueCreateFlow: continueCreateFlow,
+                                      );
+                                    }
+                                  });
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.primary,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  elevation: 0,
+                                  shadowColor: Colors.transparent,
+                                ),
+                                child: const Text(
+                                  '닉네임 변경',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    letterSpacing: -0.2,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                    // Content
-                    Padding(
-                      padding: const EdgeInsets.all(24),
-                      child: Column(
-                        children: [
-                          // Profile info card
-                          Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.all(20),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(color: const Color(0xFFE5EAF0), width: 1),
-                            ),
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: 60,
-                                  height: 60,
-                                  decoration: BoxDecoration(
-                                    gradient: const LinearGradient(
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                      colors: [AppColors.primary, AppColors.primaryDark],
-                                    ),
-                                    borderRadius: BorderRadius.circular(16),
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      _nickname.isNotEmpty ? _nickname[0].toUpperCase() : '?',
-                                      style: const TextStyle(
-                                        fontSize: 24,
-                                        fontWeight: FontWeight.w700,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        _nickname,
-                                        style: const TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.w700,
-                                          color: AppColors.textPrimary,
-                                          letterSpacing: -0.3,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 8,
-                                          vertical: 4,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: AppColors.primary.withValues(alpha: 0.1),
-                                          borderRadius: BorderRadius.circular(8),
-                                        ),
-                                        child: const Text(
-                                          '게스트 사용자',
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w600,
-                                            color: AppColors.primary,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 24),
-                          // Action buttons
-                          Row(
-                            children: [
-                              Expanded(
-                                child: OutlinedButton(
-                                  onPressed: () => Navigator.of(context).pop(),
-                                  style: OutlinedButton.styleFrom(
-                                    padding: const EdgeInsets.symmetric(vertical: 16),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    side: const BorderSide(color: AppColors.primary, width: 1.5),
-                                    backgroundColor: Colors.white,
-                                    overlayColor: AppColors.primary.withValues(alpha: 0.1),
-                                  ),
-                                  child: const Text(
-                                    '닫기',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                      color: AppColors.primary,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                                      if (mounted) _showNicknameEditDialog(continueCreateFlow: continueCreateFlow);
-                                    });
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppColors.primary,
-                                    foregroundColor: Colors.white,
-                                    padding: const EdgeInsets.symmetric(vertical: 16),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    elevation: 0,
-                                    shadowColor: Colors.transparent,
-                                  ),
-                                  child: const Text(
-                                    '닉네임 변경',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                      letterSpacing: -0.2,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
+                  ),
                 ],
               ),
             ),
@@ -366,9 +369,9 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
                               onPressed: () {
                                 final String value = controller.text.trim();
                                 if (value.isEmpty) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('닉네임을 입력해 주세요.')),
-                                  );
+                                  ScaffoldMessenger.of(
+                                    context,
+                                  ).showSnackBar(const SnackBar(content: Text('닉네임을 입력해 주세요.')));
                                   return;
                                 }
                                 if (value.length > 20) {
@@ -397,7 +400,8 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
     if (newNickname != null && mounted) {
       try {
         final UserSession? current = await _sessionService.getCurrentSession();
-        final UserSession updated = (current ?? UserSession(nickname: '', lastWriteAt: DateTime.fromMillisecondsSinceEpoch(0)))
+        final UserSession updated = (current ??
+                UserSession(nickname: '', lastWriteAt: DateTime.fromMillisecondsSinceEpoch(0)))
             .copyWith(nickname: newNickname, lastWriteAt: DateTime.now());
         await _sessionService.saveSession(updated);
       } catch (e) {
@@ -407,9 +411,7 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
       setState(() {
         _nickname = newNickname;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('닉네임이 저장되었습니다.')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('닉네임이 저장되었습니다.')));
       if (continueCreateFlow) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted) _createRoom();
@@ -419,9 +421,7 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
   }
 
   Future<void> _openRoom(StoryRoom room) async {
-    final result = await Navigator.of(
-      context,
-    ).push(MaterialPageRoute(builder: (context) => StoryRoomDetailPage(room: room)));
+    final result = await context.pushNamed(storyDetailRouteName, extra: room);
 
     // 뒤로가기 시 새로고침 플래그 설정
     if (result == true && mounted) {
@@ -502,37 +502,6 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
             ),
           ),
         ],
-      ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(color: Colors.white),
-        child: SafeArea(
-          child: Padding(
-            padding: EdgeInsets.only(
-              left: 16,
-              right: 16,
-              top: 12,
-              bottom: MediaQuery.of(context).padding.bottom > 0 ? 8 : 16,
-            ),
-            child: SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _createRoom,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 24),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  elevation: 0,
-                  shadowColor: Colors.transparent,
-                ),
-                child: const Text(
-                  '새 이야기 시작하기',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, letterSpacing: -0.5),
-                ),
-              ),
-            ),
-          ),
-        ),
       ),
     );
   }
