@@ -38,6 +38,7 @@ class LocalStorySentenceRepository {
     required String roomId,
     required String content,
     required String authorNickname,
+    required String authorUserId,
   }) async {
     final String sentenceId = _uuid.v4();
     final DateTime now = DateTime.now();
@@ -54,6 +55,7 @@ class LocalStorySentenceRepository {
       roomId: roomId,
       content: content,
       authorNickname: authorNickname,
+      authorUserId: authorUserId,
       createdAt: now,
       order: nextOrder,
     );

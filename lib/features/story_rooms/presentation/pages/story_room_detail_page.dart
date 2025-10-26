@@ -27,6 +27,7 @@ class _StoryRoomDetailPageState extends State<StoryRoomDetailPage> {
   late final UserSessionService _sessionService;
   final TextEditingController _sentenceController = TextEditingController();
   String _nickname = '게스트';
+  String _userId = '';
   bool _isLoading = false;
   bool _hasShownStreamError = false;
 
@@ -55,7 +56,7 @@ class _StoryRoomDetailPageState extends State<StoryRoomDetailPage> {
   void initState() {
     super.initState();
     _sessionService = GetIt.I<UserSessionService>();
-    _loadNickname();
+    _loadUser();
   }
 
   @override
@@ -64,10 +65,11 @@ class _StoryRoomDetailPageState extends State<StoryRoomDetailPage> {
     super.dispose();
   }
 
-  Future<void> _loadNickname() async {
+  Future<void> _loadUser() async {
     final UserSession? session = await _sessionService.getCurrentSession();
     setState(() {
       _nickname = session?.nickname ?? '게스트';
+      _userId = session?.userId ?? '';
     });
   }
 
@@ -104,6 +106,7 @@ class _StoryRoomDetailPageState extends State<StoryRoomDetailPage> {
           roomId: widget.room.id,
           content: text.trim(),
           authorNickname: _nickname,
+          authorUserId: _userId,
         );
         if (mounted) {
           AppToast.show(context, '문장이 추가되었습니다!');

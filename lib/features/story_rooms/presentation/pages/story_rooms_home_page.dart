@@ -24,6 +24,7 @@ class StoryRoomsHomePage extends StatefulWidget {
 class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
   late final UserSessionService _sessionService;
   String _nickname = '';
+  String _userId = '';
   bool _needsRefresh = false;
 
   @override
@@ -31,26 +32,27 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
     super.initState();
     debugPrint('[UI] StoryRoomsHomePage.initState');
     _sessionService = GetIt.I<UserSessionService>();
-    _loadNickname();
+    _loadUser();
   }
 
-  Future<void> _loadNickname() async {
+  Future<void> _loadUser() async {
     final UserSession? session = await _sessionService.getCurrentSession();
     if (!mounted) return;
     setState(() {
       _nickname = session?.nickname ?? '게스트';
+      _userId = session?.userId ?? '';
     });
   }
 
   Future<void> _createRoom() async {
-    if (_nickname.isEmpty) {
+    if (_nickname.isEmpty || _userId.isEmpty) {
       _showNicknameDialog(continueCreateFlow: true);
       return;
     }
 
     final StoryRoom? room = await showDialog<StoryRoom>(
       context: context,
-      builder: (context) => CreateRoomDialog(creatorNickname: _nickname),
+      builder: (context) => CreateRoomDialog(creatorNickname: _nickname, creatorUserId: _userId),
     );
 
     if (room != null && mounted) {
@@ -401,7 +403,11 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
       try {
         final UserSession? current = await _sessionService.getCurrentSession();
         final UserSession updated = (current ??
-                UserSession(nickname: '', lastWriteAt: DateTime.fromMillisecondsSinceEpoch(0)))
+                UserSession(
+                  userId: '',
+                  nickname: '',
+                  lastWriteAt: DateTime.fromMillisecondsSinceEpoch(0),
+                ))
             .copyWith(nickname: newNickname, lastWriteAt: DateTime.now());
         await _sessionService.saveSession(updated);
       } catch (e) {

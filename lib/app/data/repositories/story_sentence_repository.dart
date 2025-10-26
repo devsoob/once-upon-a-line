@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
-  import 'package:cloud_firestore/cloud_firestore.dart';
-  import 'package:uuid/uuid.dart';
-  import 'package:once_upon_a_line/app/data/models/story_sentence.dart';
-  import 'package:once_upon_a_line/core/logger.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:uuid/uuid.dart';
+import 'package:once_upon_a_line/app/data/models/story_sentence.dart';
+import 'package:once_upon_a_line/core/logger.dart';
 
 abstract class StorySentenceRepository {
   Stream<List<StorySentence>> getSentences(String roomId);
@@ -10,6 +10,7 @@ abstract class StorySentenceRepository {
     required String roomId,
     required String content,
     required String authorNickname,
+    required String authorUserId,
   });
   Future<void> deleteSentence(String sentenceId);
   Future<void> deleteAllSentencesInRoom(String roomId);
@@ -41,6 +42,7 @@ class FirebaseStorySentenceRepository implements StorySentenceRepository {
     required String roomId,
     required String content,
     required String authorNickname,
+    required String authorUserId,
   }) async {
     final String sentenceId = _uuid.v4();
     final DateTime now = DateTime.now();
@@ -52,8 +54,9 @@ class FirebaseStorySentenceRepository implements StorySentenceRepository {
     // Use non-transactional path (more stable on iOS simulator):
     // 1) Read room once to compute next order
     // 2) Batch: increment counter, update lastUpdatedAt, write sentence
-    final DocumentReference<Map<String, dynamic>> roomRef =
-        _firestore.collection('story_rooms').doc(roomId);
+    final DocumentReference<Map<String, dynamic>> roomRef = _firestore
+        .collection('story_rooms')
+        .doc(roomId);
     final DocumentSnapshot<Map<String, dynamic>> roomSnap = await roomRef.get();
     final int currentTotal = (roomSnap.data()?['totalSentences'] ?? 0) as int;
     final int nextOrder = currentTotal + 1;
@@ -63,6 +66,7 @@ class FirebaseStorySentenceRepository implements StorySentenceRepository {
       roomId: roomId,
       content: content.trim(),
       authorNickname: authorNickname,
+      authorUserId: authorUserId,
       createdAt: now,
       order: nextOrder,
     );
@@ -74,8 +78,9 @@ class FirebaseStorySentenceRepository implements StorySentenceRepository {
       'lastUpdatedAt': Timestamp.fromDate(now),
     }, SetOptions(merge: true));
 
-    final DocumentReference<Map<String, dynamic>> sentenceRef =
-        _sentencesCollection.doc(sentenceId);
+    final DocumentReference<Map<String, dynamic>> sentenceRef = _sentencesCollection.doc(
+      sentenceId,
+    );
     batch.set(sentenceRef, sentence.toFirestore());
     await batch.commit();
 

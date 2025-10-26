@@ -5,6 +5,7 @@ class StoryRoom {
   final String title;
   final String description;
   final String creatorNickname;
+  final String? creatorUserId;
   final DateTime createdAt;
   final DateTime lastUpdatedAt;
   final List<String> participants;
@@ -17,6 +18,7 @@ class StoryRoom {
     required this.title,
     required this.description,
     required this.creatorNickname,
+    this.creatorUserId,
     required this.createdAt,
     required this.lastUpdatedAt,
     required this.participants,
@@ -26,7 +28,7 @@ class StoryRoom {
   });
 
   Map<String, dynamic> toFirestore() {
-    return {
+    final Map<String, dynamic> map = {
       'title': title,
       'description': description,
       'creatorNickname': creatorNickname,
@@ -37,6 +39,10 @@ class StoryRoom {
       'coverImageUrl': coverImageUrl,
       'totalSentences': totalSentences,
     };
+    if (creatorUserId != null) {
+      map['creatorUserId'] = creatorUserId;
+    }
+    return map;
   }
 
   static StoryRoom fromFirestore(String id, Map<String, dynamic> data) {
@@ -75,6 +81,7 @@ class StoryRoom {
       title: (data['title'] ?? '').toString(),
       description: (data['description'] ?? '').toString(),
       creatorNickname: (data['creatorNickname'] ?? '').toString(),
+      creatorUserId: data['creatorUserId']?.toString(),
       createdAt: parseTimestamp(data['createdAt']),
       lastUpdatedAt: parseTimestamp(data['lastUpdatedAt']),
       participants: parseStringList(data['participants']),
@@ -88,6 +95,7 @@ class StoryRoom {
     String? title,
     String? description,
     String? creatorNickname,
+    String? creatorUserId,
     DateTime? createdAt,
     DateTime? lastUpdatedAt,
     List<String>? participants,
@@ -100,6 +108,7 @@ class StoryRoom {
       title: title ?? this.title,
       description: description ?? this.description,
       creatorNickname: creatorNickname ?? this.creatorNickname,
+      creatorUserId: creatorUserId ?? this.creatorUserId,
       createdAt: createdAt ?? this.createdAt,
       lastUpdatedAt: lastUpdatedAt ?? this.lastUpdatedAt,
       participants: participants ?? this.participants,
@@ -115,6 +124,7 @@ class StoryRoom {
       'title': title,
       'description': description,
       'creatorNickname': creatorNickname,
+      'creatorUserId': creatorUserId,
       'createdAt': createdAt.millisecondsSinceEpoch,
       'lastUpdatedAt': lastUpdatedAt.millisecondsSinceEpoch,
       'participants': participants,
@@ -130,6 +140,7 @@ class StoryRoom {
       title: data['title'] ?? '',
       description: data['description'] ?? '',
       creatorNickname: data['creatorNickname'] ?? '',
+      creatorUserId: data['creatorUserId']?.toString(),
       createdAt: DateTime.fromMillisecondsSinceEpoch(data['createdAt'] ?? 0),
       lastUpdatedAt: DateTime.fromMillisecondsSinceEpoch(data['lastUpdatedAt'] ?? 0),
       participants: List<String>.from(data['participants'] ?? []),

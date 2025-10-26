@@ -10,9 +10,10 @@ import 'package:once_upon_a_line/core/logger.dart';
 import 'package:once_upon_a_line/core/constants/timeouts.dart';
 
 class CreateRoomDialog extends StatefulWidget {
-  const CreateRoomDialog({super.key, required this.creatorNickname});
+  const CreateRoomDialog({super.key, required this.creatorNickname, required this.creatorUserId});
 
   final String creatorNickname;
+  final String creatorUserId;
 
   @override
   State<CreateRoomDialog> createState() => _CreateRoomDialogState();
@@ -51,6 +52,7 @@ class _CreateRoomDialogState extends State<CreateRoomDialog> {
             title: _titleController.text.trim(),
             description: _descriptionController.text.trim(),
             creatorNickname: widget.creatorNickname,
+            creatorUserId: widget.creatorUserId,
           )
           .timeout(AppTimeouts.createRoom);
 

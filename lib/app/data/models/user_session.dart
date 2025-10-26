@@ -2,14 +2,21 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserSession {
+  final String userId;
   final String nickname;
   final DateTime lastWriteAt;
   final List<String> joinedRooms;
 
-  UserSession({required this.nickname, required this.lastWriteAt, this.joinedRooms = const []});
+  UserSession({
+    required this.userId,
+    required this.nickname,
+    required this.lastWriteAt,
+    this.joinedRooms = const [],
+  });
 
   Map<String, dynamic> toJson() {
     return {
+      'userId': userId,
       'nickname': nickname,
       'lastWriteAt': lastWriteAt.millisecondsSinceEpoch,
       'joinedRooms': joinedRooms,
@@ -18,14 +25,21 @@ class UserSession {
 
   static UserSession fromJson(Map<String, dynamic> json) {
     return UserSession(
+      userId: json['userId'] ?? '',
       nickname: json['nickname'] ?? '',
       lastWriteAt: DateTime.fromMillisecondsSinceEpoch(json['lastWriteAt'] ?? 0),
       joinedRooms: List<String>.from(json['joinedRooms'] ?? []),
     );
   }
 
-  UserSession copyWith({String? nickname, DateTime? lastWriteAt, List<String>? joinedRooms}) {
+  UserSession copyWith({
+    String? userId,
+    String? nickname,
+    DateTime? lastWriteAt,
+    List<String>? joinedRooms,
+  }) {
     return UserSession(
+      userId: userId ?? this.userId,
       nickname: nickname ?? this.nickname,
       lastWriteAt: lastWriteAt ?? this.lastWriteAt,
       joinedRooms: joinedRooms ?? this.joinedRooms,
@@ -51,7 +65,9 @@ class UserSession {
           if (keyValue.length == 2) {
             final String key = keyValue[0];
             final String value = keyValue[1];
-            if (key == 'nickname') {
+            if (key == 'userId') {
+              map[key] = value;
+            } else if (key == 'nickname') {
               map[key] = value;
             } else if (key == 'lastWriteAt') {
               map[key] = int.tryParse(value) ?? 0;

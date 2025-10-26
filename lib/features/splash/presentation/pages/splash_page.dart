@@ -5,6 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:once_upon_a_line/core/constants/app_colors.dart';
 import 'package:once_upon_a_line/core/routers/router_name.dart';
+import 'package:once_upon_a_line/app/data/utils/nickname_generator.dart';
+import 'package:once_upon_a_line/app/data/models/user_session.dart';
+import 'package:once_upon_a_line/app/data/services/user_session_service.dart';
+import 'package:get_it/get_it.dart';
+import 'package:uuid/uuid.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -25,10 +30,31 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
     _progress = CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
     _controller.forward();
 
+    _initializeSession();
+
     _timer = Timer(const Duration(milliseconds: 1600), () {
       if (!mounted) return;
       context.goNamed(homeRouteName);
     });
+  }
+
+  Future<void> _initializeSession() async {
+    final UserSessionService sessionService = GetIt.I<UserSessionService>();
+    final bool hasSession = await sessionService.hasSession();
+
+    if (!hasSession) {
+      // Generate random nickname and create user session
+      final String randomNickname = NicknameGenerator.generateRandomNickname();
+      final String userId = const Uuid().v4();
+
+      final UserSession newSession = UserSession(
+        userId: userId,
+        nickname: randomNickname,
+        lastWriteAt: DateTime.now(),
+      );
+
+      await sessionService.saveSession(newSession);
+    }
   }
 
   @override

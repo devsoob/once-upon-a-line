@@ -45,14 +45,27 @@ class LocalStoryRoomRepositoryAdapter implements StoryRoomRepository {
     required String title,
     required String description,
     required String creatorNickname,
+    required String creatorUserId,
   }) async {
     final StoryRoom room = await _local.createRoom(
       title: title,
       description: description,
       creatorNickname: creatorNickname,
+      creatorUserId: creatorUserId,
     );
     await _emitCurrentRooms();
     return room;
+  }
+
+  @override
+  Stream<List<StoryRoom>> getMyRooms(String userId) {
+    // For local implementation, filter the public rooms stream by userId
+    return getPublicRooms().map(
+      (rooms) =>
+          rooms.where((room) {
+            return room.creatorUserId == userId || room.participants.contains(userId);
+          }).toList(),
+    );
   }
 
   @override
@@ -93,11 +106,13 @@ class LocalStorySentenceRepositoryAdapter implements StorySentenceRepository {
     required String roomId,
     required String content,
     required String authorNickname,
+    required String authorUserId,
   }) {
     return _local.addSentence(
       roomId: roomId,
       content: content,
       authorNickname: authorNickname,
+      authorUserId: authorUserId,
     );
   }
 
@@ -105,6 +120,5 @@ class LocalStorySentenceRepositoryAdapter implements StorySentenceRepository {
   Future<void> deleteSentence(String sentenceId) => _local.deleteSentence(sentenceId);
 
   @override
-  Future<void> deleteAllSentencesInRoom(String roomId) =>
-      _local.deleteAllSentencesInRoom(roomId);
+  Future<void> deleteAllSentencesInRoom(String roomId) => _local.deleteAllSentencesInRoom(roomId);
 }

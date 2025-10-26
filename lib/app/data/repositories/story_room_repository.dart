@@ -1,9 +1,9 @@
 import 'dart:async';
-  import 'package:flutter/foundation.dart';
-  import 'package:cloud_firestore/cloud_firestore.dart';
-  import 'package:uuid/uuid.dart';
-  import 'package:once_upon_a_line/app/data/models/story_room.dart';
-  import 'package:once_upon_a_line/core/logger.dart';
+import 'package:flutter/foundation.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:uuid/uuid.dart';
+import 'package:once_upon_a_line/app/data/models/story_room.dart';
+import 'package:once_upon_a_line/core/logger.dart';
 
 abstract class StoryRoomRepository {
   Stream<List<StoryRoom>> getPublicRooms();
@@ -12,11 +12,15 @@ abstract class StoryRoomRepository {
     required String title,
     required String description,
     required String creatorNickname,
+    required String creatorUserId,
   });
   Future<void> joinRoom(String roomId, String nickname);
   Future<void> leaveRoom(String roomId, String nickname);
   Future<void> updateRoom(StoryRoom room);
   Future<void> deleteRoom(String roomId);
+
+  // Get my rooms - both created and participated
+  Stream<List<StoryRoom>> getMyRooms(String userId);
 }
 
 class FirebaseStoryRoomRepository implements StoryRoomRepository {
@@ -56,6 +60,7 @@ class FirebaseStoryRoomRepository implements StoryRoomRepository {
     required String title,
     required String description,
     required String creatorNickname,
+    required String creatorUserId,
   }) async {
     final String roomId = _uuid.v4();
     final DateTime now = DateTime.now();
@@ -65,6 +70,7 @@ class FirebaseStoryRoomRepository implements StoryRoomRepository {
       title: title,
       description: description,
       creatorNickname: creatorNickname,
+      creatorUserId: creatorUserId,
       createdAt: now,
       lastUpdatedAt: now,
       participants: [creatorNickname],
@@ -83,6 +89,22 @@ class FirebaseStoryRoomRepository implements StoryRoomRepository {
       logger.i('[Repo][Room] createRoom enqueued id=$roomId');
     }
     return room;
+  }
+
+  @override
+  Stream<List<StoryRoom>> getMyRooms(String userId) {
+    return _roomsCollection
+        .where('isPublic', isEqualTo: true)
+        .orderBy('lastUpdatedAt', descending: true)
+        .snapshots()
+        .map((snapshot) {
+          final List<StoryRoom> allRooms =
+              snapshot.docs.map((doc) => StoryRoom.fromFirestore(doc.id, doc.data())).toList();
+          // Filter rooms where user is creator or participant
+          return allRooms.where((room) {
+            return room.creatorUserId == userId || room.participants.contains(userId);
+          }).toList();
+        });
   }
 
   @override

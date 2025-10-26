@@ -7,6 +7,7 @@ import 'package:once_upon_a_line/core/constants/app_colors.dart';
 import 'package:once_upon_a_line/core/widgets/app_logo.dart';
 import 'package:once_upon_a_line/core/widgets/profile_icon.dart';
 import 'package:once_upon_a_line/features/story_rooms/presentation/pages/create_room_dialog.dart';
+import 'package:once_upon_a_line/app/data/repositories/story_room_repository.dart';
 import 'package:go_router/go_router.dart';
 import 'package:once_upon_a_line/core/routers/router_name.dart';
 
@@ -20,19 +21,21 @@ class MyStoriesPage extends StatefulWidget {
 class _MyStoriesPageState extends State<MyStoriesPage> {
   late final UserSessionService _sessionService;
   String _nickname = '';
+  String _userId = '';
 
   @override
   void initState() {
     super.initState();
     _sessionService = GetIt.I<UserSessionService>();
-    _loadNickname();
+    _loadUser();
   }
 
-  Future<void> _loadNickname() async {
+  Future<void> _loadUser() async {
     final UserSession? session = await _sessionService.getCurrentSession();
     if (!mounted) return;
     setState(() {
       _nickname = session?.nickname ?? '게스트';
+      _userId = session?.userId ?? '';
     });
   }
 
@@ -83,7 +86,11 @@ class _MyStoriesPageState extends State<MyStoriesPage> {
     if (newNickname != null && newNickname.isNotEmpty && mounted) {
       final UserSession? current = await _sessionService.getCurrentSession();
       final UserSession updated = (current ??
-              UserSession(nickname: '', lastWriteAt: DateTime.fromMillisecondsSinceEpoch(0)))
+              UserSession(
+                userId: '',
+                nickname: '',
+                lastWriteAt: DateTime.fromMillisecondsSinceEpoch(0),
+              ))
           .copyWith(nickname: newNickname, lastWriteAt: DateTime.now());
       await _sessionService.saveSession(updated);
       if (!mounted) return;
@@ -95,21 +102,18 @@ class _MyStoriesPageState extends State<MyStoriesPage> {
   }
 
   Future<void> _createRoom() async {
-    if (_nickname.isEmpty || _nickname == '게스트') {
+    if (_nickname.isEmpty || _nickname == '게스트' || _userId.isEmpty) {
       _showNicknameDialog(continueCreateFlow: true);
       return;
     }
 
     final StoryRoom? room = await showDialog<StoryRoom>(
       context: context,
-      builder: (context) => CreateRoomDialog(creatorNickname: _nickname),
+      builder: (context) => CreateRoomDialog(creatorNickname: _nickname, creatorUserId: _userId),
     );
 
     if (room != null && mounted) {
-      await context.pushNamed(
-        storyDetailRouteName,
-        extra: room,
-      );
+      await context.pushNamed(storyDetailRouteName, extra: room);
     }
   }
 
@@ -134,12 +138,60 @@ class _MyStoriesPageState extends State<MyStoriesPage> {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           child: ListView(
-            children: const [
-              _SectionHeader(title: '내가 만든 이야기'),
-              _EmptyCard(message: '아직 내가 만든 이야기가 없어요.'),
-              SizedBox(height: 24),
-              _SectionHeader(title: '내가 참여한 이야기'),
-              _EmptyCard(message: '아직 참여한 이야기가 없어요.'),
+            children: [
+              const _SectionHeader(title: '내가 만든 이야기'),
+              if (_userId.isNotEmpty)
+                StreamBuilder<List<StoryRoom>>(
+                  stream: GetIt.I<StoryRoomRepository>().getMyRooms(_userId),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      final List<StoryRoom> myCreatedRooms =
+                          snapshot.data!.where((room) => room.creatorUserId == _userId).toList();
+
+                      if (myCreatedRooms.isEmpty) {
+                        return const _EmptyCard(message: '아직 내가 만든 이야기가 없어요.');
+                      }
+
+                      return _StoryListSection(
+                        rooms: myCreatedRooms,
+                        onTap: (room) => _navigateToDetail(room),
+                      );
+                    }
+                    return const Center(child: CircularProgressIndicator());
+                  },
+                )
+              else
+                const _EmptyCard(message: '아직 내가 만든 이야기가 없어요.'),
+              const SizedBox(height: 24),
+              const _SectionHeader(title: '내가 참여한 이야기'),
+              if (_userId.isNotEmpty)
+                StreamBuilder<List<StoryRoom>>(
+                  stream: GetIt.I<StoryRoomRepository>().getMyRooms(_userId),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      final List<StoryRoom> participatedRooms =
+                          snapshot.data!
+                              .where(
+                                (room) =>
+                                    room.creatorUserId != _userId &&
+                                    room.participants.contains(_nickname),
+                              )
+                              .toList();
+
+                      if (participatedRooms.isEmpty) {
+                        return const _EmptyCard(message: '아직 참여한 이야기가 없어요.');
+                      }
+
+                      return _StoryListSection(
+                        rooms: participatedRooms,
+                        onTap: (room) => _navigateToDetail(room),
+                      );
+                    }
+                    return const Center(child: CircularProgressIndicator());
+                  },
+                )
+              else
+                const _EmptyCard(message: '아직 참여한 이야기가 없어요.'),
             ],
           ),
         ),
@@ -147,6 +199,103 @@ class _MyStoriesPageState extends State<MyStoriesPage> {
       floatingActionButton: FloatingActionButton(
         onPressed: _createRoom,
         child: const Icon(Icons.edit_rounded),
+      ),
+    );
+  }
+
+  Future<void> _navigateToDetail(StoryRoom room) async {
+    if (!mounted) return;
+    await context.pushNamed(storyDetailRouteName, extra: room);
+  }
+}
+
+class _StoryListSection extends StatelessWidget {
+  const _StoryListSection({required this.rooms, required this.onTap});
+
+  final List<StoryRoom> rooms;
+  final void Function(StoryRoom) onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: rooms.map((room) => _StoryListItem(room: room, onTap: () => onTap(room))).toList(),
+    );
+  }
+}
+
+class _StoryListItem extends StatelessWidget {
+  const _StoryListItem({required this.room, required this.onTap});
+
+  final StoryRoom room;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFFE5EAF0), width: 1),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    room.title,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                ),
+                Text(
+                  '${room.totalSentences}문장',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+            if (room.description.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Text(
+                room.description,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontSize: 14, color: AppColors.textSecondary),
+              ),
+            ],
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                const Icon(Icons.person_outline, size: 14, color: AppColors.textSecondary),
+                const SizedBox(width: 4),
+                Text(
+                  room.creatorNickname,
+                  style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                ),
+                const SizedBox(width: 12),
+                const Icon(Icons.people_outline, size: 14, color: AppColors.textSecondary),
+                const SizedBox(width: 4),
+                Text(
+                  '${room.participants.length}명 참여',
+                  style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

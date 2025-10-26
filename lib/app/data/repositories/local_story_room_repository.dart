@@ -61,6 +61,7 @@ class LocalStoryRoomRepository {
     required String title,
     required String description,
     required String creatorNickname,
+    required String creatorUserId,
   }) async {
     final String roomId = _uuid.v4();
     final DateTime now = DateTime.now();
@@ -70,6 +71,7 @@ class LocalStoryRoomRepository {
       title: title,
       description: description,
       creatorNickname: creatorNickname,
+      creatorUserId: creatorUserId,
       createdAt: now,
       lastUpdatedAt: now,
       participants: [creatorNickname],

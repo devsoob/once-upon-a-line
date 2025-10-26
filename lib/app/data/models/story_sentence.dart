@@ -5,6 +5,7 @@ class StorySentence {
   final String roomId;
   final String content;
   final String authorNickname;
+  final String? authorUserId;
   final DateTime createdAt;
   final int order;
 
@@ -13,18 +14,23 @@ class StorySentence {
     required this.roomId,
     required this.content,
     required this.authorNickname,
+    this.authorUserId,
     required this.createdAt,
     required this.order,
   });
 
   Map<String, dynamic> toFirestore() {
-    return {
+    final Map<String, dynamic> map = {
       'roomId': roomId,
       'content': content,
       'authorNickname': authorNickname,
       'createdAt': Timestamp.fromDate(createdAt),
       'order': order,
     };
+    if (authorUserId != null) {
+      map['authorUserId'] = authorUserId;
+    }
+    return map;
   }
 
   static StorySentence fromFirestore(String id, Map<String, dynamic> data) {
@@ -54,6 +60,7 @@ class StorySentence {
       roomId: (data['roomId'] ?? '').toString(),
       content: (data['content'] ?? '').toString(),
       authorNickname: (data['authorNickname'] ?? '').toString(),
+      authorUserId: data['authorUserId']?.toString(),
       createdAt: parseTimestamp(data['createdAt']),
       order: parseInt(data['order']),
     );
@@ -63,6 +70,7 @@ class StorySentence {
     String? roomId,
     String? content,
     String? authorNickname,
+    String? authorUserId,
     DateTime? createdAt,
     int? order,
   }) {
@@ -71,6 +79,7 @@ class StorySentence {
       roomId: roomId ?? this.roomId,
       content: content ?? this.content,
       authorNickname: authorNickname ?? this.authorNickname,
+      authorUserId: authorUserId ?? this.authorUserId,
       createdAt: createdAt ?? this.createdAt,
       order: order ?? this.order,
     );
@@ -82,6 +91,7 @@ class StorySentence {
       'roomId': roomId,
       'content': content,
       'authorNickname': authorNickname,
+      'authorUserId': authorUserId,
       'createdAt': createdAt.millisecondsSinceEpoch,
       'order': order,
     };
@@ -93,6 +103,7 @@ class StorySentence {
       roomId: data['roomId'] ?? '',
       content: data['content'] ?? '',
       authorNickname: data['authorNickname'] ?? '',
+      authorUserId: data['authorUserId']?.toString(),
       createdAt: DateTime.fromMillisecondsSinceEpoch(data['createdAt'] ?? 0),
       order: data['order'] ?? 0,
     );
