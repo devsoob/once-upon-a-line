@@ -7,6 +7,8 @@ import 'package:once_upon_a_line/features/splash/presentation/pages/splash_page.
 import 'package:once_upon_a_line/core/routers/router_name.dart';
 import 'package:once_upon_a_line/features/my_stories/presentation/pages/my_stories_page.dart';
 import 'package:once_upon_a_line/features/root/presentation/pages/root_shell.dart';
+import 'package:once_upon_a_line/features/search/presentation/pages/search_page.dart';
+import 'package:once_upon_a_line/features/feed/presentation/pages/feed_page.dart';
 
 class AppRouter {
   AppRouter._();
@@ -25,10 +27,24 @@ class AppRouter {
         builder: (context, state, child) => RootShell(child: child),
         routes: <RouteBase>[
           GoRoute(
+            path: searchRoutePath,
+            name: searchRouteName,
+            pageBuilder: (BuildContext context, GoRouterState state) {
+              return const MaterialPage<void>(child: SearchPage());
+            },
+          ),
+          GoRoute(
             path: homeRoutePath,
             name: homeRouteName,
             pageBuilder: (BuildContext context, GoRouterState state) {
               return const MaterialPage<void>(child: StoryRoomsHomePage());
+            },
+          ),
+          GoRoute(
+            path: feedRoutePath,
+            name: feedRouteName,
+            pageBuilder: (BuildContext context, GoRouterState state) {
+              return const MaterialPage<void>(child: FeedPage());
             },
           ),
           GoRoute(
@@ -46,9 +62,7 @@ class AppRouter {
         pageBuilder: (context, state) {
           final StoryRoom? room = state.extra as StoryRoom?;
           if (room == null) {
-            return const MaterialPage<void>(
-              child: Scaffold(body: Center(child: Text('잘못된 경로'))),
-            );
+            return const MaterialPage<void>(child: Scaffold(body: Center(child: Text('잘못된 경로'))));
           }
           return MaterialPage<void>(child: StoryRoomDetailPage(room: room));
         },
