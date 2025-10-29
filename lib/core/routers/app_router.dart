@@ -8,6 +8,8 @@ import 'package:once_upon_a_line/core/routers/router_name.dart';
 import 'package:once_upon_a_line/features/my_stories/presentation/pages/my_stories_page.dart';
 import 'package:once_upon_a_line/features/root/presentation/pages/root_shell.dart';
 import 'package:once_upon_a_line/features/search/presentation/pages/search_page.dart';
+import 'package:once_upon_a_line/features/search/presentation/pages/search_results_page.dart';
+import 'package:once_upon_a_line/features/search/presentation/pages/search_tag_feed_page.dart';
 import 'package:once_upon_a_line/features/feed/presentation/pages/feed_page.dart';
 
 class AppRouter {
@@ -31,6 +33,22 @@ class AppRouter {
             name: searchRouteName,
             pageBuilder: (BuildContext context, GoRouterState state) {
               return const MaterialPage<void>(child: SearchPage());
+            },
+          ),
+          GoRoute(
+            path: searchResultsRoutePath,
+            name: searchResultsRouteName,
+            pageBuilder: (BuildContext context, GoRouterState state) {
+              final String q = state.uri.queryParameters['q'] ?? '';
+              return MaterialPage<void>(child: SearchResultsPage(query: q));
+            },
+          ),
+          GoRoute(
+            path: '$searchTagRoutePath/:tag',
+            name: searchTagRouteName,
+            pageBuilder: (BuildContext context, GoRouterState state) {
+              final String tag = state.pathParameters['tag'] ?? '';
+              return MaterialPage<void>(child: SearchTagFeedPage(tag: tag));
             },
           ),
           GoRoute(
