@@ -141,16 +141,12 @@ class _CreateRoomDialogState extends State<CreateRoomDialog> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Header with gradient
+            // Header
             Container(
               width: double.infinity,
               padding: const EdgeInsets.fromLTRB(24, 24, 24, 20),
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [AppColors.logoStart, AppColors.logoMid, AppColors.logoEnd],
-                ),
+                color: const Color(0xFF222222),
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(24),
                   topRight: Radius.circular(24),
@@ -264,16 +260,16 @@ class _CreateRoomDialogState extends State<CreateRoomDialog> {
                           style: OutlinedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            side: const BorderSide(color: AppColors.primary, width: 1.5),
+                            side: const BorderSide(color: Color(0xFF222222), width: 1.5),
                             backgroundColor: Colors.white,
-                            overlayColor: AppColors.primary.withValues(alpha: 0.1),
+                            overlayColor: const Color(0xFF222222).withValues(alpha: 0.1),
                           ),
                           child: const Text(
                             '취소',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
-                              color: AppColors.primary,
+                              color: Color(0xFF222222),
                             ),
                           ),
                         ),
@@ -283,7 +279,7 @@ class _CreateRoomDialogState extends State<CreateRoomDialog> {
                         child: ElevatedButton(
                           onPressed: _isLoading ? null : _createRoom,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primary,
+                            backgroundColor: const Color(0xFF222222),
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

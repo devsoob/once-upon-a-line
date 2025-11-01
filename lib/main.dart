@@ -15,7 +15,11 @@ void main() async {
   // Global error handlers (minimal, for crash diagnostics)
   FlutterError.onError = (FlutterErrorDetails details) {
     FlutterError.dumpErrorToConsole(details);
-    logger.e('[GlobalError][FlutterError] ${details.exceptionAsString()}', error: details.exception, stackTrace: details.stack);
+    logger.e(
+      '[GlobalError][FlutterError] ${details.exceptionAsString()}',
+      error: details.exception,
+      stackTrace: details.stack,
+    );
   };
   WidgetsBinding.instance.platformDispatcher.onError = (Object error, StackTrace stack) {
     logger.e('[GlobalError][Platform] $error', error: error, stackTrace: stack);
@@ -32,7 +36,9 @@ void main() async {
     try {
       await Firebase.initializeApp().timeout(AppTimeouts.firebaseInit);
     } on TimeoutException catch (_) {
-      logger.e('[Startup][Error] Firebase.initializeApp TIMEOUT (${AppTimeouts.firebaseInit.inSeconds}s)');
+      logger.e(
+        '[Startup][Error] Firebase.initializeApp TIMEOUT (${AppTimeouts.firebaseInit.inSeconds}s)',
+      );
       rethrow;
     } catch (e, st) {
       logger.e('[Startup][Error] Firebase.initializeApp failed: $e', error: e, stackTrace: st);
@@ -105,9 +111,9 @@ class OnceUponALineApp extends StatelessWidget {
         scaffoldBackgroundColor: AppColors.background,
         fontFamily: 'Pretendard',
         colorScheme: ColorScheme.fromSeed(
-          seedColor: AppColors.primary,
-          primary: AppColors.primary,
-          secondary: AppColors.logoEnd,
+          seedColor: const Color(0xFF222222),
+          primary: const Color(0xFF222222),
+          secondary: const Color(0xFF4A4A4A),
           surface: AppColors.surface,
           onPrimary: Colors.white,
           onSecondary: Colors.white,
@@ -153,7 +159,7 @@ class OnceUponALineApp extends StatelessWidget {
             fontFamily: 'Pretendard',
             fontWeight: FontWeight.w600,
             fontSize: 16,
-            color: AppColors.primary,
+            color: Color(0xFF222222),
           ),
         ),
         inputDecorationTheme: InputDecorationTheme(
@@ -170,13 +176,13 @@ class OnceUponALineApp extends StatelessWidget {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
-            borderSide: const BorderSide(color: AppColors.primary, width: 2),
+            borderSide: const BorderSide(color: Color(0xFF222222), width: 2),
           ),
           hintStyle: const TextStyle(color: Color(0xFFB0B8C1)),
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primary,
+            backgroundColor: const Color(0xFF222222),
             foregroundColor: Colors.white,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             textStyle: const TextStyle(
@@ -189,8 +195,8 @@ class OnceUponALineApp extends StatelessWidget {
         ),
         outlinedButtonTheme: OutlinedButtonThemeData(
           style: OutlinedButton.styleFrom(
-            side: const BorderSide(color: AppColors.primary, width: 1.5),
-            foregroundColor: AppColors.primary,
+            side: const BorderSide(color: Color(0xFF222222), width: 1.5),
+            foregroundColor: const Color(0xFF222222),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             textStyle: const TextStyle(
               fontFamily: 'Pretendard',
@@ -201,7 +207,7 @@ class OnceUponALineApp extends StatelessWidget {
           ),
         ),
         floatingActionButtonTheme: const FloatingActionButtonThemeData(
-          backgroundColor: AppColors.primary,
+          backgroundColor: Color(0xFF222222),
           foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(16))),
         ),

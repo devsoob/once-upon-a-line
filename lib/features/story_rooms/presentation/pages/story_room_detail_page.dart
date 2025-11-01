@@ -38,7 +38,7 @@ class _StoryRoomDetailPageState extends State<StoryRoomDetailPage> {
     Color(0xFF7B9ACC), // periwinkle
     Color(0xFF5CBA47), // green
     Color(0xFFFFA726), // orange
-    Color(0xFF8E24AA), // purple
+    Color(0xFF4A5568), // dark gray (replaces purple)
     Color(0xFF26C6DA), // cyan
     Color(0xFFFF7043), // deep orange
   ];

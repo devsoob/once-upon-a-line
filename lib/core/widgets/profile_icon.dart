@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:once_upon_a_line/core/constants/app_colors.dart';
 
 class ProfileIcon extends StatelessWidget {
   final VoidCallback? onPressed;
@@ -11,8 +10,8 @@ class ProfileIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     return IconButton(
       onPressed: onPressed,
-      style: IconButton.styleFrom(overlayColor: AppColors.primary.withValues(alpha: 0.1)),
-      icon: Icon(Icons.person_outline, color: AppColors.primary, size: size),
+      style: IconButton.styleFrom(overlayColor: const Color(0xFF222222).withValues(alpha: 0.1)),
+      icon: Icon(Icons.person_outline, color: const Color(0xFF222222), size: size),
     );
   }
 }

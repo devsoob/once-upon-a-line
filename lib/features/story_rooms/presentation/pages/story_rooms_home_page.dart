@@ -99,16 +99,12 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Header with gradient
+                  // Header
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.fromLTRB(24, 24, 24, 20),
                     decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [AppColors.logoStart, AppColors.logoMid, AppColors.logoEnd],
-                      ),
+                      color: Color(0xFF222222),
                       borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(24),
                         topRight: Radius.circular(24),
@@ -187,11 +183,7 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
                                 width: 60,
                                 height: 60,
                                 decoration: BoxDecoration(
-                                  gradient: const LinearGradient(
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                    colors: [AppColors.primary, AppColors.primaryDark],
-                                  ),
+                                  color: const Color(0xFF222222),
                                   borderRadius: BorderRadius.circular(16),
                                 ),
                                 child: Center(
@@ -226,7 +218,7 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
                                         vertical: 4,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: AppColors.primary.withValues(alpha: 0.1),
+                                        color: const Color(0xFF222222).withValues(alpha: 0.1),
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                       child: const Text(
@@ -234,7 +226,7 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
                                         style: TextStyle(
                                           fontSize: 12,
                                           fontWeight: FontWeight.w600,
-                                          color: AppColors.primary,
+                                          color: Color(0xFF222222),
                                         ),
                                       ),
                                     ),
@@ -256,16 +248,16 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
-                                  side: const BorderSide(color: AppColors.primary, width: 1.5),
+                                  side: const BorderSide(color: Color(0xFF222222), width: 1.5),
                                   backgroundColor: Colors.white,
-                                  overlayColor: AppColors.primary.withValues(alpha: 0.1),
+                                  overlayColor: const Color(0xFF222222).withValues(alpha: 0.1),
                                 ),
                                 child: const Text(
                                   '닫기',
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
-                                    color: AppColors.primary,
+                                    color: Color(0xFF222222),
                                   ),
                                 ),
                               ),
@@ -284,7 +276,7 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
                                   });
                                 },
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.primary,
+                                  backgroundColor: const Color(0xFF222222),
                                   foregroundColor: Colors.white,
                                   padding: const EdgeInsets.symmetric(vertical: 16),
                                   shape: RoundedRectangleBorder(
@@ -456,7 +448,7 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
               style: GoogleFonts.dancingScript(
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
-                color: AppColors.primary,
+                color: const Color(0xFF222222),
               ),
             ),
           ],
@@ -597,14 +589,7 @@ class _StoryRoomCard extends StatelessWidget {
                   topLeft: Radius.circular(16),
                   topRight: Radius.circular(16),
                 ),
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    AppColors.primary.withValues(alpha: 0.18),
-                    AppColors.primary.withValues(alpha: 0.06),
-                  ],
-                ),
+                color: const Color(0xFFF8F9FA),
               ),
               child: Align(
                 alignment: Alignment.bottomLeft,
@@ -612,7 +597,7 @@ class _StoryRoomCard extends StatelessWidget {
                   margin: const EdgeInsets.all(12),
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.12),
+                    color: const Color(0xFFE5EAF0),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Row(
@@ -673,7 +658,7 @@ class _StoryRoomCard extends StatelessWidget {
                           width: 8,
                           height: 8,
                           decoration: BoxDecoration(
-                            color: AppColors.primary,
+                            color: const Color(0xFF222222),
                             borderRadius: BorderRadius.circular(2),
                           ),
                         ),

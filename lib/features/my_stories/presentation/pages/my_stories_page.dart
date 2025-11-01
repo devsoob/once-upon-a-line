@@ -315,7 +315,7 @@ class _SectionHeader extends StatelessWidget {
             width: 6,
             height: 20,
             decoration: BoxDecoration(
-              color: AppColors.primary,
+              color: const Color(0xFF222222),
               borderRadius: BorderRadius.circular(4),
             ),
           ),
@@ -357,10 +357,10 @@ class _EmptyCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.1),
+                  color: const Color(0xFF222222).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Icon(Icons.menu_book_outlined, color: AppColors.primary, size: 18),
+                child: const Icon(Icons.menu_book_outlined, color: Color(0xFF222222), size: 18),
               ),
               const SizedBox(width: 10),
               const Text(
