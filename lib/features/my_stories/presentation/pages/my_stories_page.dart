@@ -4,8 +4,6 @@ import 'package:once_upon_a_line/app/data/models/story_room.dart';
 import 'package:once_upon_a_line/app/data/models/user_session.dart';
 import 'package:once_upon_a_line/app/data/services/user_session_service.dart';
 import 'package:once_upon_a_line/core/constants/app_colors.dart';
-import 'package:once_upon_a_line/core/widgets/app_logo.dart';
-import 'package:once_upon_a_line/core/widgets/profile_icon.dart';
 import 'package:once_upon_a_line/features/story_rooms/presentation/pages/create_room_dialog.dart';
 import 'package:once_upon_a_line/app/data/repositories/story_room_repository.dart';
 import 'package:go_router/go_router.dart';
@@ -20,14 +18,24 @@ class MyStoriesPage extends StatefulWidget {
 
 class _MyStoriesPageState extends State<MyStoriesPage> {
   late final UserSessionService _sessionService;
+  late final TextEditingController _nicknameController;
   String _nickname = '';
   String _userId = '';
+  bool _isEditingNickname = false;
+  bool _isSavingNickname = false;
 
   @override
   void initState() {
     super.initState();
     _sessionService = GetIt.I<UserSessionService>();
+    _nicknameController = TextEditingController();
     _loadUser();
+  }
+
+  @override
+  void dispose() {
+    _nicknameController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadUser() async {
@@ -36,74 +44,69 @@ class _MyStoriesPageState extends State<MyStoriesPage> {
     setState(() {
       _nickname = session?.nickname ?? '게스트';
       _userId = session?.userId ?? '';
+      _nicknameController.text = _nickname;
     });
   }
 
-  Future<void> _showNicknameDialog({bool continueCreateFlow = false}) async {
-    await showDialog<void>(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('닉네임 설정'),
-            content: const Text('글을 작성하려면 닉네임이 필요해요.'),
-            actions: [
-              TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('닫기')),
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  _showNicknameEditDialog(continueCreateFlow: continueCreateFlow);
-                },
-                child: const Text('변경'),
-              ),
-            ],
-          ),
-    );
+  void _startEditingNickname() {
+    setState(() {
+      _isEditingNickname = true;
+    });
   }
 
-  Future<void> _showNicknameEditDialog({bool continueCreateFlow = false}) async {
-    final TextEditingController controller = TextEditingController(text: _nickname);
-    final String? newNickname = await showDialog<String>(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('닉네임 변경'),
-            content: TextField(
-              controller: controller,
-              autofocus: true,
-              maxLength: 20,
-              decoration: const InputDecoration(hintText: '닉네임을 입력하세요 (최대 20자)', counterText: ''),
-            ),
-            actions: [
-              TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('취소')),
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(controller.text.trim()),
-                child: const Text('저장'),
-              ),
-            ],
-          ),
-    );
+  void _cancelEditingNickname() {
+    setState(() {
+      _isEditingNickname = false;
+      _nicknameController.text = _nickname;
+    });
+  }
 
-    if (newNickname != null && newNickname.isNotEmpty && mounted) {
+  Future<void> _saveNickname() async {
+    final String trimmed = _nicknameController.text.trim();
+    if (trimmed.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('닉네임을 입력해 주세요.')));
+      return;
+    }
+    if (trimmed.length > 20) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('닉네임은 20자 이내여야 해요.')));
+      return;
+    }
+
+    setState(() {
+      _isSavingNickname = true;
+    });
+
+    try {
       final UserSession? current = await _sessionService.getCurrentSession();
       final UserSession updated = (current ??
               UserSession(
-                userId: '',
+                userId: _userId,
                 nickname: '',
                 lastWriteAt: DateTime.fromMillisecondsSinceEpoch(0),
               ))
-          .copyWith(nickname: newNickname, lastWriteAt: DateTime.now());
+          .copyWith(nickname: trimmed, lastWriteAt: DateTime.now());
       await _sessionService.saveSession(updated);
       if (!mounted) return;
-      setState(() => _nickname = newNickname);
-      if (continueCreateFlow) {
-        WidgetsBinding.instance.addPostFrameCallback((_) => _createRoom());
-      }
+      setState(() {
+        _nickname = trimmed;
+        _isEditingNickname = false;
+        _isSavingNickname = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('닉네임이 저장되었습니다.')));
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _isSavingNickname = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('오류가 발생했습니다: $e')));
     }
   }
 
   Future<void> _createRoom() async {
     if (_nickname.isEmpty || _nickname == '게스트' || _userId.isEmpty) {
-      _showNicknameDialog(continueCreateFlow: true);
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('닉네임을 먼저 설정해 주세요.')));
       return;
     }
 
@@ -125,13 +128,10 @@ class _MyStoriesPageState extends State<MyStoriesPage> {
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: false,
-        title: Row(mainAxisSize: MainAxisSize.min, children: const [AppLogo(width: 36)]),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child: ProfileIcon(onPressed: () => _showNicknameDialog(), size: 28),
-          ),
-        ],
+        title: const Text(
+          '마이',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Colors.black),
+        ),
         titleSpacing: 16,
       ),
       body: SafeArea(
@@ -139,6 +139,121 @@ class _MyStoriesPageState extends State<MyStoriesPage> {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           child: ListView(
             children: [
+              // 닉네임 섹션
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: const Color(0xFFE5EAF0), width: 1),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      '닉네임',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    if (_isEditingNickname)
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: _nicknameController,
+                              autofocus: true,
+                              maxLength: 20,
+                              decoration: InputDecoration(
+                                hintText: '닉네임을 입력하세요 (최대 20자)',
+                                counterText: '',
+                                filled: true,
+                                fillColor: const Color(0xFFF7F8FA),
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 12,
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: const BorderSide(color: Color(0xFFE5EAF0), width: 1),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: const BorderSide(color: Color(0xFFE5EAF0), width: 1),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: const BorderSide(color: Color(0xFF222222), width: 2),
+                                ),
+                              ),
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.textPrimary,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          IconButton(
+                            onPressed: _isSavingNickname ? null : _saveNickname,
+                            icon:
+                                _isSavingNickname
+                                    ? const SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(strokeWidth: 2),
+                                    )
+                                    : const Icon(Icons.check_rounded, color: Color(0xFF222222)),
+                            style: IconButton.styleFrom(
+                              backgroundColor: const Color(0xFF222222).withValues(alpha: 0.1),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            ),
+                          ),
+                          IconButton(
+                            onPressed: _isSavingNickname ? null : _cancelEditingNickname,
+                            icon: const Icon(Icons.close_rounded, color: Color(0xFF222222)),
+                            style: IconButton.styleFrom(
+                              backgroundColor: const Color(0xFF222222).withValues(alpha: 0.1),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            ),
+                          ),
+                        ],
+                      )
+                    else
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              _nickname,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.textPrimary,
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            onPressed: _startEditingNickname,
+                            icon: const Icon(
+                              Icons.edit_rounded,
+                              color: Color(0xFF222222),
+                              size: 20,
+                            ),
+                            style: IconButton.styleFrom(
+                              backgroundColor: const Color(0xFF222222).withValues(alpha: 0.1),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            ),
+                          ),
+                        ],
+                      ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
               const _SectionHeader(title: '내가 만든 이야기'),
               if (_userId.isNotEmpty)
                 StreamBuilder<List<StoryRoom>>(
