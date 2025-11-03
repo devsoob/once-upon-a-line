@@ -14,7 +14,7 @@ class SearchResultsPage extends StatelessWidget {
         elevation: 0,
         centerTitle: false,
         title: Text(
-          '\'' + query + '\' 검색 결과',
+          '\'$query\' 검색 결과',
           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Colors.black),
         ),
         titleSpacing: 16,
@@ -54,7 +54,7 @@ class SearchResultsPage extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '\'' + query + '\' 관련 콘텐츠 요약 텍스트입니다.',
+                        '\'$query\' 관련 콘텐츠 요약 텍스트입니다.',
                         style: const TextStyle(fontSize: 13, color: Colors.black54),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,

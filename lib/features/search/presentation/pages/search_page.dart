@@ -77,7 +77,7 @@ class SearchPage extends StatelessWidget {
                       borderRadius: BorderRadius.circular(999),
                       border: Border.all(color: const Color(0xFFE9ECEF)),
                     ),
-                    child: Text('#' + tag, style: const TextStyle(color: Colors.black87)),
+                    child: Text('#$tag', style: const TextStyle(color: Colors.black87)),
                   ),
                 ),
             ],
