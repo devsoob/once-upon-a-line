@@ -8,8 +8,8 @@ class RootShell extends StatelessWidget {
   final Widget child;
 
   int _indexFromLocation(String location) {
-    if (location.startsWith(searchRoutePath)) return 0;
-    if (location.startsWith(homeRoutePath)) return 1;
+    if (location.startsWith(homeRoutePath)) return 0;
+    if (location.startsWith(searchRoutePath)) return 1;
     if (location.startsWith(feedRoutePath)) return 2;
     if (location.startsWith(myStoriesRoutePath)) return 3;
     return 0; // default search
@@ -18,10 +18,10 @@ class RootShell extends StatelessWidget {
   void _onTap(BuildContext context, int index) {
     switch (index) {
       case 0:
-        context.go(searchRoutePath);
+        context.go(homeRoutePath);
         break;
       case 1:
-        context.go(homeRoutePath);
+        context.go(searchRoutePath);
         break;
       case 2:
         context.go(feedRoutePath);
@@ -66,14 +66,14 @@ class RootShell extends StatelessWidget {
               unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
               items: const [
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.search_rounded),
-                  activeIcon: Icon(Icons.search_rounded),
-                  label: '검색',
-                ),
-                BottomNavigationBarItem(
                   icon: Icon(Icons.home_rounded),
                   activeIcon: Icon(Icons.home_rounded),
                   label: '홈',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.search_rounded),
+                  activeIcon: Icon(Icons.search_rounded),
+                  label: '검색',
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(Icons.explore_rounded),
