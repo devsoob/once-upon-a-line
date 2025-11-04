@@ -526,9 +526,9 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
       padding: EdgeInsets.zero,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        childAspectRatio: 0.64,
-        crossAxisSpacing: 14,
-        mainAxisSpacing: 14,
+        childAspectRatio: 0.75,
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
       ),
       itemCount: rooms.length,
       itemBuilder: (context, index) {
@@ -549,64 +549,90 @@ class _StoryRoomCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(20),
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
-              blurRadius: 18,
+              color: Colors.black.withValues(alpha: 0.06),
+              blurRadius: 12,
               spreadRadius: 0,
-              offset: const Offset(0, 6),
+              offset: const Offset(0, 4),
             ),
           ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // 헤더: 은은한 그라디언트 배너
+            // 책 커버 스타일 헤더
             Container(
-              height: 72,
+              height: 120,
               decoration: BoxDecoration(
                 borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(16),
-                  topRight: Radius.circular(16),
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
                 ),
-                color: const Color(0xFFF8F9FA),
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    const Color(0xFF667EEA).withValues(alpha: 0.1),
+                    const Color(0xFF764BA2).withValues(alpha: 0.1),
+                  ],
+                ),
               ),
-              child: Align(
-                alignment: Alignment.bottomLeft,
-                child: Container(
-                  margin: const EdgeInsets.all(12),
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFE5EAF0),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: const [
-                      Icon(Icons.menu_book_rounded, size: 14, color: AppColors.textSecondary),
-                      SizedBox(width: 6),
-                      Text(
-                        'Public',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textSecondary,
+              child: Stack(
+                children: [
+                  // 책 스파인 효과
+                  Positioned(
+                    left: 0,
+                    top: 0,
+                    bottom: 0,
+                    child: Container(
+                      width: 8,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF667EEA),
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(20),
+                          bottomLeft: Radius.circular(20),
                         ),
                       ),
-                    ],
+                    ),
                   ),
-                ),
+                  // 책 제목과 아이콘
+                  Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.auto_stories_rounded, size: 32, color: const Color(0xFF667EEA)),
+                        const SizedBox(height: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.9),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: const Text(
+                            'Story',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF667EEA),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
             // 내용
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -616,8 +642,8 @@ class _StoryRoomCard extends StatelessWidget {
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
                         color: AppColors.textPrimary,
-                        height: 1.25,
-                        letterSpacing: -0.2,
+                        height: 1.3,
+                        letterSpacing: -0.3,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -627,37 +653,34 @@ class _StoryRoomCard extends StatelessWidget {
                       Text(
                         room.description,
                         style: const TextStyle(
-                          fontSize: 13,
-                          height: 1.35,
+                          fontSize: 14,
+                          height: 1.4,
                           color: AppColors.textSecondary,
                           fontWeight: FontWeight.w400,
                           letterSpacing: -0.2,
                         ),
-                        maxLines: 3,
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                     const Spacer(),
                     Row(
                       children: [
-                        Container(
-                          width: 8,
-                          height: 8,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF222222),
-                            borderRadius: BorderRadius.circular(2),
-                          ),
-                        ),
+                        Icon(Icons.edit_rounded, size: 14, color: const Color(0xFF667EEA)),
                         const SizedBox(width: 6),
                         const Text(
-                          '이어쓰기 가능',
+                          '이어쓰기',
                           style: TextStyle(
                             fontSize: 12,
                             color: AppColors.textSecondary,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                         const Spacer(),
-                        Icon(Icons.chevron_right_rounded, color: Colors.grey.shade400),
+                        Icon(
+                          Icons.arrow_forward_ios_rounded,
+                          size: 16,
+                          color: Colors.grey.shade400,
+                        ),
                       ],
                     ),
                   ],
