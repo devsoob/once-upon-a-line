@@ -522,18 +522,15 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
       );
     }
 
-    return GridView.builder(
+    return ListView.builder(
       padding: EdgeInsets.zero,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        childAspectRatio: 0.75,
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
-      ),
       itemCount: rooms.length,
       itemBuilder: (context, index) {
         final StoryRoom room = rooms[index];
-        return _StoryRoomCard(room: room, onTap: () => _openRoom(room));
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: _StoryRoomCard(room: room, onTap: () => _openRoom(room)),
+        );
       },
     );
   }
@@ -549,145 +546,86 @@ class _StoryRoomCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(8),
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: const Color(0xFFE5E5EA), width: 0.5),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.06),
-              blurRadius: 12,
-              spreadRadius: 0,
-              offset: const Offset(0, 4),
+              color: Colors.black.withOpacity(0.02),
+              blurRadius: 2,
+              offset: const Offset(0, 1),
             ),
           ],
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // 책 커버 스타일 헤더
-            Container(
-              height: 120,
-              decoration: BoxDecoration(
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(20),
-                  topRight: Radius.circular(20),
-                ),
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    const Color(0xFF667EEA).withValues(alpha: 0.1),
-                    const Color(0xFF764BA2).withValues(alpha: 0.1),
-                  ],
-                ),
-              ),
-              child: Stack(
-                children: [
-                  // 책 스파인 효과
-                  Positioned(
-                    left: 0,
-                    top: 0,
-                    bottom: 0,
-                    child: Container(
-                      width: 8,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF667EEA),
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(20),
-                          bottomLeft: Radius.circular(20),
-                        ),
-                      ),
-                    ),
-                  ),
-                  // 책 제목과 아이콘
-                  Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.auto_stories_rounded, size: 32, color: const Color(0xFF667EEA)),
-                        const SizedBox(height: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.9),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: const Text(
-                            'Story',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFF667EEA),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            // 내용
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      room.title,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary,
-                        height: 1.3,
-                        letterSpacing: -0.3,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 8),
-                    if (room.description.isNotEmpty)
+        child: IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Content area
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 8, 12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                       Text(
-                        room.description,
+                        room.title,
                         style: const TextStyle(
-                          fontSize: 14,
-                          height: 1.4,
-                          color: AppColors.textSecondary,
-                          fontWeight: FontWeight.w400,
-                          letterSpacing: -0.2,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF1C1C1E),
+                          height: 1.2,
                         ),
-                        maxLines: 2,
+                        maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                    const Spacer(),
-                    Row(
-                      children: [
-                        Icon(Icons.edit_rounded, size: 14, color: const Color(0xFF667EEA)),
-                        const SizedBox(width: 6),
-                        const Text(
-                          '이어쓰기',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: AppColors.textSecondary,
-                            fontWeight: FontWeight.w500,
+                      const SizedBox(height: 4),
+                      if (room.description.isNotEmpty) ...[
+                        Text(
+                          room.description,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            height: 1.3,
+                            color: Color(0xFF8E8E93),
+                            fontWeight: FontWeight.w400,
                           ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
                         const Spacer(),
-                        Icon(
-                          Icons.arrow_forward_ios_rounded,
-                          size: 16,
-                          color: Colors.grey.shade400,
-                        ),
-                      ],
-                    ),
-                  ],
+                      ] else
+                        const Spacer(),
+                      // Bottom status
+                      Row(
+                        children: [
+                          const Icon(Icons.edit_rounded, size: 12, color: Color(0xFF8E8E93)),
+                          const SizedBox(width: 4),
+                          const Text(
+                            '이어쓰기',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Color(0xFF8E8E93),
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+              // Right arrow
+              Padding(
+                padding: const EdgeInsets.only(right: 16, top: 12, bottom: 12),
+                child: Center(
+                  child: Icon(Icons.arrow_forward_ios_rounded, size: 16, color: Color(0xFF8E8E93)),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
