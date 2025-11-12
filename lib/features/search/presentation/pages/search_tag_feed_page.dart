@@ -39,9 +39,9 @@ class SearchTagFeedPage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 8),
-                const Text(
+                Text(
                   '간단한 게시물 미리보기 텍스트가 여기에 표시됩니다.',
-                  style: TextStyle(fontSize: 13, color: Colors.black54),
+                  style: TextStyle(fontSize: 13, color: Colors.black.withValues(alpha: 0.54)),
                 ),
               ],
             ),

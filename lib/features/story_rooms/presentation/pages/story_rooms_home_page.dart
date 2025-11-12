@@ -554,7 +554,7 @@ class _StoryRoomCard extends StatelessWidget {
           border: Border.all(color: const Color(0xFFE5E5EA), width: 0.5),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.02),
+              color: Colors.black.withValues(alpha: 0.02),
               blurRadius: 2,
               offset: const Offset(0, 1),
             ),

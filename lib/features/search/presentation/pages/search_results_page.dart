@@ -33,11 +33,11 @@ class SearchResultsPage extends StatelessWidget {
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFE9ECEF),
+                    color: Colors.grey.withValues(alpha: 0.5),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   alignment: Alignment.center,
-                  child: const Icon(Icons.search, color: Colors.black54),
+                  child: Icon(Icons.search, color: Colors.black.withValues(alpha: 0.54)),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -55,7 +55,7 @@ class SearchResultsPage extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         '\'$query\' 관련 콘텐츠 요약 텍스트입니다.',
-                        style: const TextStyle(fontSize: 13, color: Colors.black54),
+                        style: TextStyle(fontSize: 13, color: Colors.black.withValues(alpha: 0.54)),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
