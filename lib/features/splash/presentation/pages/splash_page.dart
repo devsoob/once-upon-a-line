@@ -71,7 +71,7 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
         animation: _progress,
         builder: (context, _) {
           return Container(
-            decoration: const BoxDecoration(gradient: AppColors.splashGradient),
+            decoration: const BoxDecoration(color: Colors.white),
             child: Center(
               child: SizedBox(
                 width: 200,
@@ -97,7 +97,7 @@ class _LogoBookPainter extends CustomPainter {
         Paint()
           ..style = PaintingStyle.stroke
           ..strokeWidth = 6.0
-          ..color = Colors.white
+          ..color = AppColors.primary
           ..strokeCap = StrokeCap.round
           ..strokeJoin = StrokeJoin.round;
 
