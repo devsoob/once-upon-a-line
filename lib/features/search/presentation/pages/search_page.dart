@@ -13,7 +13,7 @@ class SearchPage extends StatelessWidget {
     void submitSearch(String value) {
       final String trimmed = value.trim();
       if (trimmed.isEmpty) return;
-      context.goNamed(searchResultsRouteName, queryParameters: {'q': trimmed});
+      context.pushNamed(searchResultsRouteName, queryParameters: {'q': trimmed});
     }
 
     return Scaffold(
@@ -27,6 +27,10 @@ class SearchPage extends StatelessWidget {
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Colors.black),
         ),
         titleSpacing: 16,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios, color: Colors.black87),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
       ),
       body: ListView(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
@@ -69,7 +73,7 @@ class SearchPage extends StatelessWidget {
             children: [
               for (final String tag in trendingTags)
                 GestureDetector(
-                  onTap: () => context.goNamed(searchTagRouteName, pathParameters: {'tag': tag}),
+                  onTap: () => context.pushNamed(searchTagRouteName, pathParameters: {'tag': tag}),
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     decoration: BoxDecoration(
@@ -97,8 +101,10 @@ class SearchPage extends StatelessWidget {
                   title: Text(keyword, style: const TextStyle(color: Colors.black87)),
                   trailing: const Icon(Icons.north_east, size: 18),
                   onTap:
-                      () =>
-                          context.goNamed(searchResultsRouteName, queryParameters: {'q': keyword}),
+                      () => context.pushNamed(
+                        searchResultsRouteName,
+                        queryParameters: {'q': keyword},
+                      ),
                 );
               }),
             ),

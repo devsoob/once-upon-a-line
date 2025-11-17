@@ -18,16 +18,16 @@ class RootShell extends StatelessWidget {
   void _onTap(BuildContext context, int index) {
     switch (index) {
       case 0:
-        context.go(homeRoutePath);
+        context.pushNamed(homeRouteName);
         break;
       case 1:
-        context.go(searchRoutePath);
+        context.pushNamed(searchRouteName);
         break;
       case 2:
-        context.go(feedRoutePath);
+        context.pushNamed(feedRouteName);
         break;
       case 3:
-        context.go(myStoriesRoutePath);
+        context.pushNamed(myStoriesRouteName);
         break;
     }
   }

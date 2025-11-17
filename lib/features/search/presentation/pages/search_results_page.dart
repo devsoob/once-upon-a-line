@@ -18,6 +18,10 @@ class SearchResultsPage extends StatelessWidget {
           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Colors.black),
         ),
         titleSpacing: 16,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios, color: Colors.black87),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
       ),
       body: ListView.separated(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
