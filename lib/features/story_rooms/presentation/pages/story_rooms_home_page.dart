@@ -433,7 +433,6 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
-        backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: false,
         title: Text(
