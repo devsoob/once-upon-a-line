@@ -128,6 +128,7 @@ class _MyStoriesPageState extends State<MyStoriesPage> {
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: false,
+        automaticallyImplyLeading: false,
         title: const Text(
           '마이',
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Colors.black),

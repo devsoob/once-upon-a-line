@@ -16,11 +16,11 @@ class FeedPage extends StatelessWidget {
           backgroundColor: Colors.white,
           elevation: 0,
           centerTitle: false,
+          automaticallyImplyLeading: false,
           title: const Text(
             '피드',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Color(0xFF1C1C1E)),
           ),
-          titleSpacing: 20,
           bottom: PreferredSize(
             preferredSize: const Size.fromHeight(48),
             child: Container(

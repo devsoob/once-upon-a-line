@@ -22,14 +22,10 @@ class SearchPage extends StatelessWidget {
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: false,
+        automaticallyImplyLeading: false,
         title: const Text(
           '검색',
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Colors.black),
-        ),
-        titleSpacing: 16,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.black87),
-          onPressed: () => Navigator.of(context).pop(),
         ),
       ),
       body: ListView(
