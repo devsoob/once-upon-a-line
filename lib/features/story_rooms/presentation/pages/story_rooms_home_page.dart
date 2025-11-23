@@ -28,7 +28,6 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
   @override
   void initState() {
     super.initState();
-    debugPrint('[UI] StoryRoomsHomePage.initState');
     _sessionService = GetIt.I<UserSessionService>();
     _loadUser();
   }
@@ -401,7 +400,7 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
             .copyWith(nickname: newNickname, lastWriteAt: DateTime.now());
         await _sessionService.saveSession(updated);
       } catch (e) {
-        debugPrint('[UI] Nickname save failed: $e');
+        // Handle nickname save failure silently
       }
       if (!mounted) return;
       setState(() {
@@ -429,7 +428,6 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('[UI] StoryRoomsHomePage.build');
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
@@ -489,9 +487,6 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
   }
 
   Widget _buildRoomsList(AsyncSnapshot<List<StoryRoom>> snapshot) {
-    debugPrint(
-      '[UI] _buildRoomsList state=${snapshot.connectionState} hasError=${snapshot.hasError} len=${snapshot.data?.length}',
-    );
     if (snapshot.connectionState == ConnectionState.waiting) {
       return const Center(child: CircularProgressIndicator());
     }
