@@ -67,7 +67,19 @@ void main() async {
   } catch (e) {
     // If Firebase initialization fails, continue without Firebase
     // Initialize DI without Firebase dependencies
-    await DiConfig.initWithoutFirebase();
+    logger.w('[Startup] Firebase initialization failed: $e, switching to local mode');
+    try {
+      await DiConfig.initWithoutFirebase();
+      logger.i('[Startup] DiConfig.initWithoutFirebase completed');
+    } catch (initError, initStackTrace) {
+      logger.e(
+        '[Startup] DiConfig.initWithoutFirebase failed: $initError',
+        error: initError,
+        stackTrace: initStackTrace,
+      );
+      // Don't rethrow, continue with app startup even if local DI fails
+      logger.w('[Startup] Continuing with limited functionality');
+    }
   }
 
   logger.i('[Startup] Before runApp');

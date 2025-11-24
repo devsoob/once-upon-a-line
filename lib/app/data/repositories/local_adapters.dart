@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:once_upon_a_line/app/data/models/story_room.dart';
+import 'package:once_upon_a_line/app/data/models/story_starter.dart';
 import 'package:once_upon_a_line/app/data/models/story_sentence.dart';
 import 'package:once_upon_a_line/app/data/repositories/story_room_repository.dart';
 import 'package:once_upon_a_line/app/data/repositories/story_sentence_repository.dart';
@@ -46,12 +47,14 @@ class LocalStoryRoomRepositoryAdapter implements StoryRoomRepository {
     required String description,
     required String creatorNickname,
     required String creatorUserId,
+    StoryStarter? storyStarter,
   }) async {
     final StoryRoom room = await _local.createRoom(
       title: title,
       description: description,
       creatorNickname: creatorNickname,
       creatorUserId: creatorUserId,
+      storyStarter: storyStarter,
     );
     await _emitCurrentRooms();
     return room;

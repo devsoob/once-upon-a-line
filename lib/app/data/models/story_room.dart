@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'story_starter.dart';
 
 class StoryRoom {
   final String id;
@@ -12,6 +13,7 @@ class StoryRoom {
   final bool isPublic;
   final String? coverImageUrl;
   final int totalSentences;
+  final StoryStarter? storyStarter;
 
   StoryRoom({
     required this.id,
@@ -25,6 +27,7 @@ class StoryRoom {
     this.isPublic = true,
     this.coverImageUrl,
     this.totalSentences = 0,
+    this.storyStarter,
   });
 
   Map<String, dynamic> toFirestore() {
@@ -41,6 +44,13 @@ class StoryRoom {
     };
     if (creatorUserId != null) {
       map['creatorUserId'] = creatorUserId;
+    }
+    if (storyStarter != null) {
+      map['storyStarter'] = {
+        'id': storyStarter!.id,
+        'genre': storyStarter!.genre,
+        'content': storyStarter!.content,
+      };
     }
     return map;
   }
@@ -88,6 +98,14 @@ class StoryRoom {
       isPublic: (data['isPublic'] is bool) ? data['isPublic'] as bool : true,
       coverImageUrl: data['coverImageUrl']?.toString(),
       totalSentences: parseInt(data['totalSentences']),
+      storyStarter:
+          data['storyStarter'] != null
+              ? StoryStarter(
+                id: (data['storyStarter']['id'] ?? '').toString(),
+                genre: (data['storyStarter']['genre'] ?? '').toString(),
+                content: (data['storyStarter']['content'] ?? '').toString(),
+              )
+              : null,
     );
   }
 
@@ -102,6 +120,7 @@ class StoryRoom {
     bool? isPublic,
     String? coverImageUrl,
     int? totalSentences,
+    StoryStarter? storyStarter,
   }) {
     return StoryRoom(
       id: id,
@@ -115,6 +134,7 @@ class StoryRoom {
       isPublic: isPublic ?? this.isPublic,
       coverImageUrl: coverImageUrl ?? this.coverImageUrl,
       totalSentences: totalSentences ?? this.totalSentences,
+      storyStarter: storyStarter ?? this.storyStarter,
     );
   }
 
@@ -131,6 +151,7 @@ class StoryRoom {
       'isPublic': isPublic,
       'coverImageUrl': coverImageUrl,
       'totalSentences': totalSentences,
+      'storyStarter': storyStarter?.toJson(),
     };
   }
 
@@ -147,6 +168,8 @@ class StoryRoom {
       isPublic: data['isPublic'] ?? true,
       coverImageUrl: data['coverImageUrl'],
       totalSentences: data['totalSentences'] ?? 0,
+      storyStarter:
+          data['storyStarter'] != null ? StoryStarter.fromJson(data['storyStarter']) : null,
     );
   }
 }
