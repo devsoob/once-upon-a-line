@@ -10,6 +10,7 @@ import 'package:once_upon_a_line/app/data/models/story_room.dart';
 import 'package:once_upon_a_line/app/data/models/story_sentence.dart';
 import 'package:once_upon_a_line/app/data/services/user_session_service.dart';
 import 'package:once_upon_a_line/app/data/models/user_session.dart';
+import 'package:once_upon_a_line/app/data/services/random_sentence_service.dart';
 import 'package:once_upon_a_line/core/logger.dart';
 import 'package:go_router/go_router.dart';
 import 'package:once_upon_a_line/core/routers/router_name.dart';
@@ -25,6 +26,7 @@ class StoryRoomDetailPage extends StatefulWidget {
 
 class _StoryRoomDetailPageState extends State<StoryRoomDetailPage> {
   late final UserSessionService _sessionService;
+  late final RandomSentenceService _randomSentenceService;
   final TextEditingController _sentenceController = TextEditingController();
   String _nickname = '게스트';
   String _userId = '';
@@ -56,7 +58,9 @@ class _StoryRoomDetailPageState extends State<StoryRoomDetailPage> {
   void initState() {
     super.initState();
     _sessionService = GetIt.I<UserSessionService>();
+    _randomSentenceService = GetIt.I<RandomSentenceService>();
     _loadUser();
+    _setRandomSentence();
   }
 
   @override
@@ -71,6 +75,12 @@ class _StoryRoomDetailPageState extends State<StoryRoomDetailPage> {
       _nickname = session?.nickname ?? '게스트';
       _userId = session?.userId ?? '';
     });
+  }
+
+  void _setRandomSentence() {
+    final String randomSentence = _randomSentenceService.getRandomSentence();
+    final String formattedSentence = _randomSentenceService.ensureEndsWithPeriod(randomSentence);
+    _sentenceController.text = formattedSentence;
   }
 
   String? _validateSentence(String value) {
@@ -217,12 +227,35 @@ class _StoryRoomDetailPageState extends State<StoryRoomDetailPage> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    AppTextField(
-                      controller: _sentenceController,
-                      hintText: '마침표(.)로 끝나는 한 문장을 작성해주세요.',
-                      maxLines: 2,
-                      textInputAction: TextInputAction.newline,
-                      keyboardType: TextInputType.multiline,
+                    Row(
+                      children: [
+                        Expanded(
+                          child: AppTextField(
+                            controller: _sentenceController,
+                            hintText: '마침표(.)로 끝나는 한 문장을 작성해주세요.',
+                            maxLines: 2,
+                            textInputAction: TextInputAction.newline,
+                            keyboardType: TextInputType.multiline,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        IconButton(
+                          onPressed: () {
+                            _sentenceController.clear();
+                            _setRandomSentence();
+                            AppToast.show(context, '새로운 랜덤 문장이 생성되었습니다!');
+                          },
+                          icon: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF6C5CE7),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Icon(Icons.shuffle, color: Colors.white, size: 20),
+                          ),
+                          tooltip: '랜덤 문장 생성',
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 14),
                     SizedBox(

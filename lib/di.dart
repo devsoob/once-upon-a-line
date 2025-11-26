@@ -7,6 +7,7 @@ import 'app/data/repositories/story_sentence_repository.dart';
 import 'app/data/repositories/local_story_sentence_repository.dart';
 import 'app/data/services/user_session_service.dart';
 import 'app/data/services/story_starter_service.dart';
+import 'app/data/services/random_sentence_service.dart';
 import 'app/data/repositories/local_adapters.dart';
 import 'core/logger.dart';
 
@@ -34,6 +35,7 @@ class DiConfig {
     );
 
     di.registerLazySingleton<StoryStarterService>(() => StoryStarterService());
+    di.registerLazySingleton<RandomSentenceService>(() => RandomSentenceService());
   }
 
   static Future<void> initWithoutFirebase() async {
@@ -60,6 +62,7 @@ class DiConfig {
 
       // StoryStarterService는 Firebase 의존성이 없으므로 안전하게 초기화
       di.registerLazySingleton<StoryStarterService>(() => StoryStarterService());
+      di.registerLazySingleton<RandomSentenceService>(() => RandomSentenceService());
     } catch (e) {
       logger.e('[DiConfig] initWithoutFirebase failed: $e');
       rethrow;
