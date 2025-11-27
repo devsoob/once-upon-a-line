@@ -11,6 +11,7 @@ import 'package:once_upon_a_line/features/search/presentation/pages/search_page.
 import 'package:once_upon_a_line/features/search/presentation/pages/search_results_page.dart';
 import 'package:once_upon_a_line/features/search/presentation/pages/search_tag_feed_page.dart';
 import 'package:once_upon_a_line/features/feed/presentation/pages/feed_page.dart';
+import 'package:once_upon_a_line/features/story_analytics/presentation/pages/story_analytics_page.dart';
 
 class AppRouter {
   AppRouter._();
@@ -83,6 +84,17 @@ class AppRouter {
             return const MaterialPage<void>(child: Scaffold(body: Center(child: Text('잘못된 경로'))));
           }
           return MaterialPage<void>(child: StoryRoomDetailPage(room: room));
+        },
+      ),
+      GoRoute(
+        path: storyAnalyticsRoutePath,
+        name: storyAnalyticsRouteName,
+        pageBuilder: (context, state) {
+          final StoryRoom? room = state.extra as StoryRoom?;
+          if (room == null) {
+            return const MaterialPage<void>(child: Scaffold(body: Center(child: Text('잘못된 경로'))));
+          }
+          return MaterialPage<void>(child: StoryAnalyticsPage(room: room));
         },
       ),
     ],

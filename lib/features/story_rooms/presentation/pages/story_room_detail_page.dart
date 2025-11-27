@@ -186,6 +186,15 @@ class _StoryRoomDetailPageState extends State<StoryRoomDetailPage> {
               color: AppColors.textPrimary,
             ),
           ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.analytics_outlined, color: AppColors.textPrimary),
+              onPressed: () {
+                context.pushNamed(storyAnalyticsRouteName, extra: widget.room);
+              },
+              tooltip: '분석 보기',
+            ),
+          ],
         ),
         body: SafeArea(
           child: Column(

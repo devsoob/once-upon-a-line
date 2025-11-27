@@ -6,6 +6,7 @@ const homeRoutePath = '/home';
 const feedRoutePath = '/feed';
 const myStoriesRoutePath = '/my';
 const storyDetailRoutePath = '/story';
+const storyAnalyticsRoutePath = '/story/analytics';
 
 // Route names for go_router
 const String splashRouteName = 'splash';
@@ -16,3 +17,4 @@ const String homeRouteName = 'home';
 const String feedRouteName = 'feed';
 const String myStoriesRouteName = 'myStories';
 const String storyDetailRouteName = 'storyDetail';
+const String storyAnalyticsRouteName = 'storyAnalytics';
