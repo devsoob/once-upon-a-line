@@ -191,62 +191,53 @@ class _StoryAnalyticsPageState extends State<StoryAnalyticsPage> {
               ],
             ),
             const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: _buildMetricItem(
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  _buildMetricItem(
                     '총 문장',
                     '${analytics.totalSentences}개',
                     Icons.edit_note,
                     const Color(0xFF4A90E2),
                   ),
-                ),
-                Expanded(
-                  child: _buildMetricItem(
+                  const SizedBox(width: 12),
+                  _buildMetricItem(
                     '총 단어',
                     '${analytics.totalWords}개',
                     Icons.text_fields,
                     const Color(0xFF7ED321),
                   ),
-                ),
-                Expanded(
-                  child: _buildMetricItem(
+                  const SizedBox(width: 12),
+                  _buildMetricItem(
                     '참여자',
                     '${analytics.participantCount}명',
                     Icons.group,
                     const Color(0xFFF5A623),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: _buildMetricItem(
+                  const SizedBox(width: 12),
+                  _buildMetricItem(
                     '작성 기간',
                     _formatDuration(analytics.totalWritingTime),
                     Icons.access_time,
                     const Color(0xFFBD10E0),
                   ),
-                ),
-                Expanded(
-                  child: _buildMetricItem(
+                  const SizedBox(width: 12),
+                  _buildMetricItem(
                     '독서 시간',
                     '${analytics.readingTimeMinutes.round()}분',
                     Icons.visibility,
                     const Color(0xFF50E3C2),
                   ),
-                ),
-                Expanded(
-                  child: _buildMetricItem(
+                  const SizedBox(width: 12),
+                  _buildMetricItem(
                     '평균 문장 길이',
                     '${analytics.averageSentenceLength.round()}자',
                     Icons.straighten,
                     const Color(0xFFB8E986),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ],
         ),
@@ -256,6 +247,7 @@ class _StoryAnalyticsPageState extends State<StoryAnalyticsPage> {
 
   Widget _buildMetricItem(String label, String value, IconData icon, Color color) {
     return Container(
+      width: 120, // Fixed width for horizontal scroll
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
       decoration: BoxDecoration(
         color: color.withOpacity(0.1),
@@ -265,11 +257,13 @@ class _StoryAnalyticsPageState extends State<StoryAnalyticsPage> {
         children: [
           Icon(icon, color: color, size: 20),
           const SizedBox(height: 4),
-          Text(value, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: color)),
+          Text(value, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: color)),
           Text(
             label,
-            style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+            style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
             textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
@@ -295,31 +289,34 @@ class _StoryAnalyticsPageState extends State<StoryAnalyticsPage> {
               ),
             ),
             const SizedBox(height: 16),
-            GridView.count(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              crossAxisCount: 2,
-              crossAxisSpacing: 16,
-              mainAxisSpacing: 16,
-              childAspectRatio: 1.5,
-              children: [
-                _buildStatCard(
-                  '총 문자 수',
-                  numberFormat.format(analytics.totalCharacters),
-                  Icons.text_fields,
-                ),
-                _buildStatCard(
-                  '평균 문장당 단어',
-                  analytics.averageWordsPerSentence.toStringAsFixed(1),
-                  Icons.analytics,
-                ),
-                _buildStatCard('작성 세션', '${analytics.writingSessions.length}회', Icons.timer),
-                _buildStatCard(
-                  '참여 균형도',
-                  '${(analytics.contributionDistribution * 100).toStringAsFixed(0)}%',
-                  Icons.balance,
-                ),
-              ],
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 300),
+              child: GridView.count(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                crossAxisCount: 2,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+                childAspectRatio: 1.5,
+                children: [
+                  _buildStatCard(
+                    '총 문자 수',
+                    numberFormat.format(analytics.totalCharacters),
+                    Icons.text_fields,
+                  ),
+                  _buildStatCard(
+                    '평균 문장당 단어',
+                    analytics.averageWordsPerSentence.toStringAsFixed(1),
+                    Icons.analytics,
+                  ),
+                  _buildStatCard('작성 세션', '${analytics.writingSessions.length}회', Icons.timer),
+                  _buildStatCard(
+                    '참여 균형도',
+                    '${(analytics.contributionDistribution * 100).toStringAsFixed(0)}%',
+                    Icons.balance,
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -329,32 +326,41 @@ class _StoryAnalyticsPageState extends State<StoryAnalyticsPage> {
 
   Widget _buildStatCard(String title, String value, IconData icon) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: const Color(0xFFF8F9FA),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: const Color(0xFFE9ECEF), width: 1),
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, color: AppColors.textSecondary, size: 24),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: AppColors.textPrimary,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 80, maxHeight: 100),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: AppColors.textSecondary, size: 20),
+            const SizedBox(height: 6),
+            Text(
+              value,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: AppColors.textPrimary,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            title,
-            style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-            textAlign: TextAlign.center,
-          ),
-        ],
+            const SizedBox(height: 4),
+            Flexible(
+              child: Text(
+                title,
+                style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -478,19 +484,30 @@ class _StoryAnalyticsPageState extends State<StoryAnalyticsPage> {
               ),
             ),
             const SizedBox(height: 16),
-            GridView.count(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              crossAxisCount: 2,
-              crossAxisSpacing: 16,
-              mainAxisSpacing: 16,
-              childAspectRatio: 1.5,
-              children: [
-                _buildPatternItem('최단 문장', '${patterns.shortestSentenceLength}자', Icons.short_text),
-                _buildPatternItem('최장 문장', '${patterns.longestSentenceLength}자', Icons.text_fields),
-                _buildPatternItem('최소 단어', '${patterns.shortestWordCount}개', Icons.text_fields),
-                _buildPatternItem('최대 단어', '${patterns.longestWordCount}개', Icons.text_fields),
-              ],
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 300),
+              child: GridView.count(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                crossAxisCount: 2,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+                childAspectRatio: 1.5,
+                children: [
+                  _buildPatternItem(
+                    '최단 문장',
+                    '${patterns.shortestSentenceLength}자',
+                    Icons.short_text,
+                  ),
+                  _buildPatternItem(
+                    '최장 문장',
+                    '${patterns.longestSentenceLength}자',
+                    Icons.text_fields,
+                  ),
+                  _buildPatternItem('최소 단어', '${patterns.shortestWordCount}개', Icons.text_fields),
+                  _buildPatternItem('최대 단어', '${patterns.longestWordCount}개', Icons.text_fields),
+                ],
+              ),
             ),
           ],
         ),
@@ -617,20 +634,23 @@ class _StoryAnalyticsPageState extends State<StoryAnalyticsPage> {
             ),
             const SizedBox(height: 8),
             // X-axis labels
-            Row(
-              children: [
-                const Spacer(),
-                ...points.take(7).map((point) {
-                  return Expanded(
-                    child: Text(
-                      DateFormat('M/d').format(point.date),
-                      style: const TextStyle(fontSize: 10, color: AppColors.textSecondary),
-                      textAlign: TextAlign.center,
-                    ),
-                  );
-                }).toList(),
-                const Spacer(),
-              ],
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  const SizedBox(width: 32), // Account for Y-axis label space
+                  ...points.take(7).map((point) {
+                    return Container(
+                      width: (MediaQuery.of(context).size.width - 84) / 7, // Responsive width
+                      child: Text(
+                        DateFormat('M/d').format(point.date),
+                        style: const TextStyle(fontSize: 10, color: AppColors.textSecondary),
+                        textAlign: TextAlign.center,
+                      ),
+                    );
+                  }).toList(),
+                ],
+              ),
             ),
           ],
         ),
@@ -718,20 +738,23 @@ class _StoryAnalyticsPageState extends State<StoryAnalyticsPage> {
             ),
             const SizedBox(height: 8),
             // X-axis labels
-            Row(
-              children: [
-                const Spacer(),
-                ...['0', '6', '12', '18', '23'].map((hour) {
-                  return Expanded(
-                    child: Text(
-                      hour,
-                      style: const TextStyle(fontSize: 10, color: AppColors.textSecondary),
-                      textAlign: TextAlign.center,
-                    ),
-                  );
-                }).toList(),
-                const Spacer(),
-              ],
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  const SizedBox(width: 32), // Account for Y-axis label space
+                  ...['0', '6', '12', '18', '23'].map((hour) {
+                    return Container(
+                      width: (MediaQuery.of(context).size.width - 84) / 5, // Responsive width
+                      child: Text(
+                        hour,
+                        style: const TextStyle(fontSize: 10, color: AppColors.textSecondary),
+                        textAlign: TextAlign.center,
+                      ),
+                    );
+                  }).toList(),
+                ],
+              ),
             ),
           ],
         ),
@@ -843,36 +866,45 @@ class _StoryAnalyticsPageState extends State<StoryAnalyticsPage> {
               ),
             ),
             const SizedBox(height: 16),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children:
-                  words.map((word) {
-                    final colors = [
-                      const Color(0xFF667eea),
-                      const Color(0xFF764ba2),
-                      const Color(0xFFF093fb),
-                      const Color(0xFFF5576C),
-                      const Color(0xFF4facfe),
-                      const Color(0xFF00f2fe),
-                      const Color(0xFF43e97b),
-                      const Color(0xFF38f9d7),
-                    ];
-                    final color = colors[words.indexOf(word) % colors.length];
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 200),
+              child: SingleChildScrollView(
+                child: Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children:
+                      words.map((word) {
+                        final colors = [
+                          const Color(0xFF667eea),
+                          const Color(0xFF764ba2),
+                          const Color(0xFFF093fb),
+                          const Color(0xFFF5576C),
+                          const Color(0xFF4facfe),
+                          const Color(0xFF00f2fe),
+                          const Color(0xFF43e97b),
+                          const Color(0xFF38f9d7),
+                        ];
+                        final color = colors[words.indexOf(word) % colors.length];
 
-                    return Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: color.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: color.withOpacity(0.3), width: 1),
-                      ),
-                      child: Text(
-                        word,
-                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: color),
-                      ),
-                    );
-                  }).toList(),
+                        return Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: color.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: color.withOpacity(0.3), width: 1),
+                          ),
+                          child: Text(
+                            word,
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: color,
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                ),
+              ),
             ),
           ],
         ),
