@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:once_upon_a_line/core/constants/app_colors.dart';
@@ -130,20 +129,24 @@ class _StoryAnalyticsPageState extends State<StoryAnalyticsPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.analytics_outlined, size: 64, color: AppColors.textSecondary.withOpacity(0.5)),
+          Icon(
+            Icons.analytics_outlined,
+            size: 64,
+            color: AppColors.textSecondary.withValues(alpha: 0.5),
+          ),
           const SizedBox(height: 16),
           Text(
             '아직 분석할 데이터가 없습니다',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
-              color: AppColors.textSecondary.withOpacity(0.8),
+              color: AppColors.textSecondary.withValues(alpha: 0.8),
             ),
           ),
           const SizedBox(height: 8),
           Text(
             '이야기에 참여하면 분석을 볼 수 있어요!',
-            style: TextStyle(fontSize: 14, color: AppColors.textSecondary.withOpacity(0.6)),
+            style: TextStyle(fontSize: 14, color: AppColors.textSecondary.withValues(alpha: 0.6)),
           ),
         ],
       ),
@@ -250,7 +253,7 @@ class _StoryAnalyticsPageState extends State<StoryAnalyticsPage> {
       width: 120, // Fixed width for horizontal scroll
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
@@ -388,10 +391,7 @@ class _StoryAnalyticsPageState extends State<StoryAnalyticsPage> {
               ),
             ),
             const SizedBox(height: 16),
-            ...summaries
-                .take(5)
-                .map((summary) => _buildParticipantBar(summary, totalSentences))
-                .toList(),
+            ...summaries.take(5).map((summary) => _buildParticipantBar(summary, totalSentences)),
             if (summaries.length > 5) ...[
               const SizedBox(height: 8),
               Text(
@@ -605,7 +605,6 @@ class _StoryAnalyticsPageState extends State<StoryAnalyticsPage> {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children:
                           points.asMap().entries.map((entry) {
-                            final index = entry.key;
                             final point = entry.value;
                             final height = (point.sentenceCount / maxSentences * 100).toDouble();
                             final isToday = _isToday(point.date);
@@ -640,7 +639,7 @@ class _StoryAnalyticsPageState extends State<StoryAnalyticsPage> {
                 children: [
                   const SizedBox(width: 32), // Account for Y-axis label space
                   ...points.take(7).map((point) {
-                    return Container(
+                    return SizedBox(
                       width: (MediaQuery.of(context).size.width - 84) / 7, // Responsive width
                       child: Text(
                         DateFormat('M/d').format(point.date),
@@ -648,7 +647,7 @@ class _StoryAnalyticsPageState extends State<StoryAnalyticsPage> {
                         textAlign: TextAlign.center,
                       ),
                     );
-                  }).toList(),
+                  }),
                 ],
               ),
             ),
@@ -710,27 +709,31 @@ class _StoryAnalyticsPageState extends State<StoryAnalyticsPage> {
                   Expanded(
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.end,
-                      children: List.generate(24, (hour) {
-                        final count = hourStats[hour] ?? 0;
-                        final height =
-                            maxContributions > 0 ? (count / maxContributions * 100).toDouble() : 0;
-                        final isEvening = hour >= 18 || hour <= 6;
+                      children:
+                          List.generate(24, (hour) {
+                            final count = hourStats[hour] ?? 0;
+                            final height =
+                                maxContributions > 0
+                                    ? (count / maxContributions * 100).toDouble()
+                                    : 0;
+                            final isEvening = hour >= 18 || hour <= 6;
 
-                        return Expanded(
-                          child: Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 0.5),
-                            height: height.toDouble(),
-                            decoration: BoxDecoration(
-                              color: isEvening ? const Color(0xFFF5A623) : const Color(0xFF4A90E2),
-                              borderRadius: BorderRadius.circular(1),
-                            ),
-                            child: Tooltip(
-                              message: '${hour.toString().padLeft(2, '0')}:00 - ${count}개',
-                              child: const SizedBox.expand(),
-                            ),
-                          ),
-                        );
-                      }),
+                            return Expanded(
+                              child: Container(
+                                margin: const EdgeInsets.symmetric(horizontal: 0.5),
+                                height: height.toDouble(),
+                                decoration: BoxDecoration(
+                                  color:
+                                      isEvening ? const Color(0xFFF5A623) : const Color(0xFF4A90E2),
+                                  borderRadius: BorderRadius.circular(1),
+                                ),
+                                child: Tooltip(
+                                  message: '${hour.toString().padLeft(2, '0')}:00 - $count개',
+                                  child: const SizedBox.expand(),
+                                ),
+                              ),
+                            );
+                          }).toList(),
                     ),
                   ),
                 ],
@@ -744,7 +747,7 @@ class _StoryAnalyticsPageState extends State<StoryAnalyticsPage> {
                 children: [
                   const SizedBox(width: 32), // Account for Y-axis label space
                   ...['0', '6', '12', '18', '23'].map((hour) {
-                    return Container(
+                    return SizedBox(
                       width: (MediaQuery.of(context).size.width - 84) / 5, // Responsive width
                       child: Text(
                         hour,
@@ -752,7 +755,7 @@ class _StoryAnalyticsPageState extends State<StoryAnalyticsPage> {
                         textAlign: TextAlign.center,
                       ),
                     );
-                  }).toList(),
+                  }),
                 ],
               ),
             ),
@@ -832,7 +835,7 @@ class _StoryAnalyticsPageState extends State<StoryAnalyticsPage> {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
@@ -889,9 +892,9 @@ class _StoryAnalyticsPageState extends State<StoryAnalyticsPage> {
                         return Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
-                            color: color.withOpacity(0.1),
+                            color: color.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: color.withOpacity(0.3), width: 1),
+                            border: Border.all(color: color.withValues(alpha: 0.3), width: 1),
                           ),
                           child: Text(
                             word,

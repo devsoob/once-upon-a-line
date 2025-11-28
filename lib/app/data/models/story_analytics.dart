@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'story_sentence.dart';
 
 /// StoryAnalytics - Comprehensive analytics for collaborative stories
@@ -69,11 +68,11 @@ class StoryAnalytics {
     final totalSentences = sentences.length;
     final totalWords = sentences.fold(
       0,
-      (sum, sentence) => sum + sentence.content.split(' ').where((word) => word.isNotEmpty).length,
+      (acc, sentence) => acc + sentence.content.split(' ').where((word) => word.isNotEmpty).length,
     );
     final totalCharacters = sentences.fold(
       0,
-      (sum, sentence) => sum + sentence.content.replaceAll(' ', '').length,
+      (acc, sentence) => acc + sentence.content.replaceAll(' ', '').length,
     );
     final participants = sentences.map((s) => s.authorNickname).toSet();
     final participantCount = participants.length;
@@ -318,7 +317,7 @@ class StoryAnalytics {
       intervals.add(interval);
     }
 
-    final totalDuration = intervals.fold(Duration.zero, (sum, interval) => sum + interval);
+    final totalDuration = intervals.fold(Duration.zero, (acc, interval) => acc + interval);
     return Duration(milliseconds: totalDuration.inMilliseconds ~/ intervals.length);
   }
 
@@ -351,7 +350,7 @@ class StoryAnalytics {
     final sentenceCounts = contributions.values.map((c) => c.sentenceCount).toList();
     final mean = sentenceCounts.reduce((a, b) => a + b) / sentenceCounts.length;
     final variance =
-        sentenceCounts.fold(0.0, (sum, count) => sum + (count - mean) * (count - mean)) /
+        sentenceCounts.fold(0.0, (acc, cnt) => acc + (cnt - mean) * (cnt - mean)) /
         sentenceCounts.length;
 
     // Return coefficient of variation (lower = more evenly distributed)

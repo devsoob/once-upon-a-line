@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:get_it/get_it.dart';
 import '../models/story_analytics.dart';
-import '../models/story_sentence.dart';
 import '../repositories/story_sentence_repository.dart';
 import '../../../core/logger.dart';
 
@@ -50,8 +49,8 @@ class StoryAnalyticsService {
       final totalSentences = sentences.length;
       final totalWords = sentences.fold(
         0,
-        (sum, sentence) =>
-            sum + sentence.content.split(' ').where((word) => word.isNotEmpty).length,
+        (acc, sentence) =>
+            acc + sentence.content.split(' ').where((word) => word.isNotEmpty).length,
       );
       final participants = sentences.map((s) => s.authorNickname).toSet();
       final participantCount = participants.length;
