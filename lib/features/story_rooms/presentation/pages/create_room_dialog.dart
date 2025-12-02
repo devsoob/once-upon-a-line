@@ -37,7 +37,6 @@ class _CreateRoomDialogState extends State<CreateRoomDialog> {
   StoryTemplate? _selectedTemplate;
   String _selectedGenre = '전체';
   String _selectedPromptCategory = '시작하기';
-  String _selectedPromptDifficulty = 'beginner';
 
   @override
   void initState() {
@@ -106,12 +105,6 @@ class _CreateRoomDialogState extends State<CreateRoomDialog> {
       _titleController.text = template.title;
       _descriptionController.text = template.description;
     });
-  }
-
-  void _generateFromPrompt() {
-    if (_selectedPrompt != null) {
-      _applyWritingPrompt(_selectedPrompt!);
-    }
   }
 
   void _toggleGuidedOptions() {

@@ -111,7 +111,7 @@ class _BeginnerOnboardingDialogState extends State<BeginnerOnboardingDialog> {
                           child: Text(
                             '처음이신가요?',
                             style: TextStyle(
-                              fontSize: 20,
+                              fontSize: 18,
                               fontWeight: FontWeight.w700,
                               color: Colors.white,
                               letterSpacing: -0.5,
@@ -168,8 +168,7 @@ class _BeginnerOnboardingDialogState extends State<BeginnerOnboardingDialog> {
                 ),
               ),
               // Content
-              SizedBox(
-                height: 400,
+              Expanded(
                 child: PageView.builder(
                   controller: _pageController,
                   onPageChanged: (index) {
@@ -247,109 +246,112 @@ class _BeginnerOnboardingDialogState extends State<BeginnerOnboardingDialog> {
   Widget _buildTutorialStep(TutorialStep step) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          // Icon
-          Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              color: const Color(0xFF222222).withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Icon(step.icon, size: 40, color: const Color(0xFF222222)),
-          ),
-          const SizedBox(height: 24),
-          // Title
-          Text(
-            step.title,
-            style: const TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF222222),
-              letterSpacing: -0.5,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 16),
-          // Content
-          Text(
-            step.content,
-            style: const TextStyle(
-              fontSize: 16,
-              color: Color(0xFF666666),
-              height: 1.6,
-              fontWeight: FontWeight.w400,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 24),
-          // Tips
-          if (step.tips.isNotEmpty) ...[
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Icon
             Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
+              width: 80,
+              height: 80,
               decoration: BoxDecoration(
-                color: const Color(0xFFF8F9FA),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFE5EAF0), width: 1),
+                color: const Color(0xFF222222).withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(20),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.lightbulb_outline,
-                        size: 16,
-                        color: const Color(0xFF222222).withValues(alpha: 0.7),
-                      ),
-                      const SizedBox(width: 8),
-                      const Text(
-                        '팁',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF222222),
+              child: Icon(step.icon, size: 40, color: const Color(0xFF222222)),
+            ),
+            const SizedBox(height: 24),
+            // Title
+            Text(
+              step.title,
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF222222),
+                letterSpacing: -0.5,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            // Content
+            Text(
+              step.content,
+              style: const TextStyle(
+                fontSize: 16,
+                color: Color(0xFF666666),
+                height: 1.6,
+                fontWeight: FontWeight.w400,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 20),
+            // Tips
+            if (step.tips.isNotEmpty) ...[
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8F9FA),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFE5EAF0), width: 1),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.lightbulb_outline,
+                          size: 16,
+                          color: const Color(0xFF222222).withValues(alpha: 0.7),
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  ...step.tips.map(
-                    (tip) => Padding(
-                      padding: const EdgeInsets.only(bottom: 4),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            '• ',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Color(0xFF666666),
-                              fontWeight: FontWeight.w600,
-                            ),
+                        const SizedBox(width: 8),
+                        const Text(
+                          '팁',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF222222),
                           ),
-                          Expanded(
-                            child: Text(
-                              tip,
-                              style: const TextStyle(
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    ...step.tips.map(
+                      (tip) => Padding(
+                        padding: const EdgeInsets.only(bottom: 4),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              '• ',
+                              style: TextStyle(
                                 fontSize: 14,
                                 color: Color(0xFF666666),
-                                height: 1.4,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
-                          ),
-                        ],
+                            Expanded(
+                              child: Text(
+                                tip,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Color(0xFF666666),
+                                  height: 1.4,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
+            ],
+            const SizedBox(height: 20),
           ],
-        ],
+        ),
       ),
     );
   }
