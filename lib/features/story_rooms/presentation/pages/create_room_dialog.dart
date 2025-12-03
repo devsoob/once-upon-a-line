@@ -186,7 +186,7 @@ class _CreateRoomDialogState extends State<CreateRoomDialog> {
                   border: Border.all(color: const Color(0xFFE5EAF0), width: 1),
                 ),
                 child: DropdownButtonFormField<String>(
-                  value: _selectedGenre,
+                  initialValue: _selectedGenre,
                   isExpanded: true,
                   borderRadius: BorderRadius.circular(12),
                   decoration: const InputDecoration(
@@ -998,7 +998,7 @@ class _CreateRoomDialogState extends State<CreateRoomDialog> {
                                     border: Border.all(color: const Color(0xFFE5EAF0), width: 1),
                                   ),
                                   child: DropdownButtonFormField<String>(
-                                    value: _selectedGenre,
+                                    initialValue: _selectedGenre,
                                     isExpanded: true,
                                     borderRadius: BorderRadius.circular(12),
                                     decoration: const InputDecoration(

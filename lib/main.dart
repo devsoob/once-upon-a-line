@@ -223,7 +223,7 @@ class OnceUponALineApp extends StatelessWidget {
           foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(16))),
         ),
-        cardTheme: CardTheme(
+        cardTheme: CardThemeData(
           color: AppColors.surface,
           elevation: 2,
           margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 0),
