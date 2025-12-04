@@ -88,6 +88,8 @@ class FirebaseStoryRoomRepository implements StoryRoomRepository {
       if (kDebugMode) {
         logger.e('[Repo][Room] createRoom async set error: $e', error: e, stackTrace: st);
       }
+      // Re-throw the error to ensure it's handled properly
+      throw e;
     });
     if (kDebugMode) {
       logger.i('[Repo][Room] createRoom enqueued id=$roomId');

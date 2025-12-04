@@ -50,9 +50,18 @@ void main() async {
       logger.i('[Auth] Before signInAnonymously');
       await FirebaseAuth.instance.signInAnonymously().timeout(AppTimeouts.anonymousSignIn);
       logger.i('[Auth] signInAnonymously OK');
-    } catch (_) {
-      // If sign-in fails, continue; reads/writes that require auth will fail gracefully
-      logger.w('[Auth] signInAnonymously failed (continuing anonymously-restricted)');
+
+      // Verify authentication succeeded
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null || !user.isAnonymous) {
+        logger.e('[Auth] Authentication failed - no valid user after signInAnonymously');
+        throw Exception('Authentication failed - no valid user');
+      }
+      logger.i('[Auth] Successfully authenticated anonymously: ${user.uid}');
+    } catch (e, st) {
+      logger.e('[Auth] signInAnonymously failed: $e', error: e, stackTrace: st);
+      // If sign-in fails, this is a critical error for Firestore operations
+      throw Exception('Authentication required but failed: $e');
     }
 
     // Debug healthcheck disabled to avoid early crashes before DI/runApp during iOS debugging.

@@ -82,7 +82,24 @@ class FirebaseStorySentenceRepository implements StorySentenceRepository {
       sentenceId,
     );
     batch.set(sentenceRef, sentence.toFirestore());
-    await batch.commit();
+
+    try {
+      await batch.commit();
+    } catch (e, st) {
+      if (kDebugMode) {
+        logger.e('[Repo][Sentence] addSentence batch commit error: $e', error: e, stackTrace: st);
+      }
+      // Check if this is a permission error and provide better error message
+      if (e.toString().contains('permission-denied') ||
+          e.toString().contains('PERMISSION_DENIED')) {
+        throw FirebaseException(
+          plugin: 'cloud_firestore',
+          code: 'permission-denied',
+          message: 'Permission denied: Please ensure you are properly authenticated',
+        );
+      }
+      rethrow;
+    }
 
     if (kDebugMode) {
       logger.i('[Repo][Sentence] addSentence success id=$sentenceId order=${sentence.order}');
