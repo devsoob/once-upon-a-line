@@ -1,5 +1,4 @@
 rules_version = '2';
-
 service cloud.firestore {
   match /databases/{database}/documents {
     function isSignedIn() {
@@ -7,45 +6,68 @@ service cloud.firestore {
     }
 
     function isPublicRoom(roomId) {
-      return get(/databases/$(database)/documents/story_rooms/$(roomId)).data.isPublic == true;
+      // Use exists() to check if document exists and get the isPublic field
+      return exists(/databases/$(database)/documents/story_rooms/$(roomId)) &&
+             get(/databases/$(database)/documents/story_rooms/$(roomId)).data.isPublic == true;
     }
 
-    // Story rooms collection (public rooms only)
+    // Story rooms collection
     match /story_rooms/{roomId} {
-      // Read only if room is public
-      allow get, list: if resource.data.isPublic == true;
+      // Allow read access to public rooms or if signed in (for development)
+      allow get, list: if (resource.data.isPublic == true || !exists(resource.data)) ||
+                       (isSignedIn() && request.auth != null);
 
       // Create allowed for signed-in users (including anonymous)
       allow create: if isSignedIn() &&
-        request.resource.data.keys().hasOnly(['title','description','creatorNickname','createdAt','lastUpdatedAt','participants','isPublic','coverImageUrl','totalSentences']) &&
+        request.resource.data.keys().hasOnly([
+          'title','description','creatorNickname','creatorUserId',
+          'createdAt','lastUpdatedAt','participants','isPublic',
+          'coverImageUrl','totalSentences','storyStarter'
+        ]) &&
         request.resource.data.title is string && request.resource.data.title.size() > 0 &&
         request.resource.data.description is string &&
         request.resource.data.creatorNickname is string && request.resource.data.creatorNickname.size() > 0 &&
-        request.resource.data.createdAt is timestamp && request.resource.data.lastUpdatedAt is timestamp &&
+        request.resource.data.createdAt is timestamp &&
+        request.resource.data.lastUpdatedAt is timestamp &&
         request.resource.data.participants is list &&
         request.resource.data.isPublic == true &&
         (request.resource.data.totalSentences is int || request.resource.data.totalSentences == null);
 
-      // Updates/deletes are disabled for MVP
-      allow update, delete: if false;
+      // Allow updates for signed-in users (for development)
+      allow update: if isSignedIn() &&
+        request.resource.data.keys().hasOnly([
+          'title','description','creatorNickname','creatorUserId',
+          'createdAt','lastUpdatedAt','participants','isPublic',
+          'coverImageUrl','totalSentences','storyStarter'
+        ]);
+
+      // Allow deletes for signed-in users (for development)
+      allow delete: if isSignedIn();
     }
 
     // Story sentences collection
     match /story_sentences/{sentenceId} {
-      // Read only if the sentence's room is public
-      allow get, list: if isPublicRoom(resource.data.roomId);
+      // Read allowed if the sentence's room is public or if signed in (for development)
+      allow get, list: if isPublicRoom(resource.data.roomId) ||
+                       (isSignedIn() && request.auth != null);
 
-      // Create allowed for signed-in users into public rooms
+      // Create allowed for signed-in users
       allow create: if isSignedIn() &&
-        request.resource.data.keys().hasOnly(['roomId','content','authorNickname','createdAt','order']) &&
-        request.resource.data.roomId is string && isPublicRoom(request.resource.data.roomId) &&
+        request.resource.data.keys().hasOnly([
+          'roomId','content','authorNickname','authorUserId',
+          'createdAt','order'
+        ]) &&
+        request.resource.data.roomId is string &&
         request.resource.data.content is string && request.resource.data.content.size() > 0 &&
         request.resource.data.authorNickname is string && request.resource.data.authorNickname.size() > 0 &&
         request.resource.data.createdAt is timestamp &&
         (request.resource.data.order is int || request.resource.data.order is number);
 
-      // Updates/deletes are disabled for MVP
-      allow update, delete: if false;
+      // Allow updates for signed-in users (for development)
+      allow update: if isSignedIn();
+
+      // Allow deletes for signed-in users (for development)
+      allow delete: if isSignedIn();
     }
   }
 }
