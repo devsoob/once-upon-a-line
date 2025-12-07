@@ -9,7 +9,6 @@ import 'app/data/services/user_session_service.dart';
 import 'app/data/services/story_starter_service.dart';
 import 'app/data/services/guided_experience_service.dart';
 import 'app/data/services/random_sentence_service.dart';
-import 'app/data/services/story_analytics_service.dart';
 import 'app/data/repositories/local_adapters.dart';
 import 'core/logger.dart';
 
@@ -39,7 +38,6 @@ class DiConfig {
     di.registerLazySingleton<StoryStarterService>(() => StoryStarterService());
     di.registerLazySingleton<GuidedExperienceService>(() => GuidedExperienceService());
     di.registerLazySingleton<RandomSentenceService>(() => RandomSentenceService());
-    di.registerLazySingleton<StoryAnalyticsService>(() => StoryAnalyticsService());
   }
 
   static Future<void> initWithoutFirebase() async {
@@ -68,7 +66,6 @@ class DiConfig {
       di.registerLazySingleton<StoryStarterService>(() => StoryStarterService());
       di.registerLazySingleton<GuidedExperienceService>(() => GuidedExperienceService());
       di.registerLazySingleton<RandomSentenceService>(() => RandomSentenceService());
-      di.registerLazySingleton<StoryAnalyticsService>(() => StoryAnalyticsService());
     } catch (e) {
       logger.e('[DiConfig] initWithoutFirebase failed: $e');
       rethrow;

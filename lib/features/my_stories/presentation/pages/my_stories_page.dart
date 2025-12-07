@@ -312,10 +312,6 @@ class _MyStoriesPageState extends State<MyStoriesPage> {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _createRoom,
-        child: const Icon(Icons.edit_rounded),
-      ),
     );
   }
 

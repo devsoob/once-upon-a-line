@@ -9,26 +9,15 @@ class RootShell extends StatelessWidget {
 
   int _indexFromLocation(String location) {
     if (location.startsWith(homeRoutePath)) return 0;
-    if (location.startsWith(searchRoutePath)) return 1;
-    if (location.startsWith(feedRoutePath)) return 2;
-    if (location.startsWith(myStoriesRoutePath)) return 3;
-    return 0; // default search
+    if (location.startsWith(myStoriesRoutePath)) return 1;
+    return 0; // default home
   }
 
   void _onTap(BuildContext context, int index) {
-    switch (index) {
-      case 0:
-        context.pushNamed(homeRouteName);
-        break;
-      case 1:
-        context.pushNamed(searchRouteName);
-        break;
-      case 2:
-        context.pushNamed(feedRouteName);
-        break;
-      case 3:
-        context.pushNamed(myStoriesRouteName);
-        break;
+    if (index == 0) {
+      context.pushNamed(homeRouteName);
+    } else if (index == 1) {
+      context.pushNamed(myStoriesRouteName);
     }
   }
 
@@ -69,16 +58,6 @@ class RootShell extends StatelessWidget {
                   icon: Icon(Icons.home_rounded),
                   activeIcon: Icon(Icons.home_rounded),
                   label: '홈',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.search_rounded),
-                  activeIcon: Icon(Icons.search_rounded),
-                  label: '검색',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.explore_rounded),
-                  activeIcon: Icon(Icons.explore_rounded),
-                  label: '피드',
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(Icons.person_rounded),

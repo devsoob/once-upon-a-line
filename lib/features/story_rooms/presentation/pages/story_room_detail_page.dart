@@ -150,148 +150,112 @@ class _StoryRoomDetailPageState extends State<StoryRoomDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      // We handle back navigation manually to send a result to the previous page
-      canPop: false,
-      onPopInvokedWithResult: (didPop, result) {
-        // If the framework already handled the pop (predictive back), do nothing
-        if (didPop) return;
-        // If this page was opened via Navigator.push, pop it with a result. Otherwise, navigate home.
-        if (Navigator.of(context).canPop()) {
-          Navigator.of(context).pop(true);
-        } else {
-          context.goNamed(homeRouteName);
-        }
-      },
-      child: Scaffold(
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
         backgroundColor: Colors.white,
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 0,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios, color: AppColors.textPrimary),
-            onPressed: () {
-              if (Navigator.of(context).canPop()) {
-                Navigator.of(context).pop(true);
-              } else {
-                context.goNamed(homeRouteName);
-              }
-            },
+        elevation: 0,
+        automaticallyImplyLeading: false,
+        title: Text(
+          widget.room.title,
+          style: const TextStyle(
+            fontWeight: FontWeight.w700,
+            fontSize: 20,
+            color: AppColors.textPrimary,
           ),
-          title: Text(
-            widget.room.title,
-            style: const TextStyle(
-              fontWeight: FontWeight.w700,
-              fontSize: 20,
-              color: AppColors.textPrimary,
-            ),
-          ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.analytics_outlined, color: AppColors.textPrimary),
-              onPressed: () {
-                context.pushNamed(storyAnalyticsRouteName, extra: widget.room);
-              },
-              tooltip: '분석 보기',
-            ),
-          ],
         ),
-        body: SafeArea(
-          child: Column(
-            children: [
-              // Story Content - light grey and scrollable
-              Expanded(
-                child: Container(
-                  width: double.infinity,
-                  color: const Color(0xFFF8F9FA),
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
-                    child: StreamBuilder<List<StorySentence>>(
-                      stream: GetIt.I<StorySentenceRepository>().getSentences(widget.room.id),
-                      initialData: const <StorySentence>[],
-                      builder: (context, snapshot) => _buildSentencesList(snapshot),
-                    ),
+      ),
+      body: SafeArea(
+        child: Column(
+          children: [
+            // Story Content - light grey and scrollable
+            Expanded(
+              child: Container(
+                width: double.infinity,
+                color: const Color(0xFFF8F9FA),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+                  child: StreamBuilder<List<StorySentence>>(
+                    stream: GetIt.I<StorySentenceRepository>().getSentences(widget.room.id),
+                    initialData: const <StorySentence>[],
+                    builder: (context, snapshot) => _buildSentencesList(snapshot),
                   ),
                 ),
               ),
-
-              // Bottom input and button fixed on white background
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.06),
-                      blurRadius: 10,
-                      offset: const Offset(0, -2),
+            ),
+          ],
+        ),
+      ),
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.06),
+              blurRadius: 10,
+              offset: const Offset(0, -2),
+            ),
+          ],
+        ),
+        padding: EdgeInsets.only(
+          left: 16,
+          right: 16,
+          top: 12,
+          bottom: MediaQuery.of(context).padding.bottom > 0 ? 8 : 16,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: AppTextField(
+                    controller: _sentenceController,
+                    hintText: '마침표(.)로 끝나는 한 문장을 작성해주세요.',
+                    maxLines: 2,
+                    textInputAction: TextInputAction.newline,
+                    keyboardType: TextInputType.multiline,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                IconButton(
+                  onPressed: () {
+                    _sentenceController.clear();
+                    _setRandomSentence();
+                    AppToast.show(context, '새로운 랜덤 문장이 생성되었습니다!');
+                  },
+                  icon: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF6C5CE7),
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                  ],
+                    child: const Icon(Icons.shuffle, color: Colors.white, size: 20),
+                  ),
+                  tooltip: '랜덤 문장 생성',
                 ),
-                padding: EdgeInsets.only(
-                  left: 16,
-                  right: 16,
-                  top: 12,
-                  bottom: MediaQuery.of(context).padding.bottom > 0 ? 8 : 16,
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: AppTextField(
-                            controller: _sentenceController,
-                            hintText: '마침표(.)로 끝나는 한 문장을 작성해주세요.',
-                            maxLines: 2,
-                            textInputAction: TextInputAction.newline,
-                            keyboardType: TextInputType.multiline,
+              ],
+            ),
+            const SizedBox(height: 14),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: _isLoading ? null : _addSentence,
+                style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 24)),
+                child:
+                    _isLoading
+                        ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        IconButton(
-                          onPressed: () {
-                            _sentenceController.clear();
-                            _setRandomSentence();
-                            AppToast.show(context, '새로운 랜덤 문장이 생성되었습니다!');
-                          },
-                          icon: Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF6C5CE7),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: const Icon(Icons.shuffle, color: Colors.white, size: 20),
-                          ),
-                          tooltip: '랜덤 문장 생성',
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 14),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: _isLoading ? null : _addSentence,
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 24),
-                        ),
-                        child:
-                            _isLoading
-                                ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                  ),
-                                )
-                                : const Text('추가'),
-                      ),
-                    ),
-                  ],
-                ),
+                        )
+                        : const Text('추가'),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

@@ -483,6 +483,24 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
           ),
         ],
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: Container(
+        width: double.infinity,
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        child: ElevatedButton(
+          onPressed: _createRoom,
+          style: ElevatedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            backgroundColor: const Color(0xFF222222),
+            foregroundColor: Colors.white,
+          ),
+          child: const Text(
+            '새 이야기 시작하기',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          ),
+        ),
+      ),
     );
   }
 
