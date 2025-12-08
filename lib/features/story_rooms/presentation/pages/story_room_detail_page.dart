@@ -12,8 +12,6 @@ import 'package:once_upon_a_line/app/data/services/user_session_service.dart';
 import 'package:once_upon_a_line/app/data/models/user_session.dart';
 import 'package:once_upon_a_line/app/data/services/random_sentence_service.dart';
 import 'package:once_upon_a_line/core/logger.dart';
-import 'package:go_router/go_router.dart';
-import 'package:once_upon_a_line/core/routers/router_name.dart';
 
 class StoryRoomDetailPage extends StatefulWidget {
   const StoryRoomDetailPage({super.key, required this.room});

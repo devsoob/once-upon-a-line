@@ -4,7 +4,6 @@ import 'package:once_upon_a_line/app/data/models/story_room.dart';
 import 'package:once_upon_a_line/app/data/models/user_session.dart';
 import 'package:once_upon_a_line/app/data/services/user_session_service.dart';
 import 'package:once_upon_a_line/core/constants/app_colors.dart';
-import 'package:once_upon_a_line/features/story_rooms/presentation/pages/create_room_dialog.dart';
 import 'package:once_upon_a_line/app/data/repositories/story_room_repository.dart';
 import 'package:go_router/go_router.dart';
 import 'package:once_upon_a_line/core/routers/router_name.dart';
@@ -101,22 +100,6 @@ class _MyStoriesPageState extends State<MyStoriesPage> {
         _isSavingNickname = false;
       });
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('오류가 발생했습니다: $e')));
-    }
-  }
-
-  Future<void> _createRoom() async {
-    if (_nickname.isEmpty || _nickname == '게스트' || _userId.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('닉네임을 먼저 설정해 주세요.')));
-      return;
-    }
-
-    final StoryRoom? room = await showDialog<StoryRoom>(
-      context: context,
-      builder: (context) => CreateRoomDialog(creatorNickname: _nickname, creatorUserId: _userId),
-    );
-
-    if (room != null && mounted) {
-      await context.pushNamed(storyDetailRouteName, extra: room);
     }
   }
 
