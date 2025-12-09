@@ -115,7 +115,7 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
                             Container(
                               padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.2),
+                                color: Colors.white.withOpacity(0.2),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: const Icon(
@@ -140,7 +140,7 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
                               onPressed: () => Navigator.of(context).pop(),
                               icon: const Icon(Icons.close_rounded, color: Colors.white, size: 24),
                               style: IconButton.styleFrom(
-                                backgroundColor: Colors.white.withValues(alpha: 0.1),
+                                backgroundColor: Colors.white.withOpacity(0.1),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
@@ -153,7 +153,7 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
                           '계정 정보를 확인하고 관리하세요',
                           style: TextStyle(
                             fontSize: 14,
-                            color: Colors.white.withValues(alpha: 0.9),
+                            color: Colors.white.withOpacity(0.9),
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -180,7 +180,7 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
                                 width: 60,
                                 height: 60,
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFF222222),
+                                  color: AppColors.primary,
                                   borderRadius: BorderRadius.circular(16),
                                 ),
                                 child: Center(
@@ -215,7 +215,7 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
                                         vertical: 4,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: const Color(0xFF222222).withValues(alpha: 0.1),
+                                        color: const Color(0xFF222222).withOpacity(0.1),
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                       child: const Text(
@@ -245,7 +245,7 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
-                                  side: const BorderSide(color: Color(0xFF222222), width: 1.5),
+                                  side: const BorderSide(color: AppColors.primary, width: 1.5),
                                   backgroundColor: Colors.white,
                                   overlayColor: const Color(0xFF222222).withValues(alpha: 0.1),
                                 ),
@@ -273,7 +273,7 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
                                   });
                                 },
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF222222),
+                                  backgroundColor: AppColors.primary,
                                   foregroundColor: Colors.white,
                                   padding: const EdgeInsets.symmetric(vertical: 16),
                                   shape: RoundedRectangleBorder(
@@ -429,10 +429,11 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: AppColors.surfaceVariant,
       appBar: AppBar(
         elevation: 0,
         centerTitle: false,
+        automaticallyImplyLeading: false,
         title: Text(
           'Once Upon A Line',
           style: GoogleFonts.dancingScript(
@@ -492,7 +493,7 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
           style: ElevatedButton.styleFrom(
             padding: const EdgeInsets.symmetric(vertical: 16),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            backgroundColor: const Color(0xFF222222),
+            backgroundColor: AppColors.primary,
             foregroundColor: Colors.white,
           ),
           child: const Text(
@@ -522,12 +523,12 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.menu_book_outlined, size: 64, color: Color(0xFFBDC3C7)),
+            Icon(Icons.menu_book_outlined, size: 64, color: AppColors.textTertiary),
             SizedBox(height: 16),
             Text(
               '아직 진행 중인 이야기가 없습니다.\n첫 이야기를 시작해보세요!',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 16, color: Color(0xFF7F8C8D)),
+              style: TextStyle(fontSize: 16, color: AppColors.textTertiary),
             ),
           ],
         ),
@@ -563,10 +564,10 @@ class _StoryRoomCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: const Color(0xFFE5E5EA), width: 0.5),
+          border: Border.all(color: AppColors.border, width: 0.5),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.02),
+              color: Colors.black.withOpacity(0.02),
               blurRadius: 2,
               offset: const Offset(0, 1),
             ),

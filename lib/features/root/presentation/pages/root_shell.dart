@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:once_upon_a_line/core/routers/router_name.dart';
+import 'package:once_upon_a_line/core/constants/app_colors.dart';
 
 class RootShell extends StatelessWidget {
   const RootShell({super.key, required this.child});
@@ -14,10 +15,15 @@ class RootShell extends StatelessWidget {
   }
 
   void _onTap(BuildContext context, int index) {
+    final String location = GoRouterState.of(context).uri.toString();
+    final int currentIndex = _indexFromLocation(location);
+
+    if (index == currentIndex) return;
+
     if (index == 0) {
-      context.pushNamed(homeRouteName);
+      context.goNamed(homeRouteName);
     } else if (index == 1) {
-      context.pushNamed(myStoriesRouteName);
+      context.goNamed(myStoriesRouteName);
     }
   }
 
@@ -31,7 +37,7 @@ class RootShell extends StatelessWidget {
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(
           color: Colors.white,
-          border: Border(top: BorderSide(color: Color(0xFFEDEFF2), width: 0.8)),
+          border: Border(top: BorderSide(color: AppColors.border, width: 0.8)),
         ),
         child: SafeArea(
           top: false,
@@ -50,7 +56,7 @@ class RootShell extends StatelessWidget {
               showSelectedLabels: true,
               showUnselectedLabels: true,
               selectedItemColor: Colors.black,
-              unselectedItemColor: const Color(0xFF9AA4B2),
+              unselectedItemColor: AppColors.textTertiary,
               selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
               unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
               items: const [

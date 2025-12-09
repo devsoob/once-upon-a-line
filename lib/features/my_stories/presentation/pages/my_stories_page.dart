@@ -106,7 +106,7 @@ class _MyStoriesPageState extends State<MyStoriesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: AppColors.surfaceVariant,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -130,7 +130,7 @@ class _MyStoriesPageState extends State<MyStoriesPage> {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: const Color(0xFFE5EAF0), width: 1),
+                  border: Border.all(color: AppColors.border, width: 1),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -171,7 +171,7 @@ class _MyStoriesPageState extends State<MyStoriesPage> {
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
-                                  borderSide: const BorderSide(color: Color(0xFF222222), width: 2),
+                                  borderSide: const BorderSide(color: AppColors.primary, width: 2),
                                 ),
                               ),
                               style: const TextStyle(
@@ -193,7 +193,7 @@ class _MyStoriesPageState extends State<MyStoriesPage> {
                                     )
                                     : const Icon(Icons.check_rounded, color: Color(0xFF222222)),
                             style: IconButton.styleFrom(
-                              backgroundColor: const Color(0xFF222222).withValues(alpha: 0.1),
+                              backgroundColor: const Color(0xFF222222).withOpacity(0.1),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                             ),
                           ),
@@ -201,7 +201,7 @@ class _MyStoriesPageState extends State<MyStoriesPage> {
                             onPressed: _isSavingNickname ? null : _cancelEditingNickname,
                             icon: const Icon(Icons.close_rounded, color: Color(0xFF222222)),
                             style: IconButton.styleFrom(
-                              backgroundColor: const Color(0xFF222222).withValues(alpha: 0.1),
+                              backgroundColor: const Color(0xFF222222).withOpacity(0.1),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                             ),
                           ),
@@ -228,7 +228,7 @@ class _MyStoriesPageState extends State<MyStoriesPage> {
                               size: 20,
                             ),
                             style: IconButton.styleFrom(
-                              backgroundColor: const Color(0xFF222222).withValues(alpha: 0.1),
+                              backgroundColor: const Color(0xFF222222).withOpacity(0.1),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                             ),
                           ),
@@ -243,20 +243,26 @@ class _MyStoriesPageState extends State<MyStoriesPage> {
                 StreamBuilder<List<StoryRoom>>(
                   stream: GetIt.I<StoryRoomRepository>().getMyRooms(_userId),
                   builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      final List<StoryRoom> myCreatedRooms =
-                          snapshot.data!.where((room) => room.creatorUserId == _userId).toList();
-
-                      if (myCreatedRooms.isEmpty) {
-                        return const _EmptyCard(message: '아직 내가 만든 이야기가 없어요.');
-                      }
-
-                      return _StoryListSection(
-                        rooms: myCreatedRooms,
-                        onTap: (room) => _navigateToDetail(room),
-                      );
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
                     }
-                    return const Center(child: CircularProgressIndicator());
+
+                    if (snapshot.hasError) {
+                      return const _EmptyCard(message: '데이터를 불러오는 중 오류가 발생했습니다.');
+                    }
+
+                    final List<StoryRoom> rooms = snapshot.data ?? [];
+                    final List<StoryRoom> myCreatedRooms =
+                        rooms.where((room) => room.creatorUserId == _userId).toList();
+
+                    if (myCreatedRooms.isEmpty) {
+                      return const _EmptyCard(message: '아직 내가 만든 이야기가 없어요.');
+                    }
+
+                    return _StoryListSection(
+                      rooms: myCreatedRooms,
+                      onTap: (room) => _navigateToDetail(room),
+                    );
                   },
                 )
               else
@@ -267,26 +273,32 @@ class _MyStoriesPageState extends State<MyStoriesPage> {
                 StreamBuilder<List<StoryRoom>>(
                   stream: GetIt.I<StoryRoomRepository>().getMyRooms(_userId),
                   builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      final List<StoryRoom> participatedRooms =
-                          snapshot.data!
-                              .where(
-                                (room) =>
-                                    room.creatorUserId != _userId &&
-                                    room.participants.contains(_nickname),
-                              )
-                              .toList();
-
-                      if (participatedRooms.isEmpty) {
-                        return const _EmptyCard(message: '아직 참여한 이야기가 없어요.');
-                      }
-
-                      return _StoryListSection(
-                        rooms: participatedRooms,
-                        onTap: (room) => _navigateToDetail(room),
-                      );
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
                     }
-                    return const Center(child: CircularProgressIndicator());
+
+                    if (snapshot.hasError) {
+                      return const _EmptyCard(message: '데이터를 불러오는 중 오류가 발생했습니다.');
+                    }
+
+                    final List<StoryRoom> rooms = snapshot.data ?? [];
+                    final List<StoryRoom> participatedRooms =
+                        rooms
+                            .where(
+                              (room) =>
+                                  room.creatorUserId != _userId &&
+                                  room.participants.contains(_nickname),
+                            )
+                            .toList();
+
+                    if (participatedRooms.isEmpty) {
+                      return const _EmptyCard(message: '아직 참여한 이야기가 없어요.');
+                    }
+
+                    return _StoryListSection(
+                      rooms: participatedRooms,
+                      onTap: (room) => _navigateToDetail(room),
+                    );
                   },
                 )
               else
@@ -335,7 +347,7 @@ class _StoryListItem extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0xFFE5EAF0), width: 1),
+          border: Border.all(color: AppColors.border, width: 1),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -410,7 +422,7 @@ class _SectionHeader extends StatelessWidget {
             width: 6,
             height: 20,
             decoration: BoxDecoration(
-              color: const Color(0xFF222222),
+              color: AppColors.primary,
               borderRadius: BorderRadius.circular(4),
             ),
           ),
@@ -452,7 +464,7 @@ class _EmptyCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF222222).withValues(alpha: 0.1),
+                  color: const Color(0xFF222222).withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Icon(Icons.menu_book_outlined, color: Color(0xFF222222), size: 18),

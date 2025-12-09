@@ -153,7 +153,10 @@ class _StoryRoomDetailPageState extends State<StoryRoomDetailPage> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        automaticallyImplyLeading: false,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_rounded, color: AppColors.textPrimary),
+          onPressed: () => Navigator.of(context).pop(true),
+        ),
         title: Text(
           widget.room.title,
           style: const TextStyle(
@@ -170,7 +173,7 @@ class _StoryRoomDetailPageState extends State<StoryRoomDetailPage> {
             Expanded(
               child: Container(
                 width: double.infinity,
-                color: const Color(0xFFF8F9FA),
+                color: AppColors.surfaceVariant,
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
                   child: StreamBuilder<List<StorySentence>>(
@@ -189,7 +192,7 @@ class _StoryRoomDetailPageState extends State<StoryRoomDetailPage> {
           color: Colors.white,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.06),
+              color: Colors.black.withOpacity(0.06),
               blurRadius: 10,
               offset: const Offset(0, -2),
             ),
@@ -199,7 +202,7 @@ class _StoryRoomDetailPageState extends State<StoryRoomDetailPage> {
           left: 16,
           right: 16,
           top: 12,
-          bottom: MediaQuery.of(context).padding.bottom > 0 ? 8 : 16,
+          bottom: MediaQuery.of(context).padding.bottom + 16,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -225,7 +228,7 @@ class _StoryRoomDetailPageState extends State<StoryRoomDetailPage> {
                   icon: Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF6C5CE7),
+                      color: AppColors.accent,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: const Icon(Icons.shuffle, color: Colors.white, size: 20),
@@ -288,11 +291,15 @@ class _StoryRoomDetailPageState extends State<StoryRoomDetailPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.edit_note_outlined, size: 64, color: Color(0xFFBDC3C7)),
+            Icon(Icons.edit_note_outlined, size: 64, color: AppColors.textTertiary),
             SizedBox(height: 16),
             Text(
               '첫 문장을 작성해보세요!',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Color(0xFF7F8C8D)),
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textTertiary,
+              ),
             ),
           ],
         ),
@@ -310,15 +317,15 @@ class _StoryRoomDetailPageState extends State<StoryRoomDetailPage> {
               padding: const EdgeInsets.all(16),
               margin: const EdgeInsets.only(bottom: 16),
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
+                gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [Color(0xFF6C5CE7), Color(0xFFA29BFE)],
+                  colors: [AppColors.accent, AppColors.accentLight],
                 ),
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.1),
+                    color: Colors.black.withOpacity(0.1),
                     blurRadius: 8,
                     offset: const Offset(0, 4),
                   ),
@@ -332,7 +339,7 @@ class _StoryRoomDetailPageState extends State<StoryRoomDetailPage> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.2),
+                          color: Colors.white.withOpacity(0.2),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
