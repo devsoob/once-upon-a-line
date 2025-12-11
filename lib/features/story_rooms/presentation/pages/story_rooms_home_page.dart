@@ -115,7 +115,7 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
                             Container(
                               padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.2),
+                                color: Colors.white.withAlpha(51),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: const Icon(
@@ -140,7 +140,7 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
                               onPressed: () => Navigator.of(context).pop(),
                               icon: const Icon(Icons.close_rounded, color: Colors.white, size: 24),
                               style: IconButton.styleFrom(
-                                backgroundColor: Colors.white.withOpacity(0.1),
+                                backgroundColor: Colors.white.withAlpha(25),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
@@ -153,7 +153,7 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
                           '계정 정보를 확인하고 관리하세요',
                           style: TextStyle(
                             fontSize: 14,
-                            color: Colors.white.withOpacity(0.9),
+                            color: Colors.white.withAlpha(230),
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -215,7 +215,7 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
                                         vertical: 4,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: const Color(0xFF222222).withOpacity(0.1),
+                                        color: const Color(0xFF222222).withAlpha(25),
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                       child: const Text(
@@ -566,11 +566,7 @@ class _StoryRoomCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(8),
           border: Border.all(color: AppColors.border, width: 0.5),
           boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.02),
-              blurRadius: 2,
-              offset: const Offset(0, 1),
-            ),
+            BoxShadow(color: Colors.black.withAlpha(5), blurRadius: 2, offset: const Offset(0, 1)),
           ],
         ),
         child: IntrinsicHeight(

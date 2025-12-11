@@ -192,7 +192,7 @@ class _StoryRoomDetailPageState extends State<StoryRoomDetailPage> {
           color: Colors.white,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.06),
+              color: Colors.black.withAlpha(15),
               blurRadius: 10,
               offset: const Offset(0, -2),
             ),
@@ -325,7 +325,7 @@ class _StoryRoomDetailPageState extends State<StoryRoomDetailPage> {
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withAlpha(25),
                     blurRadius: 8,
                     offset: const Offset(0, 4),
                   ),
@@ -339,7 +339,7 @@ class _StoryRoomDetailPageState extends State<StoryRoomDetailPage> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
+                          color: Colors.white.withAlpha(51),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(

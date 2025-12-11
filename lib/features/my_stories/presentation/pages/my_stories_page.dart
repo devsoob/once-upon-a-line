@@ -193,7 +193,7 @@ class _MyStoriesPageState extends State<MyStoriesPage> {
                                     )
                                     : const Icon(Icons.check_rounded, color: Color(0xFF222222)),
                             style: IconButton.styleFrom(
-                              backgroundColor: const Color(0xFF222222).withOpacity(0.1),
+                              backgroundColor: const Color(0xFF222222).withAlpha(25),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                             ),
                           ),
@@ -201,7 +201,7 @@ class _MyStoriesPageState extends State<MyStoriesPage> {
                             onPressed: _isSavingNickname ? null : _cancelEditingNickname,
                             icon: const Icon(Icons.close_rounded, color: Color(0xFF222222)),
                             style: IconButton.styleFrom(
-                              backgroundColor: const Color(0xFF222222).withOpacity(0.1),
+                              backgroundColor: const Color(0xFF222222).withAlpha(25),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                             ),
                           ),
@@ -228,7 +228,7 @@ class _MyStoriesPageState extends State<MyStoriesPage> {
                               size: 20,
                             ),
                             style: IconButton.styleFrom(
-                              backgroundColor: const Color(0xFF222222).withOpacity(0.1),
+                              backgroundColor: const Color(0xFF222222).withAlpha(25),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                             ),
                           ),
@@ -464,7 +464,7 @@ class _EmptyCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF222222).withOpacity(0.1),
+                  color: const Color(0xFF222222).withAlpha(25),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Icon(Icons.menu_book_outlined, color: Color(0xFF222222), size: 18),
