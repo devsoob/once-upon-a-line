@@ -10,6 +10,7 @@ import 'package:once_upon_a_line/app/data/models/user_session.dart';
 import 'package:once_upon_a_line/app/data/services/user_session_service.dart';
 import 'package:get_it/get_it.dart';
 import 'package:uuid/uuid.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -40,20 +41,28 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
 
   Future<void> _initializeSession() async {
     final UserSessionService sessionService = GetIt.I<UserSessionService>();
-    final bool hasSession = await sessionService.hasSession();
+    final UserSession? existing = await sessionService.getCurrentSession();
 
-    if (!hasSession) {
+    // Prefer FirebaseAuth uid (anonymous) so Firestore rules can safely bind writes to auth.uid.
+    final String? authUid = FirebaseAuth.instance.currentUser?.uid;
+
+    if (existing == null || existing.nickname.isEmpty) {
       // Generate random nickname and create user session
       final String randomNickname = NicknameGenerator.generateRandomNickname();
-      final String userId = const Uuid().v4();
+      final String userId = authUid ?? const Uuid().v4();
 
       final UserSession newSession = UserSession(
         userId: userId,
         nickname: randomNickname,
         lastWriteAt: DateTime.now(),
       );
-
       await sessionService.saveSession(newSession);
+      return;
+    }
+
+    // Migration: if we already have a session but userId is empty/legacy, update it to auth uid.
+    if (authUid != null && existing.userId != authUid) {
+      await sessionService.saveSession(existing.copyWith(userId: authUid));
     }
   }
 

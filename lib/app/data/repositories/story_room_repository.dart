@@ -76,23 +76,27 @@ class FirebaseStoryRoomRepository implements StoryRoomRepository {
       creatorUserId: creatorUserId,
       createdAt: now,
       lastUpdatedAt: now,
-      participants: [creatorNickname],
+      participants: <String>[creatorNickname],
       isPublic: true,
       storyStarter: storyStarter,
     );
     if (kDebugMode) {
       logger.i('[Repo][Room] createRoom start title="$title" by "$creatorNickname"');
     }
-    // Optimistic write: do not await to avoid UI stall on iOS simulator
-    _roomsCollection.doc(roomId).set(room.toFirestore()).catchError((e, st) {
+    try {
+      // IMPORTANT: await the write so UI can correctly show failure (permission-denied, etc.)
       if (kDebugMode) {
-        logger.e('[Repo][Room] createRoom async set error: $e', error: e, stackTrace: st);
+        logger.d('[Repo][Room] createRoom payload=${room.toFirestore()}');
       }
-      // Re-throw the error to ensure it's handled properly
-      throw e;
-    });
-    if (kDebugMode) {
-      logger.i('[Repo][Room] createRoom enqueued id=$roomId');
+      await _roomsCollection.doc(roomId).set(room.toFirestore());
+      if (kDebugMode) {
+        logger.i('[Repo][Room] createRoom success id=$roomId');
+      }
+    } catch (e, st) {
+      if (kDebugMode) {
+        logger.e('[Repo][Room] createRoom set error: $e', error: e, stackTrace: st);
+      }
+      rethrow;
     }
     return room;
   }
@@ -122,14 +126,15 @@ class FirebaseStoryRoomRepository implements StoryRoomRepository {
     await _firestore.runTransaction((transaction) async {
       final DocumentSnapshot<Map<String, dynamic>> snapshot = await transaction.get(docRef);
       if (!snapshot.exists) return;
-      final StoryRoom room = StoryRoom.fromFirestore(snapshot.id, snapshot.data()!);
-
-      if (!room.participants.contains(nickname)) {
-        final StoryRoom updated = room.copyWith(
-          participants: [...room.participants, nickname],
-          lastUpdatedAt: DateTime.now(),
-        );
-        transaction.update(docRef, updated.toFirestore());
+      final List<dynamic> participantsRaw =
+          (snapshot.data()?['participants'] ?? <dynamic>[]) as List;
+      final List<String> participants = participantsRaw.map((e) => e.toString()).toList();
+      if (!participants.contains(nickname)) {
+        final DateTime now = DateTime.now();
+        transaction.update(docRef, <String, Object?>{
+          'participants': FieldValue.arrayUnion(<String>[nickname]),
+          'lastUpdatedAt': Timestamp.fromDate(now),
+        });
       }
     });
   }
@@ -143,14 +148,15 @@ class FirebaseStoryRoomRepository implements StoryRoomRepository {
     await _firestore.runTransaction((transaction) async {
       final DocumentSnapshot<Map<String, dynamic>> snapshot = await transaction.get(docRef);
       if (!snapshot.exists) return;
-      final StoryRoom room = StoryRoom.fromFirestore(snapshot.id, snapshot.data()!);
-
-      if (room.participants.contains(nickname)) {
-        final StoryRoom updated = room.copyWith(
-          participants: room.participants.where((p) => p != nickname).toList(),
-          lastUpdatedAt: DateTime.now(),
-        );
-        transaction.update(docRef, updated.toFirestore());
+      final List<dynamic> participantsRaw =
+          (snapshot.data()?['participants'] ?? <dynamic>[]) as List;
+      final List<String> participants = participantsRaw.map((e) => e.toString()).toList();
+      if (participants.contains(nickname)) {
+        final DateTime now = DateTime.now();
+        transaction.update(docRef, <String, Object?>{
+          'participants': FieldValue.arrayRemove(<String>[nickname]),
+          'lastUpdatedAt': Timestamp.fromDate(now),
+        });
       }
     });
   }

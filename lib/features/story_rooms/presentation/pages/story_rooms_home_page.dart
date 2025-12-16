@@ -11,6 +11,7 @@ import 'package:once_upon_a_line/di.dart';
 import 'package:once_upon_a_line/features/story_rooms/presentation/pages/create_room_dialog.dart';
 import 'package:go_router/go_router.dart';
 import 'package:once_upon_a_line/core/routers/router_name.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class StoryRoomsHomePage extends StatefulWidget {
   const StoryRoomsHomePage({super.key});
@@ -34,10 +35,27 @@ class _StoryRoomsHomePageState extends State<StoryRoomsHomePage> {
 
   Future<void> _loadUser() async {
     final UserSession? session = await _sessionService.getCurrentSession();
+    final String authUid = FirebaseAuth.instance.currentUser?.uid ?? '';
+
+    // Ensure local session userId matches Firebase Auth uid (required by Firestore rules).
+    UserSession? effectiveSession = session;
+    if (authUid.isNotEmpty && (session == null || session.userId != authUid)) {
+      final UserSession migrated = (session ??
+              UserSession(userId: authUid, nickname: '게스트', lastWriteAt: DateTime.now()))
+          .copyWith(userId: authUid);
+      try {
+        await _sessionService.saveSession(migrated);
+        effectiveSession = migrated;
+      } catch (_) {
+        // Ignore migration failures; UI will still use authUid as fallback.
+      }
+    }
+
     if (!mounted) return;
     setState(() {
-      _nickname = session?.nickname ?? '게스트';
-      _userId = session?.userId ?? '';
+      _nickname = effectiveSession?.nickname ?? '게스트';
+      _userId =
+          (effectiveSession?.userId ?? '').isNotEmpty ? (effectiveSession?.userId ?? '') : authUid;
     });
   }
 

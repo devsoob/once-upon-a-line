@@ -7,6 +7,7 @@ import 'package:once_upon_a_line/core/constants/app_colors.dart';
 import 'package:once_upon_a_line/app/data/repositories/story_room_repository.dart';
 import 'package:go_router/go_router.dart';
 import 'package:once_upon_a_line/core/routers/router_name.dart';
+import 'package:once_upon_a_line/core/logger.dart';
 
 class MyStoriesPage extends StatefulWidget {
   const MyStoriesPage({super.key});
@@ -243,14 +244,18 @@ class _MyStoriesPageState extends State<MyStoriesPage> {
                 StreamBuilder<List<StoryRoom>>(
                   stream: GetIt.I<StoryRoomRepository>().getMyRooms(_userId),
                   builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
+                    // Handle different connection states more robustly
+                    if (snapshot.connectionState == ConnectionState.waiting &&
+                        snapshot.data == null) {
                       return const Center(child: CircularProgressIndicator());
                     }
 
                     if (snapshot.hasError) {
+                      logger.e('[MyStories] Error loading my rooms: ${snapshot.error}');
                       return const _EmptyCard(message: '데이터를 불러오는 중 오류가 발생했습니다.');
                     }
 
+                    // Show existing data while waiting for updates
                     final List<StoryRoom> rooms = snapshot.data ?? [];
                     final List<StoryRoom> myCreatedRooms =
                         rooms.where((room) => room.creatorUserId == _userId).toList();
@@ -273,14 +278,18 @@ class _MyStoriesPageState extends State<MyStoriesPage> {
                 StreamBuilder<List<StoryRoom>>(
                   stream: GetIt.I<StoryRoomRepository>().getMyRooms(_userId),
                   builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
+                    // Handle different connection states more robustly
+                    if (snapshot.connectionState == ConnectionState.waiting &&
+                        snapshot.data == null) {
                       return const Center(child: CircularProgressIndicator());
                     }
 
                     if (snapshot.hasError) {
+                      logger.e('[MyStories] Error loading participated rooms: ${snapshot.error}');
                       return const _EmptyCard(message: '데이터를 불러오는 중 오류가 발생했습니다.');
                     }
 
+                    // Show existing data while waiting for updates
                     final List<StoryRoom> rooms = snapshot.data ?? [];
                     final List<StoryRoom> participatedRooms =
                         rooms

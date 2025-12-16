@@ -12,6 +12,7 @@ import 'package:once_upon_a_line/app/data/services/user_session_service.dart';
 import 'package:once_upon_a_line/app/data/models/user_session.dart';
 import 'package:once_upon_a_line/app/data/services/random_sentence_service.dart';
 import 'package:once_upon_a_line/core/logger.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class StoryRoomDetailPage extends StatefulWidget {
   const StoryRoomDetailPage({super.key, required this.room});
@@ -71,7 +72,10 @@ class _StoryRoomDetailPageState extends State<StoryRoomDetailPage> {
     final UserSession? session = await _sessionService.getCurrentSession();
     setState(() {
       _nickname = session?.nickname ?? '게스트';
-      _userId = session?.userId ?? '';
+      _userId =
+          (session?.userId ?? '').isNotEmpty
+              ? (session?.userId ?? '')
+              : (FirebaseAuth.instance.currentUser?.uid ?? '');
     });
   }
 
@@ -94,6 +98,13 @@ class _StoryRoomDetailPageState extends State<StoryRoomDetailPage> {
     final String? error = _validateSentence(text);
     if (error != null) {
       AppToast.show(context, error);
+      return;
+    }
+
+    if (_userId.isEmpty) {
+      AppToast.show(context, '사용자 인증 정보를 불러오는 중입니다. 잠시 후 다시 시도해 주세요.');
+      // Try reloading session silently
+      unawaited(_loadUser());
       return;
     }
 

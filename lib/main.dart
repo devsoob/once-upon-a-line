@@ -32,9 +32,18 @@ void main() async {
       logger.i('[Startup] kDebugMode=true');
     }
     logger.i('[Startup] Before Firebase.initializeApp');
-    // Initialize Firebase using the default configuration files
+
+    // Initialize Firebase with options
     try {
-      await Firebase.initializeApp().timeout(AppTimeouts.firebaseInit);
+      await Firebase.initializeApp(
+        options: const FirebaseOptions(
+          apiKey: "YOUR_API_KEY", // 실제 값으로 대체 필요
+          appId: "YOUR_APP_ID", // 실제 값으로 대체 필요
+          messagingSenderId: "YOUR_SENDER_ID", // 실제 값으로 대체 필요
+          projectId: "YOUR_PROJECT_ID", // 실제 값으로 대체 필요
+          // 다른 필요한 옵션들 추가
+        ),
+      ).timeout(AppTimeouts.firebaseInit);
     } on TimeoutException catch (_) {
       logger.e(
         '[Startup][Error] Firebase.initializeApp TIMEOUT (${AppTimeouts.firebaseInit.inSeconds}s)',
@@ -44,10 +53,21 @@ void main() async {
       logger.e('[Startup][Error] Firebase.initializeApp failed: $e', error: e, stackTrace: st);
       rethrow;
     }
+
     logger.i('[Startup] Firebase.initializeApp OK');
-    // Ensure the user is authenticated (anonymous) to satisfy Firestore rules
+
+    // 익명 인증 시도
     try {
       logger.i('[Auth] Before signInAnonymously');
+      final auth = FirebaseAuth.instance;
+
+      // 이미 로그인된 사용자가 있는지 확인
+      if (auth.currentUser == null) {
+        await auth.signInAnonymously().timeout(const Duration(seconds: 10));
+        logger.i('[Auth] signInAnonymously success: ${auth.currentUser?.uid}');
+      } else {
+        logger.i('[Auth] Already signed in: ${auth.currentUser?.uid}');
+      }
       await FirebaseAuth.instance.signInAnonymously().timeout(AppTimeouts.anonymousSignIn);
       logger.i('[Auth] signInAnonymously OK');
 
@@ -60,8 +80,19 @@ void main() async {
       logger.i('[Auth] Successfully authenticated anonymously: ${user.uid}');
     } catch (e, st) {
       logger.e('[Auth] signInAnonymously failed: $e', error: e, stackTrace: st);
-      // If sign-in fails, this is a critical error for Firestore operations
-      throw Exception('Authentication required but failed: $e');
+
+      // Check if user is already authenticated (might be a cached session)
+      final currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser != null && currentUser.isAnonymous) {
+        logger.i('[Auth] Using existing anonymous session: ${currentUser.uid}');
+        // Continue with existing session
+      } else {
+        // If sign-in fails and no existing session, switch to local mode
+        logger.w(
+          '[Auth] No existing session and signInAnonymously failed, switching to local mode',
+        );
+        // Don't throw error, continue with local mode initialization
+      }
     }
 
     // Debug healthcheck disabled to avoid early crashes before DI/runApp during iOS debugging.
