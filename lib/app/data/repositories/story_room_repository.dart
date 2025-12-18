@@ -23,6 +23,7 @@ abstract class StoryRoomRepository {
 
   // Get my rooms - both created and participated
   Stream<List<StoryRoom>> getMyRooms(String userId);
+  Future<List<StoryRoom>> getMyRoomsOnce(String userId);
 }
 
 class FirebaseStoryRoomRepository implements StoryRoomRepository {
@@ -110,11 +111,21 @@ class FirebaseStoryRoomRepository implements StoryRoomRepository {
         .map((snapshot) {
           final List<StoryRoom> allRooms =
               snapshot.docs.map((doc) => StoryRoom.fromFirestore(doc.id, doc.data())).toList();
-          // Filter rooms where user is creator or participant
-          return allRooms.where((room) {
-            return room.creatorUserId == userId || room.participants.contains(userId);
-          }).toList();
+          // Return all public rooms - filtering by creator/participant happens in UI
+          // because participants array contains nicknames, not user IDs
+          return allRooms;
         });
+  }
+
+  @override
+  Future<List<StoryRoom>> getMyRoomsOnce(String userId) async {
+    final QuerySnapshot<Map<String, dynamic>> snapshot =
+        await _roomsCollection
+            .where('isPublic', isEqualTo: true)
+            .orderBy('lastUpdatedAt', descending: true)
+            .get();
+
+    return snapshot.docs.map((doc) => StoryRoom.fromFirestore(doc.id, doc.data())).toList();
   }
 
   @override

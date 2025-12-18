@@ -19,10 +19,12 @@ class MyStoriesPage extends StatefulWidget {
 class _MyStoriesPageState extends State<MyStoriesPage> {
   late final UserSessionService _sessionService;
   late final TextEditingController _nicknameController;
+  List<StoryRoom> _allRooms = [];
   String _nickname = '';
   String _userId = '';
   bool _isEditingNickname = false;
   bool _isSavingNickname = false;
+  bool _isLoading = true;
 
   @override
   void initState() {
@@ -46,6 +48,32 @@ class _MyStoriesPageState extends State<MyStoriesPage> {
       _userId = session?.userId ?? '';
       _nicknameController.text = _nickname;
     });
+
+    if (_userId.isNotEmpty) {
+      await _loadRooms();
+    } else {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _loadRooms() async {
+    try {
+      final List<StoryRoom> rooms = await GetIt.I<StoryRoomRepository>().getMyRoomsOnce(_userId);
+      if (!mounted) return;
+      setState(() {
+        _allRooms = rooms;
+        _isLoading = false;
+      });
+      logger.d('[MyStories] Loaded ${rooms.length} rooms');
+    } catch (e) {
+      logger.e('[MyStories] Error loading rooms: $e');
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   void _startEditingNickname() {
@@ -119,204 +147,180 @@ class _MyStoriesPageState extends State<MyStoriesPage> {
         ),
         titleSpacing: 16,
       ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-          child: ListView(
-            children: [
-              // 닉네임 섹션
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.border, width: 1),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      '닉네임',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    if (_isEditingNickname)
-                      Row(
-                        children: [
-                          Expanded(
-                            child: TextField(
-                              controller: _nicknameController,
-                              autofocus: true,
-                              maxLength: 20,
-                              decoration: InputDecoration(
-                                hintText: '닉네임을 입력하세요 (최대 20자)',
-                                counterText: '',
-                                filled: true,
-                                fillColor: const Color(0xFFF7F8FA),
-                                contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 12,
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: const BorderSide(color: Color(0xFFE5EAF0), width: 1),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: const BorderSide(color: Color(0xFFE5EAF0), width: 1),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: const BorderSide(color: AppColors.primary, width: 2),
-                                ),
-                              ),
-                              style: const TextStyle(
-                                fontSize: 16,
+      body:
+          _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  child: ListView(
+                    children: [
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: AppColors.border, width: 1),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              '닉네임',
+                              style: TextStyle(
+                                fontSize: 14,
                                 fontWeight: FontWeight.w600,
-                                color: AppColors.textPrimary,
+                                color: AppColors.textSecondary,
                               ),
                             ),
-                          ),
-                          const SizedBox(width: 8),
-                          IconButton(
-                            onPressed: _isSavingNickname ? null : _saveNickname,
-                            icon:
-                                _isSavingNickname
-                                    ? const SizedBox(
-                                      width: 20,
-                                      height: 20,
-                                      child: CircularProgressIndicator(strokeWidth: 2),
-                                    )
-                                    : const Icon(Icons.check_rounded, color: Color(0xFF222222)),
-                            style: IconButton.styleFrom(
-                              backgroundColor: const Color(0xFF222222).withAlpha(25),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                            ),
-                          ),
-                          IconButton(
-                            onPressed: _isSavingNickname ? null : _cancelEditingNickname,
-                            icon: const Icon(Icons.close_rounded, color: Color(0xFF222222)),
-                            style: IconButton.styleFrom(
-                              backgroundColor: const Color(0xFF222222).withAlpha(25),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                            ),
-                          ),
-                        ],
-                      )
-                    else
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              _nickname,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.textPrimary,
+                            const SizedBox(height: 12),
+                            if (_isEditingNickname)
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: TextField(
+                                      controller: _nicknameController,
+                                      autofocus: true,
+                                      maxLength: 20,
+                                      decoration: InputDecoration(
+                                        hintText: '닉네임을 입력하세요 (최대 20자)',
+                                        counterText: '',
+                                        filled: true,
+                                        fillColor: const Color(0xFFF7F8FA),
+                                        contentPadding: const EdgeInsets.symmetric(
+                                          horizontal: 16,
+                                          vertical: 12,
+                                        ),
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                          borderSide: const BorderSide(
+                                            color: Color(0xFFE5EAF0),
+                                            width: 1,
+                                          ),
+                                        ),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                          borderSide: const BorderSide(
+                                            color: Color(0xFFE5EAF0),
+                                            width: 1,
+                                          ),
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                          borderSide: const BorderSide(
+                                            color: AppColors.primary,
+                                            width: 2,
+                                          ),
+                                        ),
+                                      ),
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                        color: AppColors.textPrimary,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  IconButton(
+                                    onPressed: _isSavingNickname ? null : _saveNickname,
+                                    icon:
+                                        _isSavingNickname
+                                            ? const SizedBox(
+                                              width: 20,
+                                              height: 20,
+                                              child: CircularProgressIndicator(strokeWidth: 2),
+                                            )
+                                            : const Icon(
+                                              Icons.check_rounded,
+                                              color: Color(0xFF222222),
+                                            ),
+                                    style: IconButton.styleFrom(
+                                      backgroundColor: const Color(0xFF222222).withAlpha(25),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
+                                  ),
+                                  IconButton(
+                                    onPressed: _isSavingNickname ? null : _cancelEditingNickname,
+                                    icon: const Icon(Icons.close_rounded, color: Color(0xFF222222)),
+                                    style: IconButton.styleFrom(
+                                      backgroundColor: const Color(0xFF222222).withAlpha(25),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              )
+                            else
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      _nickname,
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w700,
+                                        color: AppColors.textPrimary,
+                                      ),
+                                    ),
+                                  ),
+                                  IconButton(
+                                    onPressed: _startEditingNickname,
+                                    icon: const Icon(
+                                      Icons.edit_rounded,
+                                      color: Color(0xFF222222),
+                                      size: 20,
+                                    ),
+                                    style: IconButton.styleFrom(
+                                      backgroundColor: const Color(0xFF222222).withAlpha(25),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
-                          ),
-                          IconButton(
-                            onPressed: _startEditingNickname,
-                            icon: const Icon(
-                              Icons.edit_rounded,
-                              color: Color(0xFF222222),
-                              size: 20,
-                            ),
-                            style: IconButton.styleFrom(
-                              backgroundColor: const Color(0xFF222222).withAlpha(25),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                            ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                  ],
+                      const SizedBox(height: 24),
+                      const _SectionHeader(title: '내가 만든 이야기'),
+                      _buildMyCreatedRooms(),
+                      const SizedBox(height: 24),
+                      const _SectionHeader(title: '내가 참여한 이야기'),
+                      _buildMyParticipatedRooms(),
+                    ],
+                  ),
                 ),
               ),
-              const SizedBox(height: 24),
-              const _SectionHeader(title: '내가 만든 이야기'),
-              if (_userId.isNotEmpty)
-                StreamBuilder<List<StoryRoom>>(
-                  stream: GetIt.I<StoryRoomRepository>().getMyRooms(_userId),
-                  builder: (context, snapshot) {
-                    // Handle different connection states more robustly
-                    if (snapshot.connectionState == ConnectionState.waiting &&
-                        snapshot.data == null) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-
-                    if (snapshot.hasError) {
-                      logger.e('[MyStories] Error loading my rooms: ${snapshot.error}');
-                      return const _EmptyCard(message: '데이터를 불러오는 중 오류가 발생했습니다.');
-                    }
-
-                    // Show existing data while waiting for updates
-                    final List<StoryRoom> rooms = snapshot.data ?? [];
-                    final List<StoryRoom> myCreatedRooms =
-                        rooms.where((room) => room.creatorUserId == _userId).toList();
-
-                    if (myCreatedRooms.isEmpty) {
-                      return const _EmptyCard(message: '아직 내가 만든 이야기가 없어요.');
-                    }
-
-                    return _StoryListSection(
-                      rooms: myCreatedRooms,
-                      onTap: (room) => _navigateToDetail(room),
-                    );
-                  },
-                )
-              else
-                const _EmptyCard(message: '아직 내가 만든 이야기가 없어요.'),
-              const SizedBox(height: 24),
-              const _SectionHeader(title: '내가 참여한 이야기'),
-              if (_userId.isNotEmpty)
-                StreamBuilder<List<StoryRoom>>(
-                  stream: GetIt.I<StoryRoomRepository>().getMyRooms(_userId),
-                  builder: (context, snapshot) {
-                    // Handle different connection states more robustly
-                    if (snapshot.connectionState == ConnectionState.waiting &&
-                        snapshot.data == null) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-
-                    if (snapshot.hasError) {
-                      logger.e('[MyStories] Error loading participated rooms: ${snapshot.error}');
-                      return const _EmptyCard(message: '데이터를 불러오는 중 오류가 발생했습니다.');
-                    }
-
-                    // Show existing data while waiting for updates
-                    final List<StoryRoom> rooms = snapshot.data ?? [];
-                    final List<StoryRoom> participatedRooms =
-                        rooms
-                            .where(
-                              (room) =>
-                                  room.creatorUserId != _userId &&
-                                  room.participants.contains(_nickname),
-                            )
-                            .toList();
-
-                    if (participatedRooms.isEmpty) {
-                      return const _EmptyCard(message: '아직 참여한 이야기가 없어요.');
-                    }
-
-                    return _StoryListSection(
-                      rooms: participatedRooms,
-                      onTap: (room) => _navigateToDetail(room),
-                    );
-                  },
-                )
-              else
-                const _EmptyCard(message: '아직 참여한 이야기가 없어요.'),
-            ],
-          ),
-        ),
-      ),
     );
+  }
+
+  Widget _buildMyCreatedRooms() {
+    final List<StoryRoom> myCreatedRooms =
+        _allRooms.where((room) => room.creatorUserId == _userId).toList();
+
+    if (myCreatedRooms.isEmpty) {
+      return const _EmptyCard(message: '아직 내가 만든 이야기가 없어요.');
+    }
+
+    return _StoryListSection(rooms: myCreatedRooms, onTap: (room) => _navigateToDetail(room));
+  }
+
+  Widget _buildMyParticipatedRooms() {
+    final List<StoryRoom> participatedRooms =
+        _allRooms
+            .where((room) => room.creatorUserId != _userId && room.participants.contains(_nickname))
+            .toList();
+
+    if (participatedRooms.isEmpty) {
+      return const _EmptyCard(message: '아직 참여한 이야기가 없어요.');
+    }
+
+    return _StoryListSection(rooms: participatedRooms, onTap: (room) => _navigateToDetail(room));
   }
 
   Future<void> _navigateToDetail(StoryRoom room) async {

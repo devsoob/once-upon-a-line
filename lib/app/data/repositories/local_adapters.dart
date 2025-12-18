@@ -72,6 +72,12 @@ class LocalStoryRoomRepositoryAdapter implements StoryRoomRepository {
   }
 
   @override
+  Future<List<StoryRoom>> getMyRoomsOnce(String userId) async {
+    final List<StoryRoom> rooms = await _local.getPublicRooms();
+    return rooms;
+  }
+
+  @override
   Future<void> joinRoom(String roomId, String nickname) async {
     await _local.joinRoom(roomId, nickname);
     await _emitCurrentRooms();
