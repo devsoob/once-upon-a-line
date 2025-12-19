@@ -18,25 +18,20 @@ class MyStoriesPage extends StatefulWidget {
 
 class _MyStoriesPageState extends State<MyStoriesPage> {
   late final UserSessionService _sessionService;
-  late final TextEditingController _nicknameController;
   List<StoryRoom> _allRooms = [];
   String _nickname = '';
   String _userId = '';
-  bool _isEditingNickname = false;
-  bool _isSavingNickname = false;
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
     _sessionService = GetIt.I<UserSessionService>();
-    _nicknameController = TextEditingController();
     _loadUser();
   }
 
   @override
   void dispose() {
-    _nicknameController.dispose();
     super.dispose();
   }
 
@@ -46,7 +41,6 @@ class _MyStoriesPageState extends State<MyStoriesPage> {
     setState(() {
       _nickname = session?.nickname ?? '게스트';
       _userId = session?.userId ?? '';
-      _nicknameController.text = _nickname;
     });
 
     if (_userId.isNotEmpty) {
@@ -73,62 +67,6 @@ class _MyStoriesPageState extends State<MyStoriesPage> {
       setState(() {
         _isLoading = false;
       });
-    }
-  }
-
-  void _startEditingNickname() {
-    setState(() {
-      _isEditingNickname = true;
-    });
-  }
-
-  void _cancelEditingNickname() {
-    setState(() {
-      _isEditingNickname = false;
-      _nicknameController.text = _nickname;
-    });
-  }
-
-  Future<void> _saveNickname() async {
-    final String trimmed = _nicknameController.text.trim();
-    if (trimmed.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('닉네임을 입력해 주세요.')));
-      return;
-    }
-    if (trimmed.length > 20) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('닉네임은 20자 이내여야 해요.')));
-      return;
-    }
-
-    setState(() {
-      _isSavingNickname = true;
-    });
-
-    try {
-      final UserSession? current = await _sessionService.getCurrentSession();
-      final UserSession updated = (current ??
-              UserSession(
-                userId: _userId,
-                nickname: '',
-                lastWriteAt: DateTime.fromMillisecondsSinceEpoch(0),
-              ))
-          .copyWith(nickname: trimmed, lastWriteAt: DateTime.now());
-      await _sessionService.saveSession(updated);
-      if (!mounted) return;
-      setState(() {
-        _nickname = trimmed;
-        _isEditingNickname = false;
-        _isSavingNickname = false;
-      });
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('닉네임이 저장되었습니다.')));
-    } catch (e) {
-      if (!mounted) return;
-      setState(() {
-        _isSavingNickname = false;
-      });
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('오류가 발생했습니다: $e')));
     }
   }
 
@@ -175,114 +113,14 @@ class _MyStoriesPageState extends State<MyStoriesPage> {
                               ),
                             ),
                             const SizedBox(height: 12),
-                            if (_isEditingNickname)
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: TextField(
-                                      controller: _nicknameController,
-                                      autofocus: true,
-                                      maxLength: 20,
-                                      decoration: InputDecoration(
-                                        hintText: '닉네임을 입력하세요 (최대 20자)',
-                                        counterText: '',
-                                        filled: true,
-                                        fillColor: const Color(0xFFF7F8FA),
-                                        contentPadding: const EdgeInsets.symmetric(
-                                          horizontal: 16,
-                                          vertical: 12,
-                                        ),
-                                        border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(12),
-                                          borderSide: const BorderSide(
-                                            color: Color(0xFFE5EAF0),
-                                            width: 1,
-                                          ),
-                                        ),
-                                        enabledBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(12),
-                                          borderSide: const BorderSide(
-                                            color: Color(0xFFE5EAF0),
-                                            width: 1,
-                                          ),
-                                        ),
-                                        focusedBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(12),
-                                          borderSide: const BorderSide(
-                                            color: AppColors.primary,
-                                            width: 2,
-                                          ),
-                                        ),
-                                      ),
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                        color: AppColors.textPrimary,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  IconButton(
-                                    onPressed: _isSavingNickname ? null : _saveNickname,
-                                    icon:
-                                        _isSavingNickname
-                                            ? const SizedBox(
-                                              width: 20,
-                                              height: 20,
-                                              child: CircularProgressIndicator(strokeWidth: 2),
-                                            )
-                                            : const Icon(
-                                              Icons.check_rounded,
-                                              color: Color(0xFF222222),
-                                            ),
-                                    style: IconButton.styleFrom(
-                                      backgroundColor: const Color(0xFF222222).withAlpha(25),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                    ),
-                                  ),
-                                  IconButton(
-                                    onPressed: _isSavingNickname ? null : _cancelEditingNickname,
-                                    icon: const Icon(Icons.close_rounded, color: Color(0xFF222222)),
-                                    style: IconButton.styleFrom(
-                                      backgroundColor: const Color(0xFF222222).withAlpha(25),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              )
-                            else
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      _nickname,
-                                      style: const TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w700,
-                                        color: AppColors.textPrimary,
-                                      ),
-                                    ),
-                                  ),
-                                  IconButton(
-                                    onPressed: _startEditingNickname,
-                                    icon: const Icon(
-                                      Icons.edit_rounded,
-                                      color: Color(0xFF222222),
-                                      size: 20,
-                                    ),
-                                    style: IconButton.styleFrom(
-                                      backgroundColor: const Color(0xFF222222).withAlpha(25),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                    ),
-                                  ),
-                                ],
+                            Text(
+                              _nickname,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.textPrimary,
                               ),
+                            ),
                           ],
                         ),
                       ),
