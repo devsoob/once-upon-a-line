@@ -3,7 +3,6 @@ import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
 import 'package:once_upon_a_line/app/data/models/story_room.dart';
-import 'package:once_upon_a_line/app/data/models/story_starter.dart';
 import 'package:once_upon_a_line/core/logger.dart';
 
 abstract class StoryRoomRepository {
@@ -14,7 +13,6 @@ abstract class StoryRoomRepository {
     required String description,
     required String creatorNickname,
     required String creatorUserId,
-    StoryStarter? storyStarter,
   });
   Future<void> joinRoom(String roomId, String nickname);
   Future<void> leaveRoom(String roomId, String nickname);
@@ -64,7 +62,6 @@ class FirebaseStoryRoomRepository implements StoryRoomRepository {
     required String description,
     required String creatorNickname,
     required String creatorUserId,
-    StoryStarter? storyStarter,
   }) async {
     final String roomId = _uuid.v4();
     final DateTime now = DateTime.now();
@@ -79,7 +76,6 @@ class FirebaseStoryRoomRepository implements StoryRoomRepository {
       lastUpdatedAt: now,
       participants: <String>[creatorNickname],
       isPublic: true,
-      storyStarter: storyStarter,
     );
     if (kDebugMode) {
       logger.i('[Repo][Room] createRoom start title="$title" by "$creatorNickname"');

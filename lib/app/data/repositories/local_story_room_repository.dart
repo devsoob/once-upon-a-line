@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import 'package:once_upon_a_line/app/data/models/story_room.dart';
-import 'package:once_upon_a_line/app/data/models/story_starter.dart';
 import 'package:once_upon_a_line/app/data/models/story_sentence.dart';
 
 class LocalStoryRoomRepository {
@@ -63,7 +62,6 @@ class LocalStoryRoomRepository {
     required String description,
     required String creatorNickname,
     required String creatorUserId,
-    StoryStarter? storyStarter,
   }) async {
     final String roomId = _uuid.v4();
     final DateTime now = DateTime.now();
@@ -78,7 +76,6 @@ class LocalStoryRoomRepository {
       lastUpdatedAt: now,
       participants: [creatorNickname],
       isPublic: true,
-      storyStarter: storyStarter,
     );
 
     final List<StoryRoom> rooms = await getPublicRooms();

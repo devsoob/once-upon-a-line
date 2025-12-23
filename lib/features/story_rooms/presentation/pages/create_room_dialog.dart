@@ -6,8 +6,6 @@ import 'package:once_upon_a_line/core/widgets/app_toast.dart';
 import 'package:get_it/get_it.dart';
 import '../../../../app/data/repositories/story_room_repository.dart';
 import '../../../../app/data/models/story_room.dart';
-import '../../../../app/data/models/story_starter.dart';
-import '../../../../app/data/services/story_starter_service.dart';
 import 'package:once_upon_a_line/core/logger.dart';
 import 'package:once_upon_a_line/core/constants/timeouts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -27,43 +25,11 @@ class _CreateRoomDialogState extends State<CreateRoomDialog> {
   final TextEditingController _descriptionController = TextEditingController();
   bool _isLoading = false;
 
-  late final StoryStarterService _storyStarterService;
-  StoryStarter? _currentStarter;
-  String _selectedGenre = '전체';
-
-  @override
-  void initState() {
-    super.initState();
-    _storyStarterService = GetIt.I<StoryStarterService>();
-  }
-
   @override
   void dispose() {
     _titleController.dispose();
     _descriptionController.dispose();
     super.dispose();
-  }
-
-  void _generateRandomStarter() {
-    setState(() {
-      if (_selectedGenre == '전체') {
-        _currentStarter = _storyStarterService.getRandomStarter();
-      } else {
-        _currentStarter = _storyStarterService.getRandomStarterByGenre(_selectedGenre);
-      }
-    });
-
-    if (_currentStarter != null) {
-      // 스토리 시작점을 제목과 설명으로 분리
-      final parts = _currentStarter!.content.split('에서');
-      if (parts.length >= 2) {
-        _titleController.text = '${parts[0]}에서';
-        _descriptionController.text = parts[1].trim();
-      } else {
-        _titleController.text = _currentStarter!.content;
-        _descriptionController.text = '';
-      }
-    }
   }
 
   Future<void> _createRoom() async {
@@ -91,7 +57,6 @@ class _CreateRoomDialogState extends State<CreateRoomDialog> {
             description: _descriptionController.text.trim(),
             creatorNickname: widget.creatorNickname,
             creatorUserId: widget.creatorUserId,
-            storyStarter: _currentStarter,
           )
           .timeout(AppTimeouts.createRoom);
 
@@ -269,155 +234,6 @@ class _CreateRoomDialogState extends State<CreateRoomDialog> {
                         ],
                       ),
                       const SizedBox(height: 20),
-                      // Random Story Starter Section
-                      if (_currentStarter != null) ...[
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF8F9FA),
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: const Color(0xFFE5EAF0), width: 1),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFF222222),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Text(
-                                      _currentStarter!.genre,
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  const Expanded(
-                                    child: Text(
-                                      '랜덤 시작점',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
-                                        color: Color(0xFF222222),
-                                      ),
-                                    ),
-                                  ),
-                                  IconButton(
-                                    onPressed: () => setState(() => _currentStarter = null),
-                                    icon: const Icon(Icons.close_rounded, size: 20),
-                                    style: IconButton.styleFrom(
-                                      backgroundColor: Colors.grey.withValues(alpha: 0.1),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                _currentStarter!.content,
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  color: Color(0xFF666666),
-                                  fontWeight: FontWeight.w400,
-                                  height: 1.4,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                      ],
-                      // Genre Selection and Generate Button
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            '장르 선택 (선택사항)',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.textPrimary,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(12),
-                                    border: Border.all(color: const Color(0xFFE5EAF0), width: 1),
-                                  ),
-                                  child: DropdownButtonFormField<String>(
-                                    initialValue: _selectedGenre,
-                                    isExpanded: true,
-                                    borderRadius: BorderRadius.circular(12),
-                                    decoration: const InputDecoration(
-                                      contentPadding: EdgeInsets.symmetric(
-                                        horizontal: 16,
-                                        vertical: 16,
-                                      ),
-                                      border: InputBorder.none,
-                                      hintText: '전체',
-                                    ),
-                                    icon: const Icon(Icons.keyboard_arrow_down_rounded),
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w500,
-                                      color: Color(0xFF222222),
-                                    ),
-                                    items:
-                                        ['전체', ..._storyStarterService.getAvailableGenres()]
-                                            .map(
-                                              (genre) => DropdownMenuItem<String>(
-                                                value: genre,
-                                                child: Text(genre),
-                                              ),
-                                            )
-                                            .toList(),
-                                    onChanged: (value) {
-                                      if (value != null) {
-                                        setState(() {
-                                          _selectedGenre = value;
-                                        });
-                                      }
-                                    },
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              SizedBox(
-                                height: 56, // Match text field height
-                                child: ElevatedButton.icon(
-                                  onPressed: _generateRandomStarter,
-                                  icon: const Icon(Icons.auto_awesome, size: 20),
-                                  label: const Text('랜덤'),
-                                  style: ElevatedButton.styleFrom(
-                                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                                    backgroundColor: const Color(0xFF222222),
-                                    foregroundColor: Colors.white,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    elevation: 0,
-                                    shadowColor: Colors.transparent,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
                       const SizedBox(height: 20),
                       // Description field
                       Column(
