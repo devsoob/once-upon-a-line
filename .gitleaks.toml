@@ -8,16 +8,17 @@ useDefault = true
 [allowlist]
 # These files are allowed to contain secrets-like strings (false positives)
 # but should still generally avoid real secrets.
-files = [
-  "**/.gitignore",
-  "**/*.md",
-  "**/CHANGELOG*",
-  "**/*.iml",
-  "**/*.svg",
-  "**/*.png",
-  "**/*.jpg",
-  "**/*.jpeg",
-  "**/*.gif",
+paths = [
+  "\\.gitignore$",
+  "\\.md$",
+  "CHANGELOG",
+  "\\.iml$",
+  "\\.svg$",
+  "\\.png$",
+  "\\.jpg$",
+  "\\.jpeg$",
+  "\\.gif$",
+  "Podfile\\.lock$",
 ]
 
 # Additional custom rules can be added here if your project has specific tokens
