@@ -68,7 +68,6 @@ void main() async {
       } else {
         logger.i('[Auth] Already signed in: ${auth.currentUser?.uid}');
       }
-      await FirebaseAuth.instance.signInAnonymously().timeout(AppTimeouts.anonymousSignIn);
       logger.i('[Auth] signInAnonymously OK');
 
       // Verify authentication succeeded
