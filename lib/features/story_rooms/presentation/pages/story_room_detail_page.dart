@@ -29,6 +29,7 @@ class _StoryRoomDetailPageState extends State<StoryRoomDetailPage> {
   String _userId = '';
   bool _isLoading = false;
   bool _hasShownStreamError = false;
+  List<StorySentence> _localSentences = [];
 
   final Map<String, Color> _nicknameToColor = <String, Color>{};
   static const List<Color> _authorPalette = <Color>[
@@ -111,13 +112,18 @@ class _StoryRoomDetailPageState extends State<StoryRoomDetailPage> {
     Future<void>(() async {
       try {
         final StorySentenceRepository repo = GetIt.I<StorySentenceRepository>();
-        await repo.addSentence(
+        final StorySentence newSentence = await repo.addSentence(
           roomId: widget.room.id,
           content: text.trim(),
           authorNickname: _nickname,
           authorUserId: _userId,
         );
+
+        // 즉시 로컬 상태 업데이트
         if (mounted) {
+          setState(() {
+            _localSentences = [..._localSentences, newSentence];
+          });
           AppToast.show(context, '문장이 추가되었습니다!');
         }
       } catch (e, st) {
@@ -175,7 +181,17 @@ class _StoryRoomDetailPageState extends State<StoryRoomDetailPage> {
                   child: StreamBuilder<List<StorySentence>>(
                     stream: GetIt.I<StorySentenceRepository>().getSentences(widget.room.id),
                     initialData: const <StorySentence>[],
-                    builder: (context, snapshot) => _buildSentencesList(snapshot),
+                    builder: (context, snapshot) {
+                      // 스트림 데이터가 있으면 로컬 상태를 리셋하고 스트림 데이터 사용
+                      if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+                        _localSentences = snapshot.data!;
+                        return _buildSentencesList(snapshot);
+                      }
+                      // 스트림 데이터가 없으면 로컬 상태 사용
+                      return _buildSentencesList(
+                        AsyncSnapshot.withData(ConnectionState.done, _localSentences),
+                      );
+                    },
                   ),
                 ),
               ),
