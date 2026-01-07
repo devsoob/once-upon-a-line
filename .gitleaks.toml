@@ -21,6 +21,13 @@ paths = [
   "Podfile\\.lock$",
 ]
 
+# Allow Firebase configuration files (they contain public API keys)
+files = [
+  "**/firebase_initializer.dart",
+  "**/google-services.json",
+  "**/GoogleService-Info.plist",
+]
+
 # Additional custom rules can be added here if your project has specific tokens
 # [[rules]]
 # id = "custom-example"
