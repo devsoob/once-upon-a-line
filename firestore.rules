@@ -1,36 +1,9 @@
 rules_version = '2';
 service cloud.firestore {
-  match /databases/{database}/documents} {
+  match /databases/{database}/documents {
     // 임시로 모든 읽기/쓰기 허용 (개발용)
     match /{document=**} {
       allow read, write: if true;
-    }
-  }
-      allow delete: if isSignedIn();
-    }
-
-    // Story sentences collection
-    match /story_sentences/{sentenceId} {
-      // Read allowed if the sentence's room is public
-      allow get, list: if isPublicRoom(resource.data.roomId);
-
-      // Create allowed for anyone
-      allow create: if
-        request.resource.data.keys().hasOnly([
-          'roomId','content','authorNickname','authorUserId',
-          'createdAt','order'
-        ]) &&
-        request.resource.data.roomId is string &&
-        request.resource.data.content is string && request.resource.data.content.size() > 0 &&
-        request.resource.data.authorNickname is string && request.resource.data.authorNickname.size() > 0 &&
-        request.resource.data.createdAt is timestamp &&
-        (request.resource.data.order is int || request.resource.data.order is number);
-
-      // Allow updates for anyone
-      allow update: if true;
-
-      // Allow deletes for anyone
-      allow delete: if true;
     }
   }
 }
